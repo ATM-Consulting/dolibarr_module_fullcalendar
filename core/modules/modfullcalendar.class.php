@@ -87,7 +87,9 @@ class modfullcalendar extends DolibarrModules
 		//							'dir' => array('output' => 'othermodulename'),      // To force the default directories names
 		//							'workflow' => array('WORKFLOW_MODULE1_YOURACTIONTYPE_MODULE2'=>array('enabled'=>'! empty($conf->module1->enabled) && ! empty($conf->module2->enabled)', 'picto'=>'yourpicto@fullcalendar')) // Set here all workflow context managed by module
 		//                        );
-		$this->module_parts = array();
+		$this->module_parts = array(
+			'js'=>array('/fullcalendar/js/fullcalendar.js.php')
+		);
 
 		// Data directories to create when module is enabled.
 		// Example: this->dirs = array("/fullcalendar/temp");
@@ -136,7 +138,10 @@ class modfullcalendar extends DolibarrModules
 		// 'stock'            to add a tab in stock view
 		// 'thirdparty'       to add a tab in third party view
 		// 'user'             to add a tab in user view
-        $this->tabs = array();
+        $this->tabs = array(
+			'agenda:-cardweek'
+			,'agenda:-cardday'
+		);
 
         // Dictionaries
 	    if (! isset($conf->fullcalendar->enabled))
