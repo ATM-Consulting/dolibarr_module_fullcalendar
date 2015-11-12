@@ -61,7 +61,7 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 			,eventLimit : <?php echo !empty($conf->global->AGENDA_MAX_EVENTS_DAY_VIEW) ? $conf->global->AGENDA_MAX_EVENTS_DAY_VIEW : 3; ?>
 			,dayRender:function(date, cell) {
 
-				if(date.format('D') == moment().format('D')) {
+				if(date.format('YYYYMMDD') == moment().format('YYYYMMDD')) {
 					cell.css('background-color', '#ddddff');
 				}
 				else if(date.format('E') >=6) {

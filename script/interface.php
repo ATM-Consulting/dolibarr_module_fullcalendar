@@ -22,7 +22,7 @@
 			$month = GETPOST('month');
 			$day = GETPOST('day');			
 
-	
+	/*
 			if(!empty($year)) {
 				
 				if(!empty($day)) {
@@ -35,7 +35,7 @@
 				}
 				
 			}
-				
+	*/			
 			$TEvent = _events($start, $end);
 			__out($TEvent, 'json');
 				
