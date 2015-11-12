@@ -11,8 +11,23 @@
 	
 	switch ($get) {
 		case 'events':
+			$start = GETPOST('start');
+			$end = GETPOST('end');	
 				
-			$TEvent = _events(GETPOST('start'),GETPOST('end'));
+			if(!empty(GETPOST('year'))) {
+				
+				if(!empty(GETPOST('day'))) {
+					$start = GETPOST('year').'-'.GETPOST('month').'-'.GETPOST('day');
+					$end = GETPOST('year').'-'.GETPOST('month').'-'.GETPOST('day');
+				}
+				else{
+					$start = GETPOST('year').'-'.GETPOST('month').'-01';
+					$end = GETPOST('year').'-'.GETPOST('month').'-31';
+				}
+				
+			}
+				
+			$TEvent = _events($start, $end);
 			__out($TEvent, 'json');
 				
 					
@@ -24,7 +39,7 @@
 	
 	
 	switch($put){
-		case 'event':
+		case 'event-move':
 			
 			$a=new ActionComm($db);
 			if($a->fetch(GETPOST('id'))>0) {
@@ -61,14 +76,17 @@
 				$TData = $_REQUEST['data'];
 				
 				if(!empty($TData['minutes'])) {
+					if(empty($a->datef))$a->datef = $a->datep;
 					$a->datef = strtotime($TData['minutes'].' minute', $a->datef);
 				}
 				
 				if(!empty($TData['hours'])) {
+					if(empty($a->datef))$a->datef = $a->datep;
 					$a->datef = strtotime($TData['hours'].' hour', $a->datef);
 				}
 				
 				if(!empty($TData['days'])) {
+					if(empty($a->datef))$a->datef = $a->datep;
 					$a->datef = strtotime($TData['days'].' day', $a->datef);
 				}
 				
@@ -81,12 +99,32 @@
 			
 			break;
 		
+		case 'event':
+			$a=new ActionComm($db);
+			$a->label = GETPOST('label');
+			$a->note= GETPOST('note');
+			
+			$a->datep = strtotime(GETPOST('date'));
+			
+			$a->userownerid = $user->id;
+			$a->type_code = 'AC_OTH';
+			
+			print $a->add($user);
+			
+			break;
 	}
 	
 	
 function _events($date_start, $date_end) {
 	global $db,$conf,$langs,$user;
 	
+	
+	$pid=GETPOST("projectid","int",3);
+	$status=GETPOST("status");
+	$type=GETPOST("type");
+	$maxprint=(isset($_GET["maxprint"])?GETPOST("maxprint"):$conf->global->AGENDA_MAX_EVENTS_DAY_VIEW);
+	$actioncode=GETPOST("actioncode","alpha",3)?GETPOST("actioncode","alpha",3):(GETPOST("actioncode")=='0'?'0':'');
+		
 	$t_start = strtotime($date_start);
 	$t_end = strtotime($date_end);
 	
@@ -100,9 +138,11 @@ function _events($date_start, $date_end) {
 	$sql.= ' a.percent,';
 	$sql.= ' a.fk_user_author,a.fk_user_action,';
 	$sql.= ' a.transparency, a.priority, a.fulldayevent, a.location,';
-	$sql.= ' a.fk_soc, a.fk_contact,';
+	$sql.= ' a.fk_soc, a.fk_contact,u.color,';
 	$sql.= ' ca.code as type_code, ca.libelle as type_label';
 	$sql.= ' FROM '.MAIN_DB_PREFIX.'c_actioncomm as ca, '.MAIN_DB_PREFIX."actioncomm as a";
+	$sql.=' LEFT JOIN '.MAIN_DB_PREFIX.'user u ON (a.fk_user_action=u.rowid )';
+	
 	if (! $user->rights->societe->client->voir && ! $socid) $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."societe_commerciaux as sc ON a.fk_soc = sc.fk_soc";
 	// We must filter on assignement table
 	if ($filtert > 0 || $usergroup > 0) $sql.=", ".MAIN_DB_PREFIX."actioncomm_resources as ar";
@@ -147,6 +187,7 @@ function _events($date_start, $date_end) {
 	$TEvent=array();
 	
 	$res= $db->query($sql);
+	//var_dump($db);
 	while($obj=$db->fetch_object($res)) {
 		
 		$TEvent[]=array(
@@ -157,7 +198,7 @@ function _events($date_start, $date_end) {
 			,'end'=>$obj->datep2
 			,'url'=>dol_buildpath('/comm/action/card.php?id='.$obj->id,1)
 			,'editable'=>true
-			
+			,'color'=>($obj->color ? '#'.$obj->color : '') 
 		);
 		
 	}
