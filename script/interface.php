@@ -2,6 +2,11 @@
 
 	require '../config.php';
 	dol_include_once('/comm/action/class/actioncomm.class.php');
+	dol_include_once('/contact/class/contact.class.php');
+
+	$langs->load("agenda");
+	$langs->load("other");
+	$langs->load("commercial");
 	
 	$get=GETPOST('get');
 	$put=GETPOST('put');
@@ -13,16 +18,20 @@
 		case 'events':
 			$start = GETPOST('start');
 			$end = GETPOST('end');	
+			$year = GETPOST('year');
+			$month = GETPOST('month');
+			$day = GETPOST('day');			
+
+	
+			if(!empty($year)) {
 				
-			if(!empty(GETPOST('year'))) {
-				
-				if(!empty(GETPOST('day'))) {
-					$start = GETPOST('year').'-'.GETPOST('month').'-'.GETPOST('day');
-					$end = GETPOST('year').'-'.GETPOST('month').'-'.GETPOST('day');
+				if(!empty($day)) {
+					$start = $year.'-'.$month.'-'.$day;
+					$end = $year.'-'.$month.'-'.$day;
 				}
 				else{
-					$start = GETPOST('year').'-'.GETPOST('month').'-01';
-					$end = GETPOST('year').'-'.GETPOST('month').'-31';
+					$start = $year.'-'.$month.'-01';
+					$end = $year.'-'.$month.'-31';
 				}
 				
 			}
@@ -125,6 +134,17 @@ function _events($date_start, $date_end) {
 	$maxprint=(isset($_GET["maxprint"])?GETPOST("maxprint"):$conf->global->AGENDA_MAX_EVENTS_DAY_VIEW);
 	$actioncode=GETPOST("actioncode","alpha",3)?GETPOST("actioncode","alpha",3):(GETPOST("actioncode")=='0'?'0':'');
 		
+	$filter=GETPOST("filter",'',3);
+	$filtert = GETPOST("usertodo","int",3)?GETPOST("usertodo","int",3):GETPOST("filtert","int",3);
+	$usergroup = GETPOST("usergroup","int",3);
+	$showbirthday = empty($conf->use_javascript_ajax)?GETPOST("showbirthday","int"):1;
+
+	if (empty($filtert) && empty($conf->global->AGENDA_ALL_CALENDARS))
+	{
+		$filtert=$user->id;
+	}
+	$socid = GETPOST("socid","int");
+
 	$t_start = strtotime($date_start);
 	$t_end = strtotime($date_end);
 	
@@ -138,7 +158,7 @@ function _events($date_start, $date_end) {
 	$sql.= ' a.percent,';
 	$sql.= ' a.fk_user_author,a.fk_user_action,';
 	$sql.= ' a.transparency, a.priority, a.fulldayevent, a.location,';
-	$sql.= ' a.fk_soc, a.fk_contact,u.color,';
+	$sql.= ' a.fk_soc, a.fk_contact,u.color,a.note,';
 	$sql.= ' ca.code as type_code, ca.libelle as type_label';
 	$sql.= ' FROM '.MAIN_DB_PREFIX.'c_actioncomm as ca, '.MAIN_DB_PREFIX."actioncomm as a";
 	$sql.=' LEFT JOIN '.MAIN_DB_PREFIX.'user u ON (a.fk_user_action=u.rowid )';
@@ -188,17 +208,42 @@ function _events($date_start, $date_end) {
 	
 	$res= $db->query($sql);
 	//var_dump($db);
+
+	$TSociete = array();
+	$TContact = array();
+
 	while($obj=$db->fetch_object($res)) {
 		
+		if($obj->fk_soc>0 && !isset($TSociete[$obj->fk_soc])) {
+			$societe = new Societe($db);
+			$societe->fetch($obj->fk_soc);
+			$TSociete[$obj->fk_soc]  = $societe->getNomUrl(1);
+
+		}
+		if($obj->fk_contact && !isset($TContact[$obj->fk_contact])) {
+                        $contact = new Contact($db);
+                        $contact->fetch($obj->fk_contact);
+                        $TContact[$obj->fk_contact]  = $contact->getNomUrl(1);
+
+                }
+		
+		$event = new ActionComm($db);
+		$event->fetch($obj->id);
+
 		$TEvent[]=array(
-			'id'=>$obj->id
-			,'title'=>$obj->label		
+			'id'=>$event->id
+			,'title'=>$event->label
 			,'allDay'=>(bool)($obj->fulldayevent)
 			,'start'=>$obj->datep
 			,'end'=>$obj->datep2
 			,'url'=>dol_buildpath('/comm/action/card.php?id='.$obj->id,1)
 			,'editable'=>true
 			,'color'=>($obj->color ? '#'.$obj->color : '') 
+			,'note'=>$event->getLibStatut(3).' '.$obj->note
+			,'fk_soc'=>$obj->fk_soc
+			,'fk_contact'=>$obj->fk_contact
+			,'societe'=>(!empty($TSociete[$obj->fk_soc]) ? $TSociete[$obj->fk_soc] : '')
+			,'contact'=>(!empty($TContact[$obj->fk_contact]) ? $TContact[$obj->fk_contact] : '')
 		);
 		
 	}

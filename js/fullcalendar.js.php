@@ -56,8 +56,20 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 		        ,weekNumbers:true
 		        ,defaultView:'<?php echo $defaultView ?>'
 		        ,events : '<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'+'?'+$('form[name=listactionsfilter]').serialize() 
+			,eventRender:function( event, element, view ) {
+				element.tipTip({
+					maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50  
+					,content : '<strong>'+event.title+'</strong><br />'+ event.note
+				});
+
+				if(event.fk_soc>0) element.append('<div>'+event.societe+'</div>');
+				if(event.fk_contact>0) element.append('<div>'+event.contact+'</div>');
+
+				element.find(".classfortooltip").tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50});
+
+			 }
 		        ,eventDrop:function( event, delta, revertFunc, jsEvent, ui, view ) { 
-		        	console.log(delta);	
+		        	console.log(delta);	
 		        	
 		        	$.ajax({
 		        		url:'<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'
