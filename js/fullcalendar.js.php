@@ -29,7 +29,8 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 		
 		$('head').append('<link rel="stylesheet" href="<?php echo dol_buildpath('/fullcalendar/lib/fullcalendar/dist/fullcalendar.min.css',1) ?>" type="text/css" />');
 			$('table.cal_month').hide();	
-			
+			$('table.cal_month').prev('table').find('td.titre_right').remove();
+
 			$('table.cal_month').after('<div id="fullcalendar"></div>');
 			
 			$('#fullcalendar').fullCalendar({
@@ -54,16 +55,38 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 		        
 		        ,lang: 'fr'
 		        ,weekNumbers:true
+			,height: "auto"
 		        ,defaultView:'<?php echo $defaultView ?>'
 		        ,events : '<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'+'?'+$('form[name=listactionsfilter]').serialize() 
+			,eventLimit : <?php echo !empty($conf->global->AGENDA_MAX_EVENTS_DAY_VIEW) ? $conf->global->AGENDA_MAX_EVENTS_DAY_VIEW : 3; ?>
+			,dayRender:function(date, cell) {
+
+				if(date.format('D') == moment().format('D')) {
+					cell.css('background-color', '#ddddff');
+				}
+				else if(date.format('E') >=6) {
+					cell.css('background-color', '#999');
+				}
+				else {
+					cell.css('background-color', '#fff');
+				}
+			}
 			,eventRender:function( event, element, view ) {
+				
+				var note = event.note;
+				if(event.fk_soc>0){
+					 element.append('<div>'+event.societe+'</div>');
+					 note = '<div>'+event.societe+'</div>'+note;
+				}
+				if(event.fk_contact>0){
+					 element.append('<div>'+event.contact+'</div>');
+					 note = '<div>'+event.contact+'</div>'+note;
+
+				}
 				element.tipTip({
 					maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50  
-					,content : '<strong>'+event.title+'</strong><br />'+ event.note
+					,content : '<strong>'+event.title+'</strong><br />'+ note
 				});
-
-				if(event.fk_soc>0) element.append('<div>'+event.societe+'</div>');
-				if(event.fk_contact>0) element.append('<div>'+event.contact+'</div>');
 
 				element.find(".classfortooltip").tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50});
 
