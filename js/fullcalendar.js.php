@@ -66,46 +66,69 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 		        
 		        ,lang: 'fr'
 		        ,weekNumbers:true
-			,height: "auto"
+				,height: "auto"
 		        ,defaultView:'<?php echo $defaultView ?>'
 		        ,events : '<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'+'?'+$('form[name=listactionsfilter]').serialize() 
-			,eventLimit : <?php echo !empty($conf->global->AGENDA_MAX_EVENTS_DAY_VIEW) ? $conf->global->AGENDA_MAX_EVENTS_DAY_VIEW : 3; ?>
-			,dayRender:function(date, cell) {
+				,eventLimit : <?php echo !empty($conf->global->AGENDA_MAX_EVENTS_DAY_VIEW) ? $conf->global->AGENDA_MAX_EVENTS_DAY_VIEW : 3; ?>
+				,dayRender:function(date, cell) {
 
-				if(date.format('YYYYMMDD') == moment().format('YYYYMMDD')) {
-					cell.css('background-color', '#ddddff');
+					if(date.format('YYYYMMDD') == moment().format('YYYYMMDD')) {
+						cell.css('background-color', '#ddddff');
+					}
+					else if(date.format('E') >=6) {
+						cell.css('background-color', '#999');
+					}
+					else {
+						cell.css('background-color', '#fff');
+					}
 				}
-				else if(date.format('E') >=6) {
-					cell.css('background-color', '#999');
-				}
-				else {
-					cell.css('background-color', '#fff');
-				}
-			}
-			,eventRender:function( event, element, view ) {
-				
-				var note = event.note;
-				if(event.fk_soc>0){
-					 element.append('<div>'+event.societe+'</div>');
-					 note = '<div>'+event.societe+'</div>'+note;
-				}
-				if(event.fk_contact>0){
-					 element.append('<div>'+event.contact+'</div>');
-					 note = '<div>'+event.contact+'</div>'+note;
-
-				}
-				if(event.more)  {
-					 element.append('<div>'+event.more+'</div>');
-				}
-				
-				element.tipTip({
-					maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50  
-					,content : '<strong>'+event.title+'</strong><br />'+ note
-				});
-
-				element.find(".classfortooltip").tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50});
-
-			 }
+				,eventRender:function( event, element, view ) {
+					
+					var note = event.note;
+					if(event.fk_soc>0){
+						 element.append('<div>'+event.societe+'</div>');
+						 note += '<div>'+event.societe+'</div>';
+					}
+					if(event.fk_contact>0){
+						 element.append('<div>'+event.contact+'</div>');
+						 note += '<div>'+event.contact+'</div>';
+					}
+					<?php
+					if(!empty($conf->global->FULLCALENDAR_SHOW_AFFECTED_USER)) {
+						
+						?>
+						if(event.fk_user>0){
+							 element.append('<div>'+event.user+'</div>');
+							 note += '<div>'+event.user+'</div>';
+						}
+						<?php
+						
+					}
+					
+					if(!empty($conf->global->FULLCALENDAR_SHOW_PROJECT)) {
+						
+						?>
+						if(event.fk_project>0){
+							 element.append('<div>'+event.project+'</div>');
+							 note = '<div>'+event.project+'</div>'+note;
+						}
+						<?php
+						
+					}
+					
+					?>
+					if(event.more)  {
+						 element.append('<div>'+event.more+'</div>');
+					}
+					
+					element.tipTip({
+						maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50  
+						,content : '<strong>'+event.title+'</strong><br />'+ note
+					});
+	
+					element.find(".classfortooltip").tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50});
+	
+				 }
 		        ,eventDrop:function( event, delta, revertFunc, jsEvent, ui, view ) { 
 		        	console.log(delta);	
 		        	

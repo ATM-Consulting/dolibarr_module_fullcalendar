@@ -108,17 +108,29 @@ print '<td align="center" width="100">'.$langs->trans("Value").'</td>'."\n";
 // Example with a yes / no select
 $var=!$var;
 print '<tr '.$bc[$var].'>';
-print '<td>'.$langs->trans("ParamLabel").'</td>';
+print '<td>'.$langs->trans("FULLCALENDAR_SHOW_AFFECTED_USER").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-print '<input type="hidden" name="action" value="set_CONSTNAME">';
-print $form->selectyesno("CONSTNAME",$conf->global->CONSTNAME,1);
+print '<input type="hidden" name="action" value="set_FULLCALENDAR_SHOW_AFFECTED_USER">';
+print $form->selectyesno("FULLCALENDAR_SHOW_AFFECTED_USER",$conf->global->FULLCALENDAR_SHOW_AFFECTED_USER,1);
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';
+$var=!$var;
 
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("FULLCALENDAR_SHOW_AFFECTED_USER").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="action" value="set_FULLCALENDAR_SHOW_PROJECT">';
+print $form->selectyesno("FULLCALENDAR_SHOW_PROJECT",$conf->global->FULLCALENDAR_SHOW_PROJECT,1);
+print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+print '</form>';
+print '</td></tr>';
 print '</table>';
 
 llxFooter();

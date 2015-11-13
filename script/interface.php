@@ -3,6 +3,7 @@
 	require '../config.php';
 	dol_include_once('/comm/action/class/actioncomm.class.php');
 	dol_include_once('/contact/class/contact.class.php');
+	dol_include_once('/projet/class/project.class.php');
 
 	$langs->load("agenda");
 	$langs->load("other");
@@ -214,46 +215,71 @@ function _events($date_start, $date_end) {
 
 	$TSociete = array();
 	$TContact = array();
+	$TUser = array();
+	$TProject = array();
 
 	while($obj=$db->fetch_object($res)) {
-		
-		if($obj->fk_soc>0 && !isset($TSociete[$obj->fk_soc])) {
-			$societe = new Societe($db);
-			$societe->fetch($obj->fk_soc);
-			$TSociete[$obj->fk_soc]  = $societe->getNomUrl(1);
-
-		}
-		if($obj->fk_contact && !isset($TContact[$obj->fk_contact])) {
-                        $contact = new Contact($db);
-                        $contact->fetch($obj->fk_contact);
-                        $TContact[$obj->fk_contact]  = $contact->getNomUrl(1);
-
-                }
-		
 		$event = new ActionComm($db);
 		$event->fetch($obj->id);
+		
+		if($event->socid>0 && !isset($TSociete[$event->socid])) {
+			$societe = new Societe($db);
+			$societe->fetch($event->socid);
+			$TSociete[$event->socid]  = $societe->getNomUrl(1);
+
+		}
+		if($event->contactid>0 && !isset($TContact[$event->contactid])) {
+            $contact = new Contact($db);
+            $contact->fetch($event->contactid);
+            $TContact[$event->contactid]  = $contact->getNomUrl(1);
+
+        }
+		
+		if(!empty($conf->global->FULLCALENDAR_SHOW_AFFECTED_USER) && $event->userownerid>0 && !isset($TUser[$event->userownerid])) {
+            $u = new User($db);
+            $u->fetch($event->userownerid);
+            $TUser[$event->userownerid]  = $u->getNomUrl(1);
+
+        }
+		
+		if(!empty($conf->global->FULLCALENDAR_SHOW_PROJECT) && $event->fk_project>0 && !isset($TProject[$event->fk_project])) {
+            $p = new Project($db);
+            $p->fetch($event->fk_project);
+            $TProject[$event->fk_project]  = $p->getNomUrl(1);
+
+        }
+		
+		
+		
+
+		$editable = true;
 
 		$TEvent[]=array(
 			'id'=>$event->id
 			,'title'=>$event->label
 			,'allDay'=>(bool)($obj->fulldayevent)
-			,'start'=>$obj->datep
-			,'end'=>$obj->datep2
+			,'start'=>(empty($event->datep) ? '' : date('Y-m-d H:i:s',(int)$event->datep))
+			,'end'=>(empty($event->datef) ? '' : date('Y-m-d H:i:s',(int)$event->datef))
 			,'url'=>dol_buildpath('/comm/action/card.php?id='.$obj->id,1)
-			,'editable'=>true
+			,'editable'=>$editable
 			,'color'=>($obj->color ? '#'.$obj->color : '') 
 			,'note'=>$event->getLibStatut(3).' '.$obj->note
-			,'fk_soc'=>$obj->fk_soc
-			,'fk_contact'=>$obj->fk_contact
-			,'societe'=>(!empty($TSociete[$obj->fk_soc]) ? $TSociete[$obj->fk_soc] : '')
-			,'contact'=>(!empty($TContact[$obj->fk_contact]) ? $TContact[$obj->fk_contact] : '')
+			,'fk_soc'=>$event->socid
+			,'fk_contact'=>$event->contactid
+			,'fk_user'=>$event->userownerid
+			,'fk_project'=>$event->fk_project
+			,'societe'=>(!empty($TSociete[$event->socid]) ? $TSociete[$event->socid] : '')
+			,'contact'=>(!empty($TContact[$event->contactid]) ? $TContact[$event->contactid] : '')
+			,'user'=>(!empty($TUser[$event->userownerid]) ? $TUser[$event->userownerid] : '')
+			,'project'=>(!empty($TProject[$event->fk_project]) ? $TProject[$event->fk_project] : '')
+			,'more'=>''
 		);
 		
 	}
 	//TODO getCalendarEvents compatbile standard
 	// Complete $eventarray with events coming from external module
-	$parameters=array(); $object=null;
-	$reshook=$hookmanager->executeHooks('getFullcalendarEvents',$parameters,$object,$action);
+	$parameters=array('sql'=>$sql); $action = 'getEvents';
+	$reshook=$hookmanager->executeHooks('updateFullcalendarEvents',$parameters,$TEvent,$action);
 	if (! empty($hookmanager->resArray['eventarray'])) $TEvent=array_merge($TEvent, $hookmanager->resArray['eventarray']);
 	
 	return $TEvent;
