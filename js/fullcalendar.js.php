@@ -17,7 +17,7 @@
 	
 	
 	$defaultView='month';
-	
+	$defaultDay = date('d');
 ?>
 if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 	
@@ -25,7 +25,7 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 	$(document).ready(function() {
 		var year = $('form[name=listactionsfilter]').find('input[name=year]').val();
 		var month = $('form[name=listactionsfilter]').find('input[name=month]').val();
-		var defaultDate = year+'-'+month+'-01';
+		var defaultDate = year+'-'+month+'-<?php echo $defaultDay ?>';
 		
 		$('head').append('<link rel="stylesheet" href="<?php echo dol_buildpath('/fullcalendar/lib/fullcalendar/dist/fullcalendar.min.css',1) ?>" type="text/css" />');
 			$('table.cal_month').hide();	
