@@ -21,7 +21,11 @@
 	$select_type_action = ob_get_clean();
 	
 	$form=new Form($db);
-	$select_company = $form->select_thirdparty('','fk_soc');
+	$select_company = $form->select_thirdparty('','fk_soc','',1,1,0);
+	$select_user = $form->select_dolusers($user->id, 'fk_user');
+	ob_start();
+	$form->select_contacts(-1, -1, 'contactid', 1, '', '', 0, 'minwidth200'); // contactid car nom non pris en compte par l'ajax en vers.<3.9
+	$select_contact = ob_get_clean();
 	
 	$defaultView='month';
 	$defaultDay = date('d');
@@ -136,7 +140,21 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 		        	$div.append("<?php echo strtr(addslashes($select_type_action),array("\n"=>"\\\n")); ?>");
 		        	$div.append('<br /><input type="text" name="label" value="" placeholder="<?php echo $langs->trans('Title') ?>" style="width:300px">');
 		        	$div.append('<br /><textarea name="note" value="" placeholder="<?php echo $langs->trans('Note') ?>"  style="width:300px" rows="3"></textarea>');
-		        	$div.append("<br /><?php echo strtr(addslashes($select_company),array("\n"=>"\\\n")); ?>");
+		        	$div.append("<br /><?php echo $langs->trans('Company').' : '.strtr(addslashes($select_company),array("\n"=>"\\\n")); ?>");
+		        	$div.append("<br /><?php echo $langs->trans('Contact').' : '.strtr(addslashes('<span rel="contact">'.$select_contact.'</span>'),array("\n"=>"\\\n")); ?>");
+		        	$div.append("<br /><?php echo $langs->trans('User').' : '.strtr(addslashes($select_user),array("\n"=>" ","\r"=>"")); ?>");
+		        	
+		        	$div.find('select[name=fk_soc]').change(function() {
+		        		var fk_soc = $(this).val();
+		        		
+		        		$.ajax({
+		        			url: "<?php echo dol_buildpath('/core/ajax/contacts.php?action=getContacts&htmlname=contactid',1) ?>&id="+fk_soc
+		        			,dataType:'json'
+		        		}).done(function(data) {
+		        			$('#pop-new-event span[rel=contact]').html(data.value);
+		        		});
+		        		
+		        	});
 		        	
 		        	$('body').append($div);
 		        		
@@ -155,6 +173,8 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 												,note:$('#pop-new-event input[name=note]').val()
 												,date:date.format()
 												,fk_soc:$('#pop-new-event select[name=fk_soc]').val()
+												,fk_contact:$('#pop-new-event select[name=contactid]').val()
+												,fk_user:$('#pop-new-event select[name=fk_user]').val()
 												,type_code:$('#pop-new-event select[name=type_code]').val()
 							        		}
 										}).done(function() {

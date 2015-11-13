@@ -115,9 +115,10 @@
 			
 			$a->datep = strtotime(GETPOST('date'));
 			
-			$a->userownerid = $user->id;
+			$a->userownerid = GETPOST('fk_user') ? GETPOST('fk_user') : $user->id;
 			$a->type_code = GETPOST('type_code') ? GETPOST('type_code') : 'AC_OTH';
 			$a->socid = GETPOST('fk_soc');
+			$a->contactid = GETPOST('fk_contact');
 			
 			print $a->add($user);
 			
