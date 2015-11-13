@@ -1,7 +1,7 @@
 <?php
 
 	require '../config.php';
-	
+	dol_include_once('/core/class/html.formactions.class.php');
 	//var_dump($user->array_options);
 	
 	list($langjs,$dummy) =explode('_', $langs->defaultlang);
@@ -15,6 +15,13 @@
 		
 	}
 	
+	ob_start();
+	$formactions=new FormActions($db);
+	$formactions->select_type_actions(-1, "type_code","systemauto");
+	$select_type_action = ob_get_clean();
+	
+	$form=new Form($db);
+	$select_company = $form->select_thirdparty('','fk_soc');
 	
 	$defaultView='month';
 	$defaultDay = date('d');
@@ -83,6 +90,10 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 					 note = '<div>'+event.contact+'</div>'+note;
 
 				}
+				if(event.more)  {
+					 element.append('<div>'+event.more+'</div>');
+				}
+				
 				element.tipTip({
 					maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50  
 					,content : '<strong>'+event.title+'</strong><br />'+ note
@@ -122,8 +133,10 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 		        	$('#pop-new-event').remove();
 		        	
 		        	$div = $('<div id="pop-new-event"></div>');
-		        	$div.append('<input type="text" name="label" value="" placeholder="<?php echo $langs->trans('Title') ?>" style="width:300px">');
+		        	$div.append("<?php echo strtr(addslashes($select_type_action),array("\n"=>"\\\n")); ?>");
+		        	$div.append('<br /><input type="text" name="label" value="" placeholder="<?php echo $langs->trans('Title') ?>" style="width:300px">');
 		        	$div.append('<br /><textarea name="note" value="" placeholder="<?php echo $langs->trans('Note') ?>"  style="width:300px" rows="3"></textarea>');
+		        	$div.append("<br /><?php echo strtr(addslashes($select_company),array("\n"=>"\\\n")); ?>");
 		        	
 		        	$('body').append($div);
 		        		
@@ -141,6 +154,8 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 												,label:$('#pop-new-event input[name=label]').val()
 												,note:$('#pop-new-event input[name=note]').val()
 												,date:date.format()
+												,fk_soc:$('#pop-new-event select[name=fk_soc]').val()
+												,type_code:$('#pop-new-event select[name=type_code]').val()
 							        		}
 										}).done(function() {
 											$('#fullcalendar').fullCalendar( 'refetchEvents' );

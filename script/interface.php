@@ -116,7 +116,8 @@
 			$a->datep = strtotime(GETPOST('date'));
 			
 			$a->userownerid = $user->id;
-			$a->type_code = 'AC_OTH';
+			$a->type_code = GETPOST('type_code') ? GETPOST('type_code') : 'AC_OTH';
+			$a->socid = GETPOST('fk_soc');
 			
 			print $a->add($user);
 			
@@ -125,8 +126,9 @@
 	
 	
 function _events($date_start, $date_end) {
-	global $db,$conf,$langs,$user;
+	global $db,$conf,$langs,$user,$hookmanager;
 	
+	$hookmanager->initHooks(array('agenda'));
 	
 	$pid=GETPOST("projectid","int",3);
 	$status=GETPOST("status");
@@ -247,8 +249,11 @@ function _events($date_start, $date_end) {
 		);
 		
 	}
-	
-	
+	//TODO getCalendarEvents compatbile standard
+	// Complete $eventarray with events coming from external module
+	$parameters=array(); $object=null;
+	$reshook=$hookmanager->executeHooks('getFullcalendarEvents',$parameters,$object,$action);
+	if (! empty($hookmanager->resArray['eventarray'])) $TEvent=array_merge($TEvent, $hookmanager->resArray['eventarray']);
 	
 	return $TEvent;
 	
