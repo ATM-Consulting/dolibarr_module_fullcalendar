@@ -2,7 +2,7 @@
 
 	require '../config.php';
 	dol_include_once('/core/class/html.formactions.class.php');
-	//var_dump($user->array_options);
+	dol_include_once('/core/class/html.formprojet.class.php');
 	
 	list($langjs,$dummy) =explode('_', $langs->defaultlang);
 	
@@ -23,12 +23,29 @@
 	$form=new Form($db);
 	$select_company = $form->select_thirdparty('','fk_soc','',1,1,0);
 	$select_user = $form->select_dolusers($user->id, 'fk_user');
+	
 	ob_start();
 	$form->select_contacts(-1, -1, 'contactid', 1, '', '', 0, 'minwidth200'); // contactid car nom non pris en compte par l'ajax en vers.<3.9
 	$select_contact = ob_get_clean();
 	
-	$defaultView='month';
+	ob_start();
+	$formProject = new FormProjets($db);
+	$select_project = $formProject->select_projects_list(-1, -1, 'fk_project',0,0,1);
+	$select_project .= ob_get_clean();
+	
 	$defaultDay = date('d');
+	
+	if(!empty($conf->global->MAIN_DEFAULT_WORKING_HOURS)) {
+		list($hourStart, $hourEnd) = explode('-', $conf->global->MAIN_DEFAULT_WORKING_HOURS);
+	}
+	if(empty($hourStart)) $hourStart = 8;
+	if(empty($hourEnd)) $hourEnd = 18;
+	
+	$moreOptions = '';
+	$parameters=array(); $action = 'addEvent'; $object = null;
+	$reshook=$hookmanager->executeHooks('addOptionCalendarEvents',$parameters,$object,$action);
+	if (! empty($hookmanager->resPrint)) $moreOptions = $hookmanager->resPrint;
+	
 ?>
 if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 	
@@ -36,7 +53,11 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 	$(document).ready(function() {
 		var year = $('form[name=listactionsfilter]').find('input[name=year]').val();
 		var month = $('form[name=listactionsfilter]').find('input[name=month]').val();
-		var defaultDate = year+'-'+month+'-<?php echo $defaultDay ?>';
+		var defaultDate = year+'-'+month+'-<?php echo $defaultDay/*.' '.$hourStart.':00'*/ ?>';
+	
+		var defaultView='month';
+		if($('form.listactionsfilter input[name=action]').val() == 'show_week') defaultView = 'agendaWeek';
+		if($('form.listactionsfilter input[name=action]').val() == 'show_day') defaultView = 'agendaDay';
 		
 		$('head').append('<link rel="stylesheet" href="<?php echo dol_buildpath('/fullcalendar/lib/fullcalendar/dist/fullcalendar.min.css',1) ?>" type="text/css" />');
 			$('table.cal_month').hide();	
@@ -51,7 +72,14 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 				    right:  'prev,next today'
 		        }
 		        ,defaultDate:defaultDate
+		        ,businessHours: {
+		        	start:'<?php echo $hourStart.':00'; ?>'
+		        	,end:'<?php echo $hourEnd.':00'; ?>'
+		        	,dow:[1,2,3,4,5]
+		        }
 		        <?php
+		        
+		        
 			   /* if(!empty($user->array_options['options_googlecalendarapi'])) {
 			    	?>
 			    	,googleCalendarApiKey: '<?php echo $user->array_options['options_googlecalendarapi']; ?>'
@@ -67,7 +95,7 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 		        ,lang: 'fr'
 		        ,weekNumbers:true
 				,height: "auto"
-		        ,defaultView:'<?php echo $defaultView ?>'
+		        ,defaultView:defaultView
 		        ,events : '<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'+'?'+$('form[name=listactionsfilter]').serialize() 
 				,eventLimit : <?php echo !empty($conf->global->AGENDA_MAX_EVENTS_DAY_VIEW) ? $conf->global->AGENDA_MAX_EVENTS_DAY_VIEW : 3; ?>
 				,dayRender:function(date, cell) {
@@ -113,7 +141,6 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 							 note = '<div>'+event.project+'</div>'+note;
 						}
 						<?php
-						
 					}
 					
 					?>
@@ -166,6 +193,26 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 		        	$div.append("<br /><?php echo $langs->trans('Company').' : '.strtr(addslashes($select_company),array("\n"=>"\\\n")); ?>");
 		        	$div.append("<br /><?php echo $langs->trans('Contact').' : '.strtr(addslashes('<span rel="contact">'.$select_contact.'</span>'),array("\n"=>"\\\n")); ?>");
 		        	$div.append("<br /><?php echo $langs->trans('User').' : '.strtr(addslashes($select_user),array("\n"=>" ","\r"=>"")); ?>");
+		        	<?php 
+		        	
+		        	if(!empty($conf->global->FULLCALENDAR_SHOW_PROJECT)) {
+						
+						?>
+						$div.append("<br /><?php echo $langs->trans('Project').' : '.strtr(addslashes($select_project),array("\n"=>" ","\r"=>"")); ?>");
+		        		<?php
+					}
+					
+		        	
+		        	
+		        	if(!empty($moreOptions)) {
+						
+						?>
+						element.append("<br /><?php echo strtr(addslashes($moreOptions),array("\n"=>" ","\r"=>"")); ?>");
+						<?php
+						
+					}
+					
+					?>
 		        	
 		        	$div.find('select[name=fk_soc]').change(function() {
 		        		var fk_soc = $(this).val();
@@ -198,6 +245,7 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 												,fk_soc:$('#pop-new-event select[name=fk_soc]').val()
 												,fk_contact:$('#pop-new-event select[name=contactid]').val()
 												,fk_user:$('#pop-new-event select[name=fk_user]').val()
+												,fk_project:$('#pop-new-event select[name=fk_project]').val()
 												,type_code:$('#pop-new-event select[name=type_code]').val()
 							        		}
 										}).done(function() {

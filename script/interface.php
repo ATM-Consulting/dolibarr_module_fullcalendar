@@ -121,6 +121,8 @@
 			$a->socid = GETPOST('fk_soc');
 			$a->contactid = GETPOST('fk_contact');
 			
+			$a->fk_project = GETPOST('fk_project','int');
+			
 			print $a->add($user);
 			
 			break;

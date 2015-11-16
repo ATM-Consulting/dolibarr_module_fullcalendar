@@ -121,7 +121,7 @@ print '</td></tr>';
 $var=!$var;
 
 print '<tr '.$bc[$var].'>';
-print '<td>'.$langs->trans("FULLCALENDAR_SHOW_AFFECTED_USER").'</td>';
+print '<td>'.$langs->trans("FULLCALENDAR_SHOW_PROJECT").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
