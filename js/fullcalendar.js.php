@@ -112,7 +112,10 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 				}
 				,eventRender:function( event, element, view ) {
 					
-					var note = event.note;
+					var note = "";
+					
+					if(event.note) note+=event.note;
+					
 					if(event.fk_soc>0){
 						 element.append('<div>'+event.societe+'</div>');
 						 note += '<div>'+event.societe+'</div>';
