@@ -148,6 +148,8 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 						 element.append('<div>'+event.more+'</div>');
 					}
 					
+					element.prepend('<div style="float:right;">'+event.statut+'</div>');
+					
 					element.tipTip({
 						maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50  
 						,content : '<strong>'+event.title+'</strong><br />'+ note

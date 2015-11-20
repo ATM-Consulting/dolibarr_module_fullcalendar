@@ -220,9 +220,17 @@ function _events($date_start, $date_end) {
 	$TUser = array();
 	$TProject = array();
 
+	$TEventObject=array();
 	while($obj=$db->fetch_object($res)) {
 		$event = new ActionComm($db);
 		$event->fetch($obj->id);
+		
+		$event->color = $obj->color;
+		
+		$TEventObject[] = $event;
+	}
+	
+	foreach($TEventObject as &$event) {
 		
 		if($event->socid>0 && !isset($TSociete[$event->socid])) {
 			$societe = new Societe($db);
@@ -259,13 +267,14 @@ function _events($date_start, $date_end) {
 		$TEvent[]=array(
 			'id'=>$event->id
 			,'title'=>$event->label
-			,'allDay'=>(bool)($obj->fulldayevent)
+			,'allDay'=>(bool)($event->fulldayevent)
 			,'start'=>(empty($event->datep) ? '' : date('Y-m-d H:i:s',(int)$event->datep))
 			,'end'=>(empty($event->datef) ? '' : date('Y-m-d H:i:s',(int)$event->datef))
-			,'url'=>dol_buildpath('/comm/action/card.php?id='.$obj->id,1)
+			,'url'=>dol_buildpath('/comm/action/card.php?id='.$event->id,1)
 			,'editable'=>$editable
-			,'color'=>($obj->color ? '#'.$obj->color : '') 
-			,'note'=>$event->getLibStatut(3).' '.$obj->note
+			,'color'=>($event->color ? '#'.$event->color : '') 
+			,'note'=>$event->note
+			,'statut'=>$event->getLibStatut(3)
 			,'fk_soc'=>$event->socid
 			,'fk_contact'=>$event->contactid
 			,'fk_user'=>$event->userownerid
