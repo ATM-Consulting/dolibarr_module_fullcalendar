@@ -62,7 +62,7 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 		var defaultView='month';
 		if($('form.listactionsfilter input[name=action]').val() == 'show_week') defaultView = 'agendaWeek';
 		if($('form.listactionsfilter input[name=action]').val() == 'show_day') defaultView = 'agendaDay';
-		
+	
 		$('head').append('<link rel="stylesheet" href="<?php echo dol_buildpath('/fullcalendar/lib/fullcalendar/dist/fullcalendar.min.css',1) ?>" type="text/css" />');
 			$('table.cal_month').hide();	
 			$('table.cal_month').prev('table').find('td.titre_right').remove();
@@ -76,11 +76,11 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 				    right:  'prev,next today'
 		        }
 		        ,defaultDate:defaultDate
-		        ,businessHours: {
+		        /*,businessHours: {
 		        	start:'<?php echo $hourStart.':00'; ?>'
 		        	,end:'<?php echo $hourEnd.':00'; ?>'
 		        	,dow:[1,2,3,4,5]
-		        }
+		        }*/
 		        <?php
 		        
 		        
@@ -98,9 +98,8 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 		        
 		        ,lang: 'fr'
 		        ,weekNumbers:true
-				,height: "auto"
-		        ,defaultView:defaultView
-		        ,events : '<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'+'?'+$('form[name=listactionsfilter]').serialize() 
+				,defaultView:'month'
+				,events : '<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'+'?'+$('form[name=listactionsfilter]').serialize() 
 				,eventLimit : <?php echo !empty($conf->global->AGENDA_MAX_EVENTS_DAY_VIEW) ? $conf->global->AGENDA_MAX_EVENTS_DAY_VIEW : 3; ?>
 				,dayRender:function(date, cell) {
 
@@ -165,6 +164,18 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 					element.find(".classfortooltip").tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50});
 	
 				 }
+				,loading(isLoading, view) {
+					
+					if(!isLoading && defaultView != 'month') {
+						$('#fullcalendar').fullCalendar( 'changeView', defaultView ); // sinon problème de positionnement 
+					}
+					
+					if(defaultView == 'month') {
+						$('#fullcalendar').fullCalendar( 'option', 'height', 'auto');
+						
+					}
+					
+				}
 		        ,eventDrop:function( event, delta, revertFunc, jsEvent, ui, view ) { 
 		        	console.log(delta);	
 		        	
@@ -274,7 +285,6 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 		        }
 		        
 		    });		
-		    
-		    
+		 
 	});
 }
