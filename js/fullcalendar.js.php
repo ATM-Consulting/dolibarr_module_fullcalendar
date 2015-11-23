@@ -1,7 +1,8 @@
 <?php
-
+	if(preg_match('/action\/comm\/index.php/', $_SERVER['REQUEST_URI']))
+	{
+	ob_start();
 	require '../config.php';
-	
 	
 	if(empty($user->rights->fullcalendar->useit)) exit;
 	
@@ -18,6 +19,7 @@
 	//	readfile(dol_buildpath('/fullcalendar/lib/fullcalendar/dist/fullcalendar/gcal.js'));
 		
 	}
+	ob_get_clean();
 	
 	ob_start();
 	$formactions=new FormActions($db);
@@ -53,7 +55,7 @@
 ?>
 if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 	
-	
+	alert('test');
 	$(document).ready(function() {
 		var year = $('form[name=listactionsfilter]').find('input[name=year]').val();
 		var month = $('form[name=listactionsfilter]').find('input[name=month]').val();
@@ -288,3 +290,6 @@ if(document.location.href.indexOf('/comm/action/index.php') != -1) {
 		 
 	});
 }
+<?php
+}
+?>
