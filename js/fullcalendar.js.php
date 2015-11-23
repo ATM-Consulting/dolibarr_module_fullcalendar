@@ -1,6 +1,10 @@
 <?php
 
 	require '../config.php';
+	
+	
+	if(empty($user->rights->fullcalendar->useit)) exit;
+	
 	dol_include_once('/core/class/html.formactions.class.php');
 	dol_include_once('/core/class/html.formprojet.class.php');
 	
