@@ -77,13 +77,19 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				    right:  'prev,next today'
 		        }
 		        ,defaultDate:defaultDate
-		        /*,businessHours: {
+		        ,businessHours: {
 		        	start:'<?php echo $hourStart.':00'; ?>'
 		        	,end:'<?php echo $hourEnd.':00'; ?>'
 		        	,dow:[1,2,3,4,5]
-		        }*/
+		        }
 		        <?php
-		        
+					if(!empty($conf->global->FULLCALENDAR_SHOW_THIS_HOURS)) {
+							list($hourShowStart, $hourShowEnd) = explode('-', $conf->global->FULLCALENDAR_SHOW_THIS_HOURS);
+							if(!empty($hourShowStart) && !empty($hourShowEnd)) {
+			        			?>,minTime:'<?php echo $hourShowStart.':00:00'; ?>'
+			        			,maxTime:'<?php echo $hourShowEnd.':00:00'; ?>'<?php
+							}
+					}
 		        
 			   /* if(!empty($user->array_options['options_googlecalendarapi'])) {
 			    	?>
@@ -114,6 +120,15 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 						cell.css('background-color', '#fff');
 					}
 				}
+				<?php
+					if(!empty($conf->global->FULLCALENDAR_HIDE_DAYS)) {
+						
+						?>
+						,hiddenDays: [ <?php echo $conf->global->FULLCALENDAR_HIDE_DAYS ?> ]
+						<?php
+						
+					}
+				?>
 				,eventRender:function( event, element, view ) {
 					
 					var note = "";
