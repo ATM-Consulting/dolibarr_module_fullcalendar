@@ -48,6 +48,7 @@ if(preg_match('/comm\/action\/index.php/', $refer))
 	if(empty($hourEnd)) $hourEnd = 18;
 	
 	$moreOptions = '';
+	$hookmanager->initHooks(array('fullcalendardao'));
 	$parameters=array(); $action = 'addEvent'; $object = null;
 	$reshook=$hookmanager->executeHooks('addOptionCalendarEvents',$parameters,$object,$action);
 	if (! empty($hookmanager->resPrint)) $moreOptions = $hookmanager->resPrint;
