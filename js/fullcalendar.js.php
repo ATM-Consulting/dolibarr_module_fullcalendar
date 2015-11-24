@@ -1,7 +1,8 @@
 <?php
-$refer = '404';
+$refer = '';
 if(isset($_SERVER['HTTP_REFERER'])) $refer = $_SERVER['HTTP_REFERER'];
-if(preg_match('/comm\/action\/index.php/', $refer))
+
+if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 {
 	require '../config.php';
 	
