@@ -185,7 +185,7 @@ function _events($date_start, $date_end) {
 	// We must filter on assignement table
 	if ($filtert > 0 || $usergroup > 0) $sql.= " AND ar.element_type='user'";
 	
-	$sql.=" AND ( a.datep2>='".$db->idate($t_start-(60*60*24*7))."' AND datep<='".$db->idate($t_end+(60*60*24*10))."' ) ";
+	$sql.=" AND ( a.datep2>='".$db->idate($t_start-(60*60*24*7))."' AND datep<='".$db->idate($t_end+(60*60*24*10))."' ) OR (a.datep BETWEEN '".$db->idate($t_start-(60*60*24*7))."' AND '".$db->idate($t_end+(60*60*24*10))."') ";
 
 	if ($type) $sql.= " AND ca.id = ".$type;
 	if ($status == '0') { $sql.= " AND a.percent = 0"; }
