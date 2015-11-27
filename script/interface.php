@@ -139,9 +139,11 @@ function _events($date_start, $date_end) {
 	$pid=GETPOST("projectid","int",3);
 	$status=GETPOST("status");
 	$type=GETPOST("type");
-	$maxprint=(isset($_GET["maxprint"])?GETPOST("maxprint"):$conf->global->AGENDA_MAX_EVENTS_DAY_VIEW);
-	$actioncode=GETPOST("actioncode","alpha",3)?GETPOST("actioncode","alpha",3):(GETPOST("actioncode")=='0'?'0':'');
-		
+	
+	$maxprint=(GETPOST("maxprint")?GETPOST("maxprint"):$conf->global->AGENDA_MAX_EVENTS_DAY_VIEW);
+	//$actioncode=GETPOST("actioncode","alpha",3)?GETPOST("actioncode","alpha",3):(GETPOST("actioncode")=='0'?'0':'');
+	$actioncode=GETPOST("actioncode", "array", 3)?GETPOST("actioncode", "array", 3):(GETPOST("actioncode")=='0'?'0':'');
+	
 	$filter=GETPOST("filter",'',3);
 	$filtert = GETPOST("usertodo","int",3)?GETPOST("usertodo","int",3):GETPOST("filtert","int",3);
 	$usergroup = GETPOST("usergroup","int",3);
@@ -178,14 +180,19 @@ function _events($date_start, $date_end) {
 	if ($usergroup > 0) $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."usergroup_user as ugu ON ugu.fk_user = ar.fk_element";
 	$sql.= ' WHERE 1';
 	$sql.= ' AND a.entity IN ('.getEntity('agenda', 1).')';
-	if ($actioncode) $sql.=" AND ca.code='".$db->escape($actioncode)."'";
+	if ($actioncode) $sql.=" AND ca.code IN ('".implode("','", $actioncode)."')";
 	if ($pid) $sql.=" AND a.fk_project=".$db->escape($pid);
 	if (! $user->rights->societe->client->voir && ! $socid) $sql.= " AND (a.fk_soc IS NULL OR sc.fk_user = " .$user->id . ")";
 	if ($socid > 0) $sql.= ' AND a.fk_soc = '.$socid;
 	// We must filter on assignement table
 	if ($filtert > 0 || $usergroup > 0) $sql.= " AND ar.element_type='user'";
 	
-	$sql.=" AND ( a.datep2>='".$db->idate($t_start-(60*60*24*7))."' AND datep<='".$db->idate($t_end+(60*60*24*10))."' ) OR (a.datep BETWEEN '".$db->idate($t_start-(60*60*24*7))."' AND '".$db->idate($t_end+(60*60*24*10))."') ";
+	$sql.=" AND 
+			( 
+				(a.datep2>='".$db->idate($t_start-(60*60*24*7))."' AND datep<='".$db->idate($t_end+(60*60*24*10))."')  
+				OR 
+			  	(a.datep BETWEEN '".$db->idate($t_start-(60*60*24*7))."' AND '".$db->idate($t_end+(60*60*24*10))."')
+			) ";
 
 	if ($type) $sql.= " AND ca.id = ".$type;
 	if ($status == '0') { $sql.= " AND a.percent = 0"; }
@@ -206,6 +213,7 @@ function _events($date_start, $date_end) {
 	
 	$TEvent=array();
 	if(isset($_REQUEST['DEBUG'])) print $sql;
+	
 	$res= $db->query($sql);
 	//var_dump($db);
 
