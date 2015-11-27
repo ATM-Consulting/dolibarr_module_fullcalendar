@@ -54,7 +54,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	$hookmanager->initHooks(array('fullcalendardao'));
 	$parameters=array(); $action = 'addEvent'; $object = null;
 	$reshook=$hookmanager->executeHooks('addOptionCalendarEvents',$parameters,$object,$action);
-	if (! empty($hookmanager->resPrint)) $moreOptions = $hookmanager->resPrint;
+	if (! empty($hookmanager->resPrint)) $moreOptions = json_decode($hookmanager->resPrint);
 	
 ?>
 
@@ -245,9 +245,12 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 		        	
 		        	if(!empty($moreOptions)) {
 						
+						foreach ($moreOptions as $param => $option)
+						{
 						?>
-						$div.append("<br /><?php echo strtr(addslashes($moreOptions),array("\n"=>" ","\r"=>"")); ?>");
-						<?php
+							$div.append("<br /><?php echo strtr(addslashes($option),array("\n"=>" ","\r"=>"")); ?>");
+						<?php	
+						}
 						
 					}
 					
@@ -286,6 +289,12 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 												,fk_user:$('#pop-new-event select[name=fk_user]').val()
 												,fk_project:$('#pop-new-event select[name=fk_project]').val()
 												,type_code:$('#pop-new-event select[name=type_code]').val()
+												<?php
+												foreach ($moreOptions as $param => $option)
+												{
+													echo ','.$param.':$("#pop-new-event select[name='.$param.']").val()';
+												}
+												?>
 							        		}
 										}).done(function() {
 											$('#fullcalendar').fullCalendar( 'refetchEvents' );
