@@ -39,7 +39,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	
 	ob_start();
 	$formProject = new FormProjets($db);
-	$select_project = $formProject->select_projects_list(-1, -1, 'fk_project',0,0,1);
+	$select_project = $formProject->select_projects_list(-1, 0, 'fk_project',0,0,1);
 	$select_project .= ob_get_clean();
 	
 	$defaultDay = date('d');
