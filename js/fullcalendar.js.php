@@ -244,7 +244,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 		        	if(!empty($moreOptions)) {
 						
 						?>
-						element.append("<br /><?php echo strtr(addslashes($moreOptions),array("\n"=>" ","\r"=>"")); ?>");
+						$div.append("<br /><?php echo strtr(addslashes($moreOptions),array("\n"=>" ","\r"=>"")); ?>");
 						<?php
 						
 					}
