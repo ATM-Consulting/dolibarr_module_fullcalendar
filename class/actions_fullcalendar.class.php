@@ -94,7 +94,7 @@ class Actionsfullcalendar
 		{
 			if(!empty($conf->global->MAIN_NOT_INC_FULLCALENDAR_HEAD))
 			{
-				echo '<script type="text/javascript" src="'.dol_buildpath('/fullcalendar/js/fullcalendar.js.php', 1).'"></script>';
+				echo '<script type="text/javascript" src="'.dol_buildpath('/fullcalendar/js/fullcalendar.js.php?force_use_js=1', 1).'"></script>';
 			}
 			return 1;
 		}

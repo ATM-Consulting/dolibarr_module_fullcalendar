@@ -6,6 +6,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 {
 	require '../config.php';
 	
+	if(!empty($conf->global->MAIN_NOT_INC_FULLCALENDAR_HEAD) && empty($_REQUEST['force_use_js'])) exit;
+	
 	if(empty($user->rights->fullcalendar->useit)) exit;
 	
 	dol_include_once('/core/class/html.formactions.class.php');
