@@ -28,7 +28,9 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	$select_type_action = ob_get_clean();
 	
 	$form=new Form($db);
-	$select_company = $form->select_thirdparty('','fk_soc','',1,1,0);
+	//$select_company = $form->select_thirdparty('','fk_soc','',1,1,0);
+	$select_company = $form->select_company('', 'fk_soc');
+	
 	$select_user = $form->select_dolusers($user->id, 'fk_user');
 	
 	ob_start();
@@ -37,7 +39,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	
 	ob_start();
 	$formProject = new FormProjets($db);
-	$select_project = $formProject->select_projects_list(-1, -1, 'fk_project',0,0,1);
+	$select_project = $formProject->select_projects_list(-1, 0, 'fk_project',0,0,1);
 	$select_project .= ob_get_clean();
 	
 	$defaultDay = date('d');
@@ -52,7 +54,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	$hookmanager->initHooks(array('fullcalendardao'));
 	$parameters=array(); $action = 'addEvent'; $object = null;
 	$reshook=$hookmanager->executeHooks('addOptionCalendarEvents',$parameters,$object,$action);
-	if (! empty($hookmanager->resPrint)) $moreOptions = $hookmanager->resPrint;
+	if (! empty($hookmanager->resPrint)) $moreOptions = json_decode($hookmanager->resPrint);
 	
 ?>
 
@@ -227,7 +229,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 		        	//document.location.href = "<?php echo dol_buildpath('/comm/action/card.php?action=create',1); ?>"
 		        	
 		        	$('#pop-new-event').remove();
-		        	
+		        
 		        	$div = $('<div id="pop-new-event"></div>');
 		        	$div.append("<?php echo strtr(addslashes($select_type_action),array("\n"=>"\\\n")); ?>");
 		        	$div.append('<br /><input type="text" name="label" value="" placeholder="<?php echo $langs->trans('Title') ?>" style="width:300px">');
@@ -248,9 +250,12 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 		        	
 		        	if(!empty($moreOptions)) {
 						
+						foreach ($moreOptions as $param => $option)
+						{
 						?>
-						$div.append("<br /><?php echo strtr(addslashes($moreOptions),array("\n"=>" ","\r"=>"")); ?>");
-						<?php
+							$div.append("<br /><?php echo strtr(addslashes($option),array("\n"=>" ","\r"=>"")); ?>");
+						<?php	
+						}
 						
 					}
 					
@@ -289,6 +294,12 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 												,fk_user:$('#pop-new-event select[name=fk_user]').val()
 												,fk_project:$('#pop-new-event select[name=fk_project]').val()
 												,type_code:$('#pop-new-event select[name=type_code]').val()
+												<?php
+												foreach ($moreOptions as $param => $option)
+												{
+													echo ','.$param.':$("#pop-new-event select[name='.$param.']").val()';
+												}
+												?>
 							        		}
 										}).done(function() {
 											$('#fullcalendar').fullCalendar( 'refetchEvents' );

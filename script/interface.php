@@ -125,6 +125,14 @@
 			
 			$a->fk_project = GETPOST('fk_project','int');
 			
+			$moreParams = GETPOST('moreParams');
+			$moreParams = explode(',', $moreParams);
+			$TParam = array();
+			foreach ($moreParams as $param)
+			{
+				$a->_{$param} = GETPOST($param);
+			}
+			
 			print $a->add($user);
 			
 			break;
