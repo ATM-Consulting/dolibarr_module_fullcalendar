@@ -89,10 +89,15 @@ class Actionsfullcalendar
 	
 	function addCalendarChoice($parameters,&$object,&$action, $hookmanager)
 	{
-		if(!empty($conf->global->MAIN_NOT_INC_FULLCALENDAR_HEAD))
+		global $conf;
+		if (in_array('agenda', explode(':', $parameters['context'])))
 		{
-			echo '<script type="text/javascript" src="'.dol_buildpath('/fullcalendar/js/fullcalendar.js.php', 1).'"></script>';
+			if(!empty($conf->global->MAIN_NOT_INC_FULLCALENDAR_HEAD))
+			{
+				echo '<script type="text/javascript" src="'.dol_buildpath('/fullcalendar/js/fullcalendar.js.php', 1).'"></script>';
+			}
+			return 1;
 		}
-		return 1;
-		
+		return 0;
+	}
 }

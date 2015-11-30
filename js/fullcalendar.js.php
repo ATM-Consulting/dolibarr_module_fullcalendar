@@ -104,11 +104,6 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 		            ]
 			    	<?php
 			    }*/
-			    $tbl = '';
-				foreach ($_REQUEST as $key => $value) {
-					if($tbl==='')$tbl.='?'.$key.'='.$value;
-					else $tbl.='&amp;'.$key.'='.$value;
-				}
 				?>
 		        
 		        ,lang: 'fr'
