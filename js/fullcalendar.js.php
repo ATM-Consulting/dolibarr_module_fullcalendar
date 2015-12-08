@@ -292,9 +292,13 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 												,fk_project:$('#pop-new-event select[name=fk_project]').val()
 												,type_code:$('#pop-new-event select[name=type_code]').val()
 												<?php
-												foreach ($moreOptions as $param => $option)
-												{
-													echo ','.$param.':$("#pop-new-event select[name='.$param.']").val()';
+												if(!empty($moreOptions)) {
+												
+													foreach ($moreOptions as $param => $option)
+													{
+														echo ','.$param.':$("#pop-new-event select[name='.$param.']").val()';
+													}
+													
 												}
 												?>
 							        		}
@@ -315,6 +319,20 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 		        }
 		        
 		    });		
+		 
+		 
+		 
+			$('form[name=listactionsfilter]').submit(function(event) {
+				console.log($('form[name=listactionsfilter]').serialize() );
+				console.log($('#fullcalendar'));
+				var newSource = '<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'+'?'+$('form[name=listactionsfilter]').serialize() ;
+				$('#fullcalendar').fullCalendar('removeEvents');
+				$('#fullcalendar').fullCalendar( 'addEventSource', newSource);  
+				
+				event.preventDefault();
+				
+			});
+		 
 		 
 	});
 	
