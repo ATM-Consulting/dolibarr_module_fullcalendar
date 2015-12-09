@@ -6,6 +6,7 @@ ATMAbout = Ce module a été développé par <a href="http://www.atm-consulting.
 fullcalendarSetup = Configuration du module fullcalendar
 fullcalendarAbout = A propos du module fullcalendar
 
+ViewCal=Calendrier
 FULLCALENDAR_SHOW_PROJECT=Voir le projet dans les évènements
 FULLCALENDAR_SHOW_AFFECTED_USER=Voir l'utilisateur affecté dans les évènements
 FULLCALENDAR_HIDE_DAYS=Cacher des jours non travaillé ("6,0" pour samedi, dimanche)
