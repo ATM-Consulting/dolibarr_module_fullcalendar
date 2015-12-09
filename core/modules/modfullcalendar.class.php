@@ -90,9 +90,10 @@ class modfullcalendar extends DolibarrModules
 		
 		$this->module_parts = array(
 				'hooks'=>array('agenda')
+				,'js'=>array()
 		);
 		
-		$this->module_parts['js']=array('/fullcalendar/js/fullcalendar.js.php');
+		//$this->module_parts['js']=array('/fullcalendar/js/fullcalendar.js.php');
 
 		// Data directories to create when module is enabled.
 		// Example: this->dirs = array("/fullcalendar/temp");
