@@ -272,7 +272,8 @@ function _events($date_start, $date_end) {
 		
 		
 
-		$editable = true;
+		$editable = false;
+		if(($user->id == $event->userownerid) || $user->rights->agenda->allactions->create) $editable = true;
 
 		$TEvent[]=array(
 			'id'=>$event->id
