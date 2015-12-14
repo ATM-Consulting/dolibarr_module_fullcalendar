@@ -330,6 +330,12 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			$('#fullcalendar').fullCalendar( 'addEventSource', newsource);
 			currentsource = newsource;
 			event.preventDefault();
+			var url = '<?php echo dol_buildpath('/comm/action/index.php',1) ?>?'+$('form[name=listactionsfilter]').serialize() ;
+			history.pushState("FullCalendar","FullCalendar", url)
+			
+			
+			var $a = $('table[summary=bookmarkstable] a.vsmenu[href*=create]');
+			$a.attr('href',"<?php echo dol_buildpath('/bookmarks/card.php',1)  ?>?action=create&url_source="+encodeURIComponent(url)+"&url="+encodeURIComponent(url));
 			
 		});
 		 
