@@ -118,6 +118,20 @@ print $form->selectyesno("FULLCALENDAR_SHOW_AFFECTED_USER",$conf->global->FULLCA
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';
+
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("DONT_SHOW_AUTO_EVENT").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="action" value="set_DONT_SHOW_AUTO_EVENT">';
+print $form->selectyesno("DONT_SHOW_AUTO_EVENT",$conf->global->DONT_SHOW_AUTO_EVENT,1);
+print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+print '</form>';
+print '</td></tr>';
+
 $var=!$var;
 
 print '<tr '.$bc[$var].'>';
