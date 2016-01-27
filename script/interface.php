@@ -189,7 +189,7 @@ function _events($date_start, $date_end) {
 	$sql.= ' WHERE 1';
 	$sql.= ' AND a.entity IN ('.getEntity('agenda', 1).')';
 	if ($actioncode) $sql.=" AND ca.code IN ('".implode("','", $actioncode)."')";
-	if ($conf->global->DONT_SHOW_AUTO_EVENT && strpos($actioncode,'AC_OTH_AUTO') == FALSE) $sql.=" AND ca.code != 'AC_OTH_AUTO'";
+	if ($conf->global->DONT_SHOW_AUTO_EVENT && strpos(implode(',', $actioncode),'AC_OTH_AUTO') == FALSE) $sql.=" AND ca.code != 'AC_OTH_AUTO'";
 	if ($pid) $sql.=" AND a.fk_project=".$db->escape($pid);
 	if (! $user->rights->societe->client->voir && ! $socid) $sql.= " AND (a.fk_soc IS NULL OR sc.fk_user = " .$user->id . ")";
 	if ($socid > 0) $sql.= ' AND a.fk_soc = '.$socid;
