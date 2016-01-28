@@ -117,6 +117,7 @@
 			$a->note= GETPOST('note');
 			
 			$a->datep = strtotime(GETPOST('date'));
+			$a->datef = strtotime('+2 hour',$a->datep);
 			
 			$a->userownerid = GETPOST('fk_user') ? GETPOST('fk_user') : $user->id;
 			$a->type_code = GETPOST('type_code') ? GETPOST('type_code') : 'AC_OTH';
@@ -133,7 +134,9 @@
 				$a->_{$param} = GETPOST($param);
 			}
 			
-			print $a->add($user);
+			$res = $a->add($user);
+			$a->update($user);
+			print $res;
 			
 			break;
 	}
