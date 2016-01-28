@@ -151,7 +151,7 @@ function _events($date_start, $date_end) {
 	$maxprint=(GETPOST("maxprint")?GETPOST("maxprint"):$conf->global->AGENDA_MAX_EVENTS_DAY_VIEW);
 	//$actioncode=GETPOST("actioncode","alpha",3)?GETPOST("actioncode","alpha",3):(GETPOST("actioncode")=='0'?'0':'');
 	$actioncode=GETPOST("actioncode", "array", 3)?GETPOST("actioncode", "array", 3):(GETPOST("actioncode")=='0'?'0':'');
-	
+	if(empty($actioncode)) $actioncode = array();
 	$filter=GETPOST("filter",'',3);
 	$filtert = GETPOST("usertodo","int",3)?GETPOST("usertodo","int",3):GETPOST("filtert","int",3);
 	$usergroup = GETPOST("usergroup","int",3);
