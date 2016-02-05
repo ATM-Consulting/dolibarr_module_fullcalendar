@@ -262,7 +262,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	        		var fk_soc = $(this).val();
 	        		
 	        		$.ajax({
-	        			url: "<?php echo dol_buildpath('/core/ajax/contacts.php?action=getContacts&htmlname=contactid',1) ?>&id="+fk_soc
+	        			url: "<?php echo dol_buildpath('/core/ajax/contacts.php?action=getContacts&htmlname=contactid&showempty=1',1) ?>&id="+fk_soc
 	        			,dataType:'json'
 	        		}).done(function(data) {
 	        			$('#pop-new-event span[rel=contact]').html(data.value);
