@@ -115,8 +115,14 @@
 			$a=new ActionComm($db);
 			$a->label = GETPOST('label');
 			$a->note= GETPOST('note');
-			
-			$a->datep = strtotime(GETPOST('date'));
+
+			$datep = date('H',strtotime(GETPOST('date')));
+			if($datep == '00'){
+				$a->datep = strtotime('+'.substr($conf->global->FULLCALENDAR_SHOW_THIS_HOURS,0,1).' hour',strtotime(GETPOST('date')));
+			}
+			else{
+				$a->datep = strtotime(GETPOST('date'));
+			}
 			$a->datef = strtotime('+2 hour',$a->datep);
 			
 			$a->userownerid = GETPOST('fk_user') ? GETPOST('fk_user') : $user->id;
