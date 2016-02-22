@@ -139,7 +139,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				var note = "";
 				
 				if(event.note) note+=event.note;
-				
+
 				if(event.fk_soc>0){
 					 element.append('<div>'+event.societe+'</div>');
 					 note += '<div>'+event.societe+'</div>';
@@ -173,6 +173,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				?>
 				if(event.more)  {
 					 element.append('<div>'+event.more+'</div>');
+					 note = note+'<div>'+event.more+'</div>';
 				}
 				
 				element.prepend('<div style="float:right;">'+event.statut+'</div>');
