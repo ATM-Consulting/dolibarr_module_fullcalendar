@@ -31,7 +31,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	
 	$form=new Form($db);
 	//$select_company = $form->select_thirdparty('','fk_soc','',1,1,0);
-	$select_company = $form->select_company('', 'fk_soc');
+	$select_company = $form->select_company('', 'fk_soc', '', 1);
 	
 	$select_user = $form->select_dolusers($user->id, 'fk_user');
 	
