@@ -131,6 +131,7 @@
 			$a->contactid = GETPOST('fk_contact');
 			
 			$a->fk_project = GETPOST('fk_project','int');
+			$a->percentage = -1; // Non applicable 
 			
 			$moreParams = GETPOST('moreParams');
 			$moreParams = explode(',', $moreParams);
