@@ -285,7 +285,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 						        		,data:{
 											put:'event'
 											,label:$('#pop-new-event input[name=label]').val()
-											,note:$('#pop-new-event input[name=note]').val()
+											,note:$('#pop-new-event textarea[name=note]').val()
 											,date:date.format()
 											,fk_soc:$('#pop-new-event select[name=fk_soc]').val()
 											,fk_contact:$('#pop-new-event select[name=contactid]').val()
