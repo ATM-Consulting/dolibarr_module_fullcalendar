@@ -208,9 +208,9 @@ function _events($date_start, $date_end) {
 	
 	$sql.=" AND 
 			( 
-				(a.datep2>='".$db->idate($t_start-(60*60*24*7))."' AND datep<='".$db->idate($t_end+(60*60*24*10))."')  
+				(a.datep2>='".$db->idate($t_start-(60*60*24*7))."' AND datep<=".$db->idate($t_end+(60*60*24*10)).")  
 				OR 
-			  	(a.datep BETWEEN '".$db->idate($t_start-(60*60*24*7))."' AND '".$db->idate($t_end+(60*60*24*10))."')
+			  	(a.datep BETWEEN ".$db->idate($t_start-(60*60*24*7))." AND ".$db->idate($t_end+(60*60*24*10)).")
 			) ";
 
 	if ($type) $sql.= " AND ca.id = ".$type;
