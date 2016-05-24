@@ -70,6 +70,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 		if($('form.listactionsfilter input[name=action]').val() == 'show_day') defaultView = 'agendaDay';
 	
 		$('head').append('<link rel="stylesheet" href="<?php echo dol_buildpath('/fullcalendar/lib/fullcalendar/dist/fullcalendar.min.css',1) ?>" type="text/css" />');
+		$('head').append('<link rel="stylesheet" href="<?php echo dol_buildpath('/fullcalendar/css/fullcalendar.css',1) ?>" type="text/css" />');
 		$('table.cal_month').hide();	
 		$('table.cal_month').prev('table').find('td.titre_right').remove();
 
