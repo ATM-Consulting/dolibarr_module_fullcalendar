@@ -114,8 +114,8 @@ print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 print '<input type="hidden" name="action" value="set_FULLCALENDAR_SHOW_AFFECTED_USER">';
-print $form->selectyesno("FULLCALENDAR_SHOW_AFFECTED_USER",$conf->global->FULLCALENDAR_SHOW_AFFECTED_USER,1);
-print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+echo ajax_constantonoff('FULLCALENDAR_SHOW_AFFECTED_USER');
+
 print '</form>';
 print '</td></tr>';
 
@@ -127,8 +127,8 @@ print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 print '<input type="hidden" name="action" value="set_DONT_SHOW_AUTO_EVENT">';
-print $form->selectyesno("DONT_SHOW_AUTO_EVENT",$conf->global->DONT_SHOW_AUTO_EVENT,1);
-print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+echo ajax_constantonoff('DONT_SHOW_AUTO_EVENT');
+
 print '</form>';
 print '</td></tr>';
 
@@ -141,8 +141,8 @@ print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 print '<input type="hidden" name="action" value="set_FULLCALENDAR_SHOW_PROJECT">';
-print $form->selectyesno("FULLCALENDAR_SHOW_PROJECT",$conf->global->FULLCALENDAR_SHOW_PROJECT,1);
-print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+echo ajax_constantonoff('FULLCALENDAR_SHOW_PROJECT');
+
 print '</form>';
 print '</td></tr>';
 
@@ -171,6 +171,31 @@ print '<input type="text" name="FULLCALENDAR_SHOW_THIS_HOURS" value="'.$conf->gl
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';
+
+
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("FULLCALENDAR_DURATION_SLOT").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="action" value="set_FULLCALENDAR_DURATION_SLOT">';
+
+$TOption=array(
+	'00:30:00'=>'30 '.$langs->trans('minutes')
+	,'00:15:00'=>'15 '.$langs->trans('minutes')
+	,'00:05:00'=>'5 '.$langs->trans('minutes')
+	,'01:00:00'=>'1 '.$langs->trans('hour')
+);
+
+echo $form->selectarray('FULLCALENDAR_DURATION_SLOT', $TOption, $conf->global->FULLCALENDAR_DURATION_SLOT);
+
+print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+
+print '</form>';
+print '</td></tr>';
+
 
 
 print '</table>';

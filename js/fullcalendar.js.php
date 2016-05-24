@@ -106,6 +106,14 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	            ]
 		    	<?php
 		    }*/
+		    
+		    if(!empty($conf->global->FULLCALENDAR_DURATION_SLOT)) {
+		    	
+				echo ',slotDuration:"'.$conf->global->FULLCALENDAR_DURATION_SLOT.'"';
+				
+		    }
+		    
+		    
 			?>
 	        
 	        ,lang: 'fr'
