@@ -197,6 +197,28 @@ print '</form>';
 print '</td></tr>';
 
 
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("FULLCALENDAR_USE_ASSIGNED_COLOR").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="action" value="set_FULLCALENDAR_USE_ASSIGNED_COLOR">';
+echo ajax_constantonoff('FULLCALENDAR_USE_ASSIGNED_COLOR');
+
+
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("FULLCALENDAR_SHOW_ALL_ASSIGNED_COLOR").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="action" value="set_FULLCALENDAR_SHOW_ALL_ASSIGNED_COLOR">';
+echo ajax_constantonoff('FULLCALENDAR_SHOW_ALL_ASSIGNED_COLOR');
+
+
+print '</form>';
+print '</td></tr>';
 
 print '</table>';
 

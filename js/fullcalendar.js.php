@@ -143,9 +143,24 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 					
 				}
 			?>
+			,eventAfterRender:function( event, element, view ) {
+				
+				if(event.colors!=""){
+					console.log(event.id,event.colors);
+					element.css({
+						"background-color":""
+						,"border-color":""
+						,"background":event.colors
+					});
+					
+				}
+				
+			}
 			,eventRender:function( event, element, view ) {
 				
 				var note = "";
+				
+				/*element.css("background", element.css("background-color")).css("background-color","").css("border-color","");*/
 				
 				if(event.note) note+=event.note;
 

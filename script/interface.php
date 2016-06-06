@@ -247,6 +247,7 @@ function _events($date_start, $date_end) {
 	while($obj=$db->fetch_object($res)) {
 		$event = new ActionComm($db);
 		$event->fetch($obj->id);
+		$event->fetch_userassigned();
 		
 		$event->color = $obj->color;
 		
@@ -268,13 +269,23 @@ function _events($date_start, $date_end) {
 
         }
 		
-		if(!empty($conf->global->FULLCALENDAR_SHOW_AFFECTED_USER) && $event->userownerid>0 && !isset($TUser[$event->userownerid])) {
-            $u = new User($db);
-            $u->fetch($event->userownerid);
-            $TUser[$event->userownerid]  = $u->getNomUrl(1);
-
-        }
+		$TUserassigned = array();
+		$TColor=array();
 		
+		if($event->color && empty($conf->global->FULLCALENDAR_USE_ASSIGNED_COLOR)) $TColor[] = '#'.$event->color;
+		
+		if(!empty($conf->global->FULLCALENDAR_SHOW_AFFECTED_USER) ) {
+			
+			$userownerid = (int)$event->userownerid;
+			
+			if( $userownerid>0 && !isset($TUser[$userownerid])) {
+	            $u = new User($db);
+	            $u->fetch($userownerid);
+	            $TUser[$userownerid]  = $u->getNomUrl(1);
+			}
+			$TUserassigned[$userownerid] = 	$TUser[$userownerid];
+        }
+
 		if(!empty($conf->global->FULLCALENDAR_SHOW_PROJECT) && $event->fk_project>0 && !isset($TProject[$event->fk_project])) {
             $p = new Project($db);
             $p->fetch($event->fk_project);
@@ -283,11 +294,51 @@ function _events($date_start, $date_end) {
         }
 		
 		
+		if(!empty($conf->global->FULLCALENDAR_SHOW_AFFECTED_USER) && !empty($event->userassigned)) {
+			
+			foreach($event->userassigned as &$ua) {
+				$userid = (int)$ua['id'];
+				if(!isset($TUser[$userid])) {
+					   $u = new User($db);
+            		   $u->fetch($userid);
+           			   $TUser[$userid]  = $u->getNomUrl(1);
+					   
+				}
+				if(!isset($TUserassigned[$userid])) $TUserassigned[] = $TUser[$userid];
+				
+				if($u->color && !in_array('#'.$u->color,$TColor)) $TColor[] = '#'.$u->color;
+				
+			} 
 		
+		}
 
 		$editable = false;
 		if(($user->id == $event->userownerid) || $user->rights->agenda->allactions->create) $editable = true;
-
+//background: linear-gradient(to bottom, #1e5799 0%,#2989d8 25%,#207cca 67%,#7db9e8 100%);
+		//$colors = implode(',',$TColor);
+		$colors='';
+		
+		$color='';
+		
+		if(!empty($TColor)) {
+			
+			$color = $TColor[0];
+				
+			if(!empty($conf->global->FULLCALENDAR_SHOW_ALL_ASSIGNED_COLOR) && count($TColor)>1) {
+				$colors = 'linear-gradient(to right ';
+				foreach($TColor as $c) {
+					
+					$colors.= ','.$c;
+					
+				}
+			
+				$colors.=')';
+				
+			}
+				
+		}
+		
+		
 		$TEvent[]=array(
 			'id'=>$event->id
 			,'title'=>$event->label
@@ -296,7 +347,8 @@ function _events($date_start, $date_end) {
 			,'end'=>(empty($event->datef) ? '' : date('Y-m-d H:i:s',(int)$event->datef))
 			,'url'=>dol_buildpath('/comm/action/card.php?id='.$event->id,1)
 			,'editable'=>$editable
-			,'color'=>($event->color ? '#'.$event->color : '') 
+			,'color'=>$color
+			,'colors'=>$colors
 			,'note'=>$event->note
 			,'statut'=>$event->getLibStatut(3)
 			,'fk_soc'=>$event->socid
@@ -305,7 +357,7 @@ function _events($date_start, $date_end) {
 			,'fk_project'=>$event->fk_project
 			,'societe'=>(!empty($TSociete[$event->socid]) ? $TSociete[$event->socid] : '')
 			,'contact'=>(!empty($TContact[$event->contactid]) ? $TContact[$event->contactid] : '')
-			,'user'=>(!empty($TUser[$event->userownerid]) ? $TUser[$event->userownerid] : '')
+			,'user'=>(!empty($TUserassigned) ? implode(', ',$TUserassigned) : '')
 			,'project'=>(!empty($TProject[$event->fk_project]) ? $TProject[$event->fk_project] : '')
 			,'more'=>''
 		);
