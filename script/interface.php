@@ -281,9 +281,9 @@ function _events($date_start, $date_end) {
 			if( $userownerid>0 && !isset($TUser[$userownerid])) {
 	            $u = new User($db);
 	            $u->fetch($userownerid);
-	            $TUser[$userownerid]  = $u->getNomUrl(1);
+	            $TUser[$userownerid]  = $u;
 			}
-			$TUserassigned[$userownerid] = 	$TUser[$userownerid];
+			$TUserassigned[$userownerid] = 	$TUser[$userownerid]->getNomUrl(1);
         }
 
 		if(!empty($conf->global->FULLCALENDAR_SHOW_PROJECT) && $event->fk_project>0 && !isset($TProject[$event->fk_project])) {
@@ -301,16 +301,19 @@ function _events($date_start, $date_end) {
 				if(!isset($TUser[$userid])) {
 					   $u = new User($db);
             		   $u->fetch($userid);
-           			   $TUser[$userid]  = $u->getNomUrl(1);
+           			   $TUser[$userid]  = $u;
 					   
 				}
-				if(!isset($TUserassigned[$userid])) $TUserassigned[] = $TUser[$userid];
 				
-				if($u->color && !in_array('#'.$u->color,$TColor)) $TColor[] = '#'.$u->color;
+				if(!isset($TUserassigned[$userid])) $TUserassigned[] = $TUser[$userid]->getNomUrl(1);
+				
+				if($TUser[$userid]->color && !in_array('#'.$TUser[$userid]->color,$TColor)) $TColor[] = '#'.$TUser[$userid]->color;
 				
 			} 
 		
 		}
+
+
 
 		$editable = false;
 		if(($user->id == $event->userownerid) || $user->rights->agenda->allactions->create) $editable = true;
