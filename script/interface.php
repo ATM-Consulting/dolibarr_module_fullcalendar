@@ -380,11 +380,14 @@ function _events($date_start, $date_end) {
 }
 
 function isDarkColor($color) {
+	global $conf;
+	
+	$lightness_swap = empty($conf->global->FULLCALENDAR_LIGTHNESS_SWAP) ? 150 : $conf->global->FULLCALENDAR_LIGTHNESS_SWAP;
 	
 	$rgb = HTMLToRGB($color);
 	$hsl = RGBToHSL($rgb);
 	
-	return ($hsl->lightness<100) ? 1 : 0;
+	return ($hsl->lightness<$lightness_swap) ? 1 : 0;
 }
 
 function HTMLToRGB($htmlCode)
