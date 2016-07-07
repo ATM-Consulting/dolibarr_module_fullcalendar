@@ -15,5 +15,5 @@ DONT_SHOW_AUTO_EVENT=Ne pas afficher par défaut les évènements insérés auto
 FULLCALENDAR_DURATION_SLOT=Durée utilisée comme dénominateur
 FULLCALENDAR_USE_ASSIGNED_COLOR=Utiliser la couleur de l'assigné
 FULLCALENDAR_SHOW_ALL_ASSIGNED_COLOR=Voir les couleurs de tous les assignés et type d'évènement
-FULLCALENDAR_LIGTHNESS_SWAP=Limite de luminosité pour écriture en blanc (0 : noir - 255 : blanc)
+FULLCALENDAR_LIGTHNESS_SWAP=Limite de luminosité pour écriture en blanc (0 : sombre - 255 : clair)
 FULLCALENDAR_USE_HUGE_WHITE_BORDER=Utilsé des bordures blanches pour séparer les événements à l'affichage
