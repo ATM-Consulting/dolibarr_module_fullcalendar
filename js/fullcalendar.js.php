@@ -144,16 +144,18 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				}
 			?>
 			,eventAfterRender:function( event, element, view ) {
-				
+				console.log(element);
 				if(event.colors!=""){
 					console.log(event.id,event.colors);
 					element.css({
 						"background-color":""
-						,"border-color":""
+						,"border":""
 						,"background":event.colors
+						
 					});
 					
 				}
+				
 				
 				if(event.isDarkColor == 1) {
 					element.css({ color : "#fff" });
@@ -167,9 +169,19 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			,eventRender:function( event, element, view ) {
 				
 				var note = "";
+				<?php
 				
-				/*element.css("background", element.css("background-color")).css("background-color","").css("border-color","");*/
+				if($conf->global->FULLCALENDAR_USE_HUGE_WHITE_BORDER) {
+					echo 'element.css({
+						"border":""
+						,"border-radius":"0"
+						,"border":"1px solid #fff"
+						,"border-left":"2px solid #fff"
+					});';
+						
+				}
 				
+				?>
 				if(event.note) note+=event.note;
 
 				if(event.fk_soc>0){
