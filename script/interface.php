@@ -159,6 +159,7 @@ function _events($date_start, $date_end) {
 	$pid=GETPOST("projectid","int",3);
 	$status=GETPOST("status");
 	$type=GETPOST("type");
+	$state_id = GETPOST('state_id');
 	
 	$maxprint=(GETPOST("maxprint")?GETPOST("maxprint"):$conf->global->AGENDA_MAX_EVENTS_DAY_VIEW);
 	//$actioncode=GETPOST("actioncode","alpha",3)?GETPOST("actioncode","alpha",3):(GETPOST("actioncode")=='0'?'0':'');
@@ -193,6 +194,11 @@ function _events($date_start, $date_end) {
 	$sql.= ' FROM '.MAIN_DB_PREFIX."actioncomm as a";
 	$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'c_actioncomm as ca ON (a.fk_action = ca.id)';
 	$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'user u ON (a.fk_user_action=u.rowid )';
+	if (!empty($conf->global->FULLCALENDAR_FILTER_ON_STATE) && !empty($state_id))
+	{
+		$sql .= ' LEFT JOIN '.MAIN_DB_PREFIX.'societe s ON (s.rowid = a.fk_soc)';
+		$sql .= ' LEFT JOIN '.MAIN_DB_PREFIX.'socpeople sp ON (sp.rowid = a.fk_contact)';
+	}
 	
 	if (! $user->rights->societe->client->voir && ! $socid) $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."societe_commerciaux as sc ON a.fk_soc = sc.fk_soc";
 	// We must filter on assignement table
@@ -205,6 +211,7 @@ function _events($date_start, $date_end) {
 	if ($pid) $sql.=" AND a.fk_project=".$db->escape($pid);
 	if (! $user->rights->societe->client->voir && ! $socid) $sql.= " AND (a.fk_soc IS NULL OR sc.fk_user = " .$user->id . ")";
 	if ($socid > 0) $sql.= ' AND a.fk_soc = '.$socid;
+	if (!empty($conf->global->FULLCALENDAR_FILTER_ON_STATE) && !empty($state_id)) $sql.= ' AND (s.fk_departement = '.$state_id.' OR sp.fk_departement = '.$state_id.')';
 	// We must filter on assignement table
 	if ($filtert > 0 || $usergroup > 0) $sql.= " AND ar.element_type='user'";
 	
@@ -340,7 +347,6 @@ function _events($date_start, $date_end) {
 			}
 				
 		}
-		
 		
 		$TEvent[]=array(
 			'id'=>$event->id
