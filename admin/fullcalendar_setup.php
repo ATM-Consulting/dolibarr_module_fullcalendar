@@ -196,7 +196,7 @@ print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">'
 print '</form>';
 print '</td></tr>';
 
-
+$var=!$var;
 print '<tr '.$bc[$var].'>';
 print '<td>'.$langs->trans("FULLCALENDAR_USE_ASSIGNED_COLOR").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
@@ -219,6 +219,7 @@ print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">'
 print '</form>';
 print '</td></tr>';
 
+$var=!$var;
 print '<tr '.$bc[$var].'>';
 print '<td>'.$langs->trans("FULLCALENDAR_SHOW_ALL_ASSIGNED_COLOR").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
@@ -228,6 +229,7 @@ print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 print '<input type="hidden" name="action" value="set_FULLCALENDAR_SHOW_ALL_ASSIGNED_COLOR">';
 echo ajax_constantonoff('FULLCALENDAR_SHOW_ALL_ASSIGNED_COLOR');
 
+$var=!$var;
 print '<tr '.$bc[$var].'>';
 print '<td>'.$langs->trans("FULLCALENDAR_USE_HUGE_WHITE_BORDER").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
@@ -238,6 +240,16 @@ print '<input type="hidden" name="action" value="set_FULLCALENDAR_USE_HUGE_WHITE
 echo ajax_constantonoff('FULLCALENDAR_USE_HUGE_WHITE_BORDER');
 
 print '</form>';
+print '</td></tr>';
+
+
+
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("FULLCALENDAR_FILTER_ON_STATE").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+echo ajax_constantonoff('FULLCALENDAR_FILTER_ON_STATE');
 print '</td></tr>';
 
 print '</table>';

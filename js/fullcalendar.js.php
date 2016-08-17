@@ -58,9 +58,21 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	$reshook=$hookmanager->executeHooks('addOptionCalendarEvents',$parameters,$object,$action);
 	if (! empty($hookmanager->resPrint)) $moreOptions = json_decode($hookmanager->resPrint);
 	
+	if (!empty($conf->global->FULLCALENDAR_FILTER_ON_STATE))
+	{
+		dol_include_once('/core/class/html.formcompany.class.php');
+		$formcompany = new FormCompany($db);	
+	}
+	
 ?>
 
 	$(document).ready(function() {
+		
+		<?php if (!empty($conf->global->FULLCALENDAR_FILTER_ON_STATE)) { ?>
+			var select_departement = <?php echo json_encode('<tr><td>'.fieldLabel('State','state_id').'</td><td>'.$formcompany->select_state(GETPOST('state_id'), 'FR').'</td></tr>'); ?>;
+			$("#selectstatus").closest("tr").after(select_departement);
+		<?php } ?>
+		
 		var year = $('form[name=listactionsfilter]').find('input[name=year]').val();
 		var month = $('form[name=listactionsfilter]').find('input[name=month]').val();
 		var defaultDate = year+'-'+month+'-<?php echo $defaultDay/*.' '.$hourStart.':00'*/ ?>';
