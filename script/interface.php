@@ -8,24 +8,24 @@
 	$langs->load("agenda");
 	$langs->load("other");
 	$langs->load("commercial");
-	
+
 	$get=GETPOST('get');
 	$put=GETPOST('put');
-	
-	
+
+
 	if(empty($get) && empty($put)) $get = 'events';
-	
+
 	switch ($get) {
 		case 'events':
 			$start = GETPOST('start');
-			$end = GETPOST('end');	
+			$end = GETPOST('end');
 			$year = GETPOST('year');
 			$month = GETPOST('month');
-			$day = GETPOST('day');			
+			$day = GETPOST('day');
 
 	/*
 			if(!empty($year)) {
-				
+
 				if(!empty($day)) {
 					$start = $year.'-'.$month.'-'.$day;
 					$end = $year.'-'.$month.'-'.$day;
@@ -34,83 +34,83 @@
 					$start = $year.'-'.$month.'-01';
 					$end = $year.'-'.$month.'-31';
 				}
-				
+
 			}
-	*/			
+	*/
 			$TEvent = _events($start, $end);
 			__out($TEvent, 'json');
-				
-					
+
+
 			break;
 		default:
-			
+
 			break;
 	}
-	
-	
+
+
 	switch($put){
 		case 'event-move':
-			
+
 			$a=new ActionComm($db);
 			if($a->fetch(GETPOST('id'))>0) {
 				$a->fetch_userassigned();
-				
+
 				$TData = $_REQUEST['data'];
-				
+
 				if(!empty($TData['minutes'])) {
 					$a->datep = strtotime($TData['minutes'].' minute', $a->datep);
 					$a->datef = strtotime($TData['minutes'].' minute', $a->datef);
 				}
-				
+
 				if(!empty($TData['hours'])) {
 					$a->datep = strtotime($TData['hours'].' hour', $a->datep);
 					$a->datef = strtotime($TData['hours'].' hour', $a->datef);
 				}
-				
+
 				if(!empty($TData['days'])) {
 					$a->datep = strtotime($TData['days'].' day', $a->datep);
 					$a->datef = strtotime($TData['days'].' day', $a->datef);
 				}
-				
+
 				$res = $a->update($user);
-				
-				
-			}	
-			
-			
+
+
+			}
+
+
 			break;
-		
+
 		case 'event-resize':
 			$a=new ActionComm($db);
 			if($a->fetch(GETPOST('id'))>0) {
 				$a->fetch_userassigned();
-				
+
 				$TData = $_REQUEST['data'];
-				
+
 				if(!empty($TData['minutes'])) {
 					if(empty($a->datef))$a->datef = $a->datep;
 					$a->datef = strtotime($TData['minutes'].' minute', $a->datef);
 				}
-				
+
 				if(!empty($TData['hours'])) {
 					if(empty($a->datef))$a->datef = $a->datep;
 					$a->datef = strtotime($TData['hours'].' hour', $a->datef);
 				}
-				
+
 				if(!empty($TData['days'])) {
 					if(empty($a->datef))$a->datef = $a->datep;
 					$a->datef = strtotime($TData['days'].' day', $a->datef);
 				}
-				
+
 				$res = $a->update($user);
-				
-				
-			}	
-			
-			
-			
+
+
+			}
+
+
+
 			break;
-		
+
 		case 'event':
 			$a=new ActionComm($db);
 			$a->label = GETPOST('label');
@@ -126,15 +126,15 @@
 				$a->datep = strtotime(GETPOST('date'));
 			}
 			$a->datef = strtotime('+2 hour',$a->datep);
-			
+
 			$a->userownerid = GETPOST('fk_user') ? GETPOST('fk_user') : $user->id;
 			$a->type_code = GETPOST('type_code') ? GETPOST('type_code') : 'AC_OTH';
 			$a->socid = GETPOST('fk_soc');
 			$a->contactid = GETPOST('fk_contact');
-			
+
 			$a->fk_project = GETPOST('fk_project','int');
-			$a->percentage = -1; // Non applicable 
-			
+			$a->percentage = -1; // Non applicable
+
 			$moreParams = GETPOST('moreParams');
 			$moreParams = explode(',', $moreParams);
 			$TParam = array();
@@ -146,21 +146,21 @@
 			$res = $a->add($user);
 			$a->update($user);
 			print $res;
-			
+
 			break;
 	}
-	
-	
+
+
 function _events($date_start, $date_end) {
 	global $db,$conf,$langs,$user,$hookmanager;
-	
+
 	$hookmanager->initHooks(array('agenda'));
-	
+
 	$pid=GETPOST("projectid","int",3);
 	$status=GETPOST("status");
 	$type=GETPOST("type");
 	$state_id = GETPOST('state_id');
-	
+
 	$maxprint=(GETPOST("maxprint")?GETPOST("maxprint"):$conf->global->AGENDA_MAX_EVENTS_DAY_VIEW);
 	//$actioncode=GETPOST("actioncode","alpha",3)?GETPOST("actioncode","alpha",3):(GETPOST("actioncode")=='0'?'0':'');
 	$actioncode=GETPOST("actioncode", "array", 3)?GETPOST("actioncode", "array", 3):(GETPOST("actioncode")=='0'?'0':'');
@@ -178,9 +178,9 @@ function _events($date_start, $date_end) {
 
 	$t_start = strtotime($date_start);
 	$t_end = strtotime($date_end);
-	
+
 	$now=dol_now();
-	
+
 	$sql = 'SELECT ';
 	if ($usergroup > 0) $sql.=" DISTINCT";
 	$sql.= ' a.id, a.label,';
@@ -199,12 +199,12 @@ function _events($date_start, $date_end) {
 		$sql .= ' LEFT JOIN '.MAIN_DB_PREFIX.'societe s ON (s.rowid = a.fk_soc)';
 		$sql .= ' LEFT JOIN '.MAIN_DB_PREFIX.'socpeople sp ON (sp.rowid = a.fk_contact)';
 	}
-	
+
 	if (! $user->rights->societe->client->voir && ! $socid) $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."societe_commerciaux as sc ON a.fk_soc = sc.fk_soc";
 	// We must filter on assignement table
 	if ($filtert > 0 || $usergroup > 0) $sql.=" LEFT JOIN ".MAIN_DB_PREFIX."actioncomm_resources as ar ON (ar.fk_actioncomm = a.id)";
 	if ($usergroup > 0) $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."usergroup_user as ugu ON ugu.fk_user = ar.fk_element";
-	$sql.= ' WHERE 1';
+	$sql.= ' WHERE 1=1';
 	$sql.= ' AND a.entity IN ('.getEntity('agenda', 1).')';
 	if ($actioncode) $sql.=" AND ca.code IN ('".implode("','", $actioncode)."')";
 	if ($conf->global->DONT_SHOW_AUTO_EVENT && strpos(implode(',', $actioncode),'AC_OTH_AUTO') == FALSE) $sql.=" AND ca.code != 'AC_OTH_AUTO'";
@@ -214,12 +214,12 @@ function _events($date_start, $date_end) {
 	if (!empty($conf->global->FULLCALENDAR_FILTER_ON_STATE) && !empty($state_id)) $sql.= ' AND (s.fk_departement = '.$state_id.' OR sp.fk_departement = '.$state_id.')';
 	// We must filter on assignement table
 	if ($filtert > 0 || $usergroup > 0) $sql.= " AND ar.element_type='user'";
-	
-	$sql.=" AND 
-			( 
-				(a.datep2>='".$db->idate($t_start-(60*60*24*7))."' AND datep<=".$db->idate($t_end+(60*60*24*10)).")  
-				OR 
-			  	(a.datep BETWEEN ".$db->idate($t_start-(60*60*24*7))." AND ".$db->idate($t_end+(60*60*24*10)).")
+
+	$sql.=" AND
+			(
+				(a.datep2>='".$db->idate($t_start-(60*60*24*7))."' AND datep<='".$db->idate($t_end+(60*60*24*10))."')
+				OR
+			  	(a.datep BETWEEN '".$db->idate($t_start-(60*60*24*7))."' AND '".$db->idate($t_end+(60*60*24*10))."')
 			) ";
 
 	if ($type) $sql.= " AND ca.id = ".$type;
@@ -238,10 +238,10 @@ function _events($date_start, $date_end) {
 	}
 	// Sort on date
 	$sql.= ' ORDER BY datep';
-	
+
 	$TEvent=array();
 	if(isset($_REQUEST['DEBUG'])) print $sql;
-	
+
 	$res= $db->query($sql);
 	//var_dump($db);
 
@@ -255,14 +255,14 @@ function _events($date_start, $date_end) {
 		$event = new ActionComm($db);
 		$event->fetch($obj->id);
 		$event->fetch_userassigned();
-		
+
 		$event->color = $obj->color;
-		
+
 		$TEventObject[] = $event;
 	}
-	
+
 	foreach($TEventObject as &$event) {
-		
+
 		if($event->socid>0 && !isset($TSociete[$event->socid])) {
 			$societe = new Societe($db);
 			$societe->fetch($event->socid);
@@ -275,16 +275,16 @@ function _events($date_start, $date_end) {
             $TContact[$event->contactid]  = $contact->getNomUrl(1);
 
         }
-		
+
 		$TUserassigned = array();
 		$TColor=array();
-		
+
 		if($event->color && empty($conf->global->FULLCALENDAR_USE_ASSIGNED_COLOR)) $TColor[] = '#'.$event->color;
-		
+
 		if(!empty($conf->global->FULLCALENDAR_SHOW_AFFECTED_USER) ) {
-			
+
 			$userownerid = (int)$event->userownerid;
-			
+
 			if( $userownerid>0 && !isset($TUser[$userownerid])) {
 	            $u = new User($db);
 	            $u->fetch($userownerid);
@@ -299,25 +299,25 @@ function _events($date_start, $date_end) {
             $TProject[$event->fk_project]  = $p->getNomUrl(1);
 
         }
-		
-		
+
+
 		if(!empty($conf->global->FULLCALENDAR_SHOW_AFFECTED_USER) && !empty($event->userassigned)) {
-			
+
 			foreach($event->userassigned as &$ua) {
 				$userid = (int)$ua['id'];
 				if(!isset($TUser[$userid])) {
 					   $u = new User($db);
             		   $u->fetch($userid);
            			   $TUser[$userid]  = $u;
-					   
+
 				}
-				
+
 				if(!isset($TUserassigned[$userid])) $TUserassigned[] = $TUser[$userid]->getNomUrl(1);
-				
+
 				if($TUser[$userid]->color && !in_array('#'.$TUser[$userid]->color,$TColor)) $TColor[] = '#'.$TUser[$userid]->color;
-				
-			} 
-		
+
+			}
+
 		}
 
 
@@ -327,27 +327,27 @@ function _events($date_start, $date_end) {
 //background: linear-gradient(to bottom, #1e5799 0%,#2989d8 25%,#207cca 67%,#7db9e8 100%);
 		//$colors = implode(',',$TColor);
 		$colors='';
-		
+
 		$color='';
-		
+
 		if(!empty($TColor)) {
-			
+
 			$color = $TColor[0];
-				
+
 			if(!empty($conf->global->FULLCALENDAR_SHOW_ALL_ASSIGNED_COLOR) && count($TColor)>1) {
 				$colors = 'linear-gradient(to right ';
 				foreach($TColor as $c) {
-					
+
 					$colors.= ','.$c;
-					
+
 				}
-			
+
 				$colors.=')';
-				
+
 			}
-				
+
 		}
-		
+
 		$TEvent[]=array(
 			'id'=>$event->id
 			,'title'=>$event->label
@@ -371,7 +371,7 @@ function _events($date_start, $date_end) {
 			,'project'=>(!empty($TProject[$event->fk_project]) ? $TProject[$event->fk_project] : '')
 			,'more'=>''
 		);
-		
+
 	}
 		$use_workstation_color=null;
 		if(GETPOST('use_workstation_color'))$use_workstation_color=1;
@@ -380,19 +380,19 @@ function _events($date_start, $date_end) {
 	$parameters=array('use_workstation_color'=>$use_workstation_color,'sql'=>$sql); $action = 'getEvents';
 	$reshook=$hookmanager->executeHooks('updateFullcalendarEvents',$parameters,$TEvent,$action);
 	if (! empty($hookmanager->resArray['eventarray'])) $TEvent=array_merge($TEvent, $hookmanager->resArray['eventarray']);
-	
+
 	return $TEvent;
-	
+
 }
 
 function isDarkColor($color) {
 	global $conf;
-	
+
 	$lightness_swap = empty($conf->global->FULLCALENDAR_LIGTHNESS_SWAP) ? 150 : $conf->global->FULLCALENDAR_LIGTHNESS_SWAP;
-	
+
 	$rgb = HTMLToRGB($color);
 	$hsl = RGBToHSL($rgb);
-	
+
 	return ($hsl->lightness<$lightness_swap) ? 1 : 0;
 }
 
@@ -449,7 +449,7 @@ function RGBToHSL($RGB) {
       if($b == $maxC)
         $h = 4.0 + ($r - $g) / ($maxC - $minC);
 
-      $h = $h / 6.0; 
+      $h = $h / 6.0;
     }
 
     $h = (int)round(255.0 * $h);
