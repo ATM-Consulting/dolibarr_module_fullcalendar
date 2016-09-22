@@ -162,8 +162,11 @@ function _events($date_start, $date_end) {
 	$state_id = GETPOST('state_id');
 
 	$maxprint=(GETPOST("maxprint")?GETPOST("maxprint"):$conf->global->AGENDA_MAX_EVENTS_DAY_VIEW);
-	//$actioncode=GETPOST("actioncode","alpha",3)?GETPOST("actioncode","alpha",3):(GETPOST("actioncode")=='0'?'0':'');
+
+	//First try with GETPOST(array) (I don't know when it can be an array but why not)
 	$actioncode=GETPOST("actioncode", "array", 3)?GETPOST("actioncode", "array", 3):(GETPOST("actioncode")=='0'?'0':'');
+
+	//If empty then try GETPOST(alpha) (this one works with comm/action/index.php
 	if(empty($actioncode)) {
 		$actioncode=GETPOST("actioncode","alpha",3)?GETPOST("actioncode","alpha",3):(GETPOST("actioncode")=='0'?'0':'');
 		$actioncode=array($actioncode);
@@ -171,6 +174,7 @@ function _events($date_start, $date_end) {
 	if(empty($actioncode)) {
 		$actioncode = array();
 	}
+
 	$filter=GETPOST("filter",'',3);
 	$filtert = GETPOST("usertodo","int",3)?GETPOST("usertodo","int",3):GETPOST("filtert","int",3);
 	$usergroup = GETPOST("usergroup","int",3);
