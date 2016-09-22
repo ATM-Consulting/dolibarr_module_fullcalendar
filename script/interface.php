@@ -164,7 +164,13 @@ function _events($date_start, $date_end) {
 	$maxprint=(GETPOST("maxprint")?GETPOST("maxprint"):$conf->global->AGENDA_MAX_EVENTS_DAY_VIEW);
 	//$actioncode=GETPOST("actioncode","alpha",3)?GETPOST("actioncode","alpha",3):(GETPOST("actioncode")=='0'?'0':'');
 	$actioncode=GETPOST("actioncode", "array", 3)?GETPOST("actioncode", "array", 3):(GETPOST("actioncode")=='0'?'0':'');
-	if(empty($actioncode)) $actioncode = array();
+	if(empty($actioncode)) {
+		$actioncode=GETPOST("actioncode","alpha",3)?GETPOST("actioncode","alpha",3):(GETPOST("actioncode")=='0'?'0':'');
+		$actioncode=array($actioncode);
+	}
+	if(empty($actioncode)) {
+		$actioncode = array();
+	}
 	$filter=GETPOST("filter",'',3);
 	$filtert = GETPOST("usertodo","int",3)?GETPOST("usertodo","int",3):GETPOST("filtert","int",3);
 	$usergroup = GETPOST("usergroup","int",3);
@@ -207,7 +213,7 @@ function _events($date_start, $date_end) {
 	$sql.= ' WHERE 1=1';
 	$sql.= ' AND a.entity IN ('.getEntity('agenda', 1).')';
 	if ($actioncode) $sql.=" AND ca.code IN ('".implode("','", $actioncode)."')";
-	if ($conf->global->DONT_SHOW_AUTO_EVENT && strpos(implode(',', $actioncode),'AC_OTH_AUTO') == FALSE) $sql.=" AND ca.code != 'AC_OTH_AUTO'";
+	if ($conf->global->DONT_SHOW_AUTO_EVENT && strpos(implode(',', $actioncode),'AC_OTH_AUTO') == false) $sql.=" AND ca.code != 'AC_OTH_AUTO'";
 	if ($pid) $sql.=" AND a.fk_project=".$db->escape($pid);
 	if (! $user->rights->societe->client->voir && ! $socid) $sql.= " AND (a.fk_soc IS NULL OR sc.fk_user = " .$user->id . ")";
 	if ($socid > 0) $sql.= ' AND a.fk_soc = '.$socid;
