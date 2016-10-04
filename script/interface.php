@@ -168,8 +168,10 @@ function _events($date_start, $date_end) {
 
 	//If empty then try GETPOST(alpha) (this one works with comm/action/index.php
 	if(empty($actioncode)) {
+		
 		$actioncode=GETPOST("actioncode","alpha",3)?GETPOST("actioncode","alpha",3):(GETPOST("actioncode")=='0'?'0':'');
-		$actioncode=array($actioncode);
+		if(!empty($actioncode)) $actioncode=array($actioncode);
+		
 	}
 	if(empty($actioncode)) {
 		$actioncode = array();
