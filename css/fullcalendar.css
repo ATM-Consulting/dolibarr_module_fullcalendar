@@ -1,5 +1,6 @@
 div.fc-view-container div.fc-time-grid tr:hover {
 	background-color: #E0F7C8;
 }
-a.fc-event {
+a.fc-event:hover {
+	z-index:20!important;
 }
