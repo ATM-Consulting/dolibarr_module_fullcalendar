@@ -15,8 +15,13 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 	list($langjs,$dummy) =explode('_', $langs->defaultlang);
 
+	if($langjs=='en') $langjs = 'en-gb';
+
 	readfile(dol_buildpath('/fullcalendar/lib/moment/min/moment.min.js'));
 	readfile(dol_buildpath('/fullcalendar/lib/fullcalendar/dist/fullcalendar.min.js'));
+	
+	if(!is_file(dol_buildpath('/fullcalendar/lib/fullcalendar/dist/lang/'.$langjs.'.js'))) $langjs = 'en-gb';
+	
 	readfile(dol_buildpath('/fullcalendar/lib/fullcalendar/dist/lang/'.$langjs.'.js'));
 
 	if(!empty($user->array_options['options_googlecalendarapi'])) {
