@@ -168,10 +168,10 @@ function _events($date_start, $date_end) {
 
 	//If empty then try GETPOST(alpha) (this one works with comm/action/index.php
 	if(empty($actioncode)) {
-		
+
 		$actioncode=GETPOST("actioncode","alpha",3)?GETPOST("actioncode","alpha",3):(GETPOST("actioncode")=='0'?'0':'');
 		if(!empty($actioncode)) $actioncode=array($actioncode);
-		
+
 	}
 	if(empty($actioncode)) {
 		$actioncode = array();
@@ -201,8 +201,9 @@ function _events($date_start, $date_end) {
 	$sql.= ' a.percent,';
 	$sql.= ' a.fk_user_author,a.fk_user_action,';
 	$sql.= ' a.transparency, a.priority, a.fulldayevent, a.location,';
-	$sql.= ' a.fk_soc, a.fk_contact,u.color,a.note,';
-	$sql.= ' ca.code as type_code, ca.libelle as type_label';
+	$sql.= ' a.fk_soc, a.fk_contact,a.note,';
+	$sql.= $db->ifsql('(u.color IS NULL OR u.color=\'\')', 'ca.color', 'u.color'). ' as color';
+	$sql.= ' ,ca.code as type_code, ca.libelle as type_label';
 	$sql.= ' FROM '.MAIN_DB_PREFIX."actioncomm as a";
 	$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'c_actioncomm as ca ON (a.fk_action = ca.id)';
 	$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'user u ON (a.fk_user_action=u.rowid )';
