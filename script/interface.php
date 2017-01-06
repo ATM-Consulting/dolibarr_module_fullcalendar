@@ -202,8 +202,9 @@ function _events($date_start, $date_end) {
 	$sql.= ' a.fk_user_author,a.fk_user_action,';
 	$sql.= ' a.transparency, a.priority, a.fulldayevent, a.location,';
 	$sql.= ' a.fk_soc, a.fk_contact,a.note,';
-	$sql.= $db->ifsql('(u.color IS NULL OR u.color=\'\')', 'ca.color', 'u.color'). ' as color';
-	$sql.= ' ,ca.code as type_code, ca.libelle as type_label';
+	$sql.= ' u.color,';
+	$sql.= ' ca.color as type_color,';
+	$sql.= ' ca.code as type_code, ca.libelle as type_label';
 	$sql.= ' FROM '.MAIN_DB_PREFIX."actioncomm as a";
 	$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'c_actioncomm as ca ON (a.fk_action = ca.id)';
 	$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'user u ON (a.fk_user_action=u.rowid )';
@@ -270,6 +271,7 @@ function _events($date_start, $date_end) {
 		$event->fetch_userassigned();
 
 		$event->color = $obj->color;
+		$event->type_color = $obj->type_color;
 
 		$TEventObject[] = $event;
 	}
@@ -292,7 +294,12 @@ function _events($date_start, $date_end) {
 		$TUserassigned = array();
 		$TColor=array();
 
-		if($event->color && empty($conf->global->FULLCALENDAR_USE_ASSIGNED_COLOR)) $TColor[] = '#'.$event->color;
+		if($event->color && empty($conf->global->FULLCALENDAR_USE_ASSIGNED_COLOR)) {
+			$TColor[] = '#'.$event->color;
+		}
+		if($event->type_color && !empty($conf->global->FULLCALENDAR_SHOW_ALL_ASSIGNED_COLOR)) {
+			$TColor[] = '#'.$event->type_color;
+		}
 
 		if(!empty($conf->global->FULLCALENDAR_SHOW_AFFECTED_USER) ) {
 
@@ -336,19 +343,21 @@ function _events($date_start, $date_end) {
 
 
 		$editable = false;
-		if(($user->id == $event->userownerid) || $user->rights->agenda->allactions->create) $editable = true;
-//background: linear-gradient(to bottom, #1e5799 0%,#2989d8 25%,#207cca 67%,#7db9e8 100%);
+		if(($user->id == $event->userownerid) || $user->rights->agenda->allactions->create) {
+			$editable = true;
+		}
+
+		//background: linear-gradient(to bottom, #1e5799 0%,#2989d8 25%,#207cca 67%,#7db9e8 100%);
 		//$colors = implode(',',$TColor);
 		$colors='';
 
 		$color='';
-
 		if(!empty($TColor)) {
 
 			$color = $TColor[0];
 
 			if(!empty($conf->global->FULLCALENDAR_SHOW_ALL_ASSIGNED_COLOR) && count($TColor)>1) {
-				$colors = 'linear-gradient(to right ';
+				$colors = ' linear-gradient(to right ';
 				foreach($TColor as $c) {
 
 					$colors.= ','.$c;
