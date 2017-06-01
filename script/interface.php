@@ -294,7 +294,7 @@ function _events($date_start, $date_end) {
 		$TUserassigned = array();
 		$TColor=array();
 
-		if($event->color && empty($conf->global->FULLCALENDAR_USE_ASSIGNED_COLOR)) {
+		if($event->color && !empty($conf->global->FULLCALENDAR_USE_ASSIGNED_COLOR)) {
 			$TColor[] = '#'.$event->color;
 		}
 		if($event->type_color && !empty($conf->global->FULLCALENDAR_SHOW_ALL_ASSIGNED_COLOR)) {

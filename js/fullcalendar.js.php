@@ -30,8 +30,9 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	}
 
 	ob_start();
+	$selected = !empty($conf->global->AGENDA_USE_EVENT_TYPE_DEFAULT) ? $conf->global->AGENDA_USE_EVENT_TYPE_DEFAULT : -1;
 	$formactions=new FormActions($db);
-	$formactions->select_type_actions(-1, "type_code","systemauto");
+	$formactions->select_type_actions($selected, "type_code","systemauto");
 	$select_type_action = ob_get_clean();
 
 	$form=new Form($db);
@@ -340,7 +341,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	        		,width:'auto'
 	        		,title:"<?php echo $langs->transnoentities('AddAnAction') ?>"
 	        		,buttons:{
-	        			    "<?php echo $langs->transnoentities('Add') ?>": function() {								if($('#pop-new-event input[name=label]').val() != '') {
+	        			    "<?php echo $langs->transnoentities('Add') ?>": function() {
+								if($('#pop-new-event input[name=label]').val() != '') {
 
 									$.ajax({
 										url:'<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'
