@@ -295,7 +295,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	        	$div.append("<?php echo strtr(addslashes($select_type_action),array("\n"=>"\\\n")); ?>");
 	        	$div.append('<br /><input type="text" name="label" value="" placeholder="<?php echo $langs->trans('Title') ?>" style="width:300px">');
 	        	$div.append('<br /><textarea name="note" value="" placeholder="<?php echo $langs->trans('Note') ?>"  style="width:300px" rows="3"></textarea>');
-	        	$div.append("<br /><?php echo $langs->trans('Company').' : '.strtr(addslashes($select_company),array("\n"=>"\\\n")); ?>");
+				$div.append("<br /><?php echo $langs->trans('Company'); ?> : ");
+				$div.append(<?php echo json_encode($select_company); ?>);
 	        	$div.append("<br /><?php echo $langs->trans('Contact').' : '.strtr(addslashes('<span rel="contact">'.$select_contact.'</span>'),array("\n"=>"\\\n")); ?>");
 	        	$div.append("<br /><?php echo $langs->trans('User').' : '.strtr(addslashes($select_user),array("\n"=>" ","\r"=>"")); ?>");
 	        	<?php
@@ -333,7 +334,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	        		});
 
 	        	});
-
+				
 	        	$('body').append($div);
 
 	        	$('#pop-new-event').dialog({
