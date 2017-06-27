@@ -12,6 +12,11 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 	dol_include_once('/core/class/html.formactions.class.php');
 	dol_include_once('/core/class/html.formprojet.class.php');
+	if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT))
+	{
+		require_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';
+		$formactions = new FormActions($db);
+	}
 
 	list($langjs,$dummy) =explode('_', $langs->defaultlang);
 
@@ -306,6 +311,12 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			$div.append("<?php echo strtr(addslashes($select_type_action),array("\n"=>"\\\n")); ?>");
 			$div.append('<br /><input type="text" name="label" value="" placeholder="<?php echo $langs->trans('Title') ?>" style="width:300px">');
 			$div.append('<br /><textarea name="note" value="" placeholder="<?php echo $langs->trans('Note') ?>"  style="width:300px" rows="3"></textarea>');
+			
+			<?php if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) { ?>
+			$div.append('<br /><?php echo $langs->trans('Status').' / '.$langs->trans('Percentage') ?> :');
+			$div.append(<?php ob_start(); $formactions->form_select_status_action('formaction','0',1); $html_percent = ob_get_clean(); echo json_encode($html_percent); ?>);
+			<?php } ?>
+			
 			$div.append("<br /><?php echo $langs->trans('Company'); ?> : ");
 			$div.append(<?php echo json_encode($select_company); ?>);
 			$div.append("<br /><?php echo $langs->trans('Contact').' : '.strtr(addslashes('<span rel="contact">'.$select_contact.'</span>'),array("\n"=>"\\\n")); ?>");
@@ -356,6 +367,16 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				$div.find('#type_code').val(calEvent.object.type_code);
 				$div.find('input[name=label]').val(calEvent.object.label);
 				$div.find('textarea[name=note]').val(calEvent.object.note);
+				<?php if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) { ?>
+				setTimeout(function() { // async needed
+					if (calEvent.object.percentage == -1) $div.find('select[name=complete]').val(-1).trigger('change');
+					else if (calEvent.object.percentage == 0) $div.find('select[name=complete]').val(0).trigger('change');
+					else if (calEvent.object.percentage < 100) $div.find('select[name=complete]').val(50).trigger('change');
+					else if (calEvent.object.percentage >= 100) $div.find('select[name=complete]').val(100).trigger('change');
+					
+					$div.find('input[name=percentage]').val(calEvent.object.percentage);
+				}, 1);
+				<?php } ?>
 				if (calEvent.object.socid > 0) {
 					$div.find('#fk_soc').val(calEvent.object.socid).trigger('change'); // Si COMPANY_USE_SEARCH_TO_SELECT == 0, alors le trigger "change" fera l'affaire
 					<?php if (!empty($conf->global->COMPANY_USE_SEARCH_TO_SELECT)) { ?>$div.find('#search_fk_soc').val(calEvent.object.thirdparty.name); <?php } ?>
@@ -396,6 +417,10 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 										,fk_user:$('#pop-new-event select[name=fk_user]').val()
 										,fk_project:<?php if (!empty($conf->global->FULLCALENDAR_SHOW_PROJECT)) { ?>$('#pop-new-event select[name=fk_project]').val()<?php } else { ?>fk_project<?php } ?>
 										,type_code:$('#pop-new-event select[name=type_code]').val()
+										<?php if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) { ?>
+										,complete:$('#pop-new-event select[name=complete]').val()
+										,percentage:$('#pop-new-event input[name=percentage]').val()
+										<?php } ?>
 										<?php
 										if(!empty($moreOptions)) {
 

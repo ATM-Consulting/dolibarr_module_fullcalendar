@@ -18,3 +18,4 @@ FULLCALENDAR_SHOW_ALL_ASSIGNED_COLOR=Voir les couleurs de tous les assignés et 
 FULLCALENDAR_LIGTHNESS_SWAP=Limite de luminosité pour écriture en blanc (0 : sombre - 255 : clair)
 FULLCALENDAR_USE_HUGE_WHITE_BORDER=Utilser des bordures blanches pour séparer les événements à l'affichage
 FULLCALENDAR_FILTER_ON_STATE=Ajouter le filtre par département client
+FULLCALENDAR_CAN_UPDATE_PERCENT=Permettre la mise à jour de l'état d'avancement (pourcentage)

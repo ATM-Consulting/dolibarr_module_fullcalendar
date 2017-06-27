@@ -136,7 +136,10 @@
 			$a->contactid = GETPOST('fk_contact');
 
 			$a->fk_project = GETPOST('fk_project','int');
-			$a->percentage = -1; // Non applicable
+			
+			$percentage = -1; // Non applicable
+			if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) $percentage=in_array(GETPOST('status'),array(-1,100))?GETPOST('status'):(in_array(GETPOST('complete'),array(-1,100))?GETPOST('complete'):GETPOST("percentage"));	// [COPY FROM DOLIBARR] If status is -1 or 100, percentage is not defined and we must use status
+			$a->percentage = $percentage;
 
 			$moreParams = GETPOST('moreParams');
 			$moreParams = explode(',', $moreParams);

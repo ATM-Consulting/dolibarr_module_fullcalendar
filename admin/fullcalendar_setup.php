@@ -252,6 +252,14 @@ print '<td align="right" width="300">';
 echo ajax_constantonoff('FULLCALENDAR_FILTER_ON_STATE');
 print '</td></tr>';
 
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("FULLCALENDAR_CAN_UPDATE_PERCENT").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+echo ajax_constantonoff('FULLCALENDAR_CAN_UPDATE_PERCENT');
+print '</td></tr>';
+
 print '</table>';
 
 llxFooter();
