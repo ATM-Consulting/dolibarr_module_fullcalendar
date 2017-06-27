@@ -113,6 +113,9 @@
 
 		case 'event':
 			$a=new ActionComm($db);
+			$id = GETPOST('id');
+			if (!empty($id)) $a->fetch($id);
+			
 			$a->label = GETPOST('label');
 			$a->note= GETPOST('note');
 
@@ -143,8 +146,11 @@
 				$a->_{$param} = GETPOST($param);
 			}
 			//var_dump($conf->global->FULLCALENDAR_SHOW_THIS_HOURS,GETPOST('date'),$a);exit;
-			$res = $a->add($user);
+			$res = $a->id;
+			if (empty($a->id)) $res = $a->add($user);
+			else $a->userassigned = array($a->userownerid=>array('id'=>$a->userownerid)); // Si on fait juste un update, il faut formatter ce tableau 
 			$a->update($user);
+			
 			print $res;
 
 			break;
@@ -268,6 +274,7 @@ function _events($date_start, $date_end) {
 	while($obj=$db->fetch_object($res)) {
 		$event = new ActionComm($db);
 		$event->fetch($obj->id);
+		if (method_exists($event, 'fetch_thirdparty')) $event->fetch_thirdparty();
 		$event->fetch_userassigned();
 
 		$event->color = $obj->color;
@@ -369,14 +376,14 @@ function _events($date_start, $date_end) {
 			}
 
 		}
-
+		
 		$TEvent[]=array(
 			'id'=>$event->id
 			,'title'=>$event->label
 			,'allDay'=>(bool)($event->fulldayevent)
-			,'start'=>(empty($event->datep) ? '' : date('Y-m-d H:i:s',(int)$event->datep))
-			,'end'=>(empty($event->datef) ? '' : date('Y-m-d H:i:s',(int)$event->datef))
-			,'url'=>dol_buildpath('/comm/action/card.php?id='.$event->id,1)
+			,'start'=>(empty($event->datep) ? '' : dol_print_date($event->datep, '%Y-%m-%d %H:%M:%S'))
+			,'end'=>(empty($event->datef) ? '' : dol_print_date($event->datef, '%Y-%m-%d %H:%M:%S'))
+			,'url_title'=>dol_buildpath('/comm/action/card.php?id='.$event->id,1)
 			,'editable'=>$editable
 			,'color'=>$color
 			,'isDarkColor'=>isDarkColor($color)
@@ -392,6 +399,7 @@ function _events($date_start, $date_end) {
 			,'user'=>(!empty($TUserassigned) ? implode(', ',$TUserassigned) : '')
 			,'project'=>(!empty($TProject[$event->fk_project]) ? $TProject[$event->fk_project] : '')
 			,'more'=>''
+			,'object'=>$event
 		);
 
 	}
