@@ -146,6 +146,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			?>
 
 	        ,lang: 'fr'
+	        ,aspectRatio:1.36
 	        ,weekNumbers:true
 			,defaultView:defaultView
 			,eventSources : [currentsource]
@@ -307,9 +308,11 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			,eventClick:function(calEvent, jsEvent, view) {
 				showPopIn(calEvent.start, calEvent);
 			}
+			,eventAfterAllRender:function (view) {
+				$('#fullcalendar').fullCalendar( 'option' , 'aspectRatio', 1.35);
+			}
 	    });
-
-
+		
 		function showPopIn(date, calEvent) {
 			$('#pop-new-event').remove();
 
