@@ -18,3 +18,5 @@ FULLCALENDAR_SHOW_ALL_ASSIGNED_COLOR=See the colors of all the assigned and type
 FULLCALENDAR_LIGTHNESS_SWAP=Brightness limit for writing in white (0: dark - 255: bright)
 FULLCALENDAR_USE_HUGE_WHITE_BORDER=Use white borders to separate the events on the display
 FULLCALENDAR_FILTER_ON_STATE=Add filter by customer department
+
+EditAnAction=Edit event
