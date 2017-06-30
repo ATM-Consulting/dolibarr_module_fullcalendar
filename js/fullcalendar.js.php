@@ -6,6 +6,10 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 {
 	require '../config.php';
 
+	require_once DOL_DOCUMENT_ROOT.'/core/class/doleditor.class.php';
+	
+	$langs->load('fullcalendar@fullcalendar');
+	
 	if(!empty($conf->global->MAIN_NOT_INC_FULLCALENDAR_HEAD) && empty($_REQUEST['force_use_js'])) exit;
 
 	if(empty($user->rights->fullcalendar->useit)) exit;
@@ -88,6 +92,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 		var month = $('form[name=listactionsfilter]').find('input[name=month]').val();
 		var defaultDate = year+'-'+month+'-<?php echo $defaultDay/*.' '.$hourStart.':00'*/ ?>';
 
+		
 		var defaultView='month';
 		if($('form.listactionsfilter input[name=action]').val() == 'show_week') defaultView = 'agendaWeek';
 		if($('form.listactionsfilter input[name=action]').val() == 'show_day') defaultView = 'agendaDay';
@@ -142,7 +147,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 	        ,lang: 'fr'
 	        ,weekNumbers:true
-			,defaultView:'month'
+			,defaultView:defaultView
 			,eventSources : [currentsource]
 			,eventLimit : <?php echo !empty($conf->global->AGENDA_MAX_EVENTS_DAY_VIEW) ? $conf->global->AGENDA_MAX_EVENTS_DAY_VIEW : 3; ?>
 			,dayRender:function(date, cell) {
@@ -190,8 +195,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 			}
 			,eventRender:function( event, element, view ) {
-				var title = element.find('span.fc-title').html();
-				element.find('span.fc-title').html('<a class="url_title" href='+event.url_title+'>'+title+'</a>');
+				var title = element.find('.fc-title').html();
+				element.find('.fc-title').html('<a class="url_title" href="'+event.url_title+'" onclick="event.stopPropagation();">'+title+'</a>');
 				var note = "";
 				<?php
 
@@ -257,9 +262,10 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			 }
 			,loading:function(isLoading, view) {
 
-				if(!isLoading && defaultView != 'month') {
+				// Engendre une impossibilité de naviguer sur les autres vues et de faire du prev, next (à voir si le décalage de pixel réapparait)
+				/*if(!isLoading && defaultView != 'month') {
 					$('#fullcalendar').fullCalendar( 'changeView', defaultView ); // sinon problème de positionnement
-				}
+				}*/
 
 				if(defaultView == 'month') {
 					$('#fullcalendar').fullCalendar( 'option', 'height', 'auto');
@@ -308,9 +314,15 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			$('#pop-new-event').remove();
 
 			$div = $('<div id="pop-new-event"></div>');
+			
 			$div.append("<?php echo strtr(addslashes($select_type_action),array("\n"=>"\\\n")); ?>");
-			$div.append('<br /><input type="text" name="label" value="" placeholder="<?php echo $langs->trans('Title') ?>" style="width:300px">');
-			$div.append('<br /><textarea name="note" value="" placeholder="<?php echo $langs->trans('Note') ?>"  style="width:300px" rows="3"></textarea>');
+			$div.append('<br /><input type="text" name="label" value="" placeholder="<?php echo $langs->trans('Title') ?>" style="width:300px"><br />');
+			
+			<?php 
+				$doleditor=new DolEditor('note', '','',200,'dolibarr_notes','In',true,true,$conf->fckeditor->enabled,ROWS_5,90);
+				$fullcalendar_note = $doleditor->Create(1);
+			?>
+			$div.append(<?php echo json_encode($fullcalendar_note); ?>);
 			
 			<?php if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) { ?>
 			$div.append('<br /><?php echo $langs->trans('Status').' / '.$langs->trans('Percentage') ?> :');
@@ -387,30 +399,38 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			}
 			
 			
-			
 			$('body').append($div);
 
+			var title_dialog = "<?php echo $langs->transnoentities('AddAnAction') ?>";
 			var bt_add_lang = "<?php echo $langs->transnoentities('Add'); ?>";
-			if (typeof calEvent === 'object') bt_add_lang = "<?php echo $langs->transnoentities('Update'); ?>";
-			
+			if (typeof calEvent === 'object')
+			{
+				title_dialog = "<?php echo $langs->transnoentities('EditAnAction') ?>";
+				bt_add_lang = "<?php echo $langs->transnoentities('Update'); ?>";
+			}
 			
 			$('#pop-new-event').dialog({
 				modal:true
 				,width:'auto'
-				,title:"<?php echo $langs->transnoentities('AddAnAction') ?>"
+				,title: title_dialog
 				,buttons:[
 					{
 						text: bt_add_lang
 						, click: function() {
+							
 							if($('#pop-new-event input[name=label]').val() != '') {
 
+								var note = $('#pop-new-event textarea[name=note]').val();
+								<?php if (!empty($conf->fckeditor->enabled)) { ?>note = CKEDITOR.instances['note'].getData(); <?php } ?>
+								
 								$.ajax({
-									url:'<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'
+									method: 'POST'
+									,url:'<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'
 									,data:{
 										put:'event'
 										,id:$('#pop-new-event input[name=id]').val()
 										,label:$('#pop-new-event input[name=label]').val()
-										,note:$('#pop-new-event textarea[name=note]').val()
+										,note:note
 										,date:date.format()
 										,fk_soc:<?php if (empty($conf->global->COMPANY_USE_SEARCH_TO_SELECT)) { ?> $('#pop-new-event select[name=fk_soc]').val() <?php } else { ?> $('#pop-new-event input[name=fk_soc]').val() <?php } ?>
 										,fk_contact:$('#pop-new-event select[name=contactid]').val()
