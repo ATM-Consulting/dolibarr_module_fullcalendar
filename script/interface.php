@@ -119,16 +119,19 @@
 			$a->label = GETPOST('label');
 			$a->note= GETPOST('note');
 
-			$datep = date('H',strtotime(GETPOST('date')));
-			if($datep == '00' && !empty($conf->global->FULLCALENDAR_SHOW_THIS_HOURS) ){
-				$a->datep = strtotime('+'.substr($conf->global->FULLCALENDAR_SHOW_THIS_HOURS,0,1).' hour',strtotime(GETPOST('date')));
-			}
-			else{
-				if($datep=='00') $a->fulldayevent = 1;
+			if (empty($a->id))
+			{
+				$datep = date('H',strtotime(GETPOST('date')));
+				if($datep == '00' && !empty($conf->global->FULLCALENDAR_SHOW_THIS_HOURS) ){
+					$a->datep = strtotime('+'.substr($conf->global->FULLCALENDAR_SHOW_THIS_HOURS,0,1).' hour',strtotime(GETPOST('date')));
+				}
+				else{
+					if($datep=='00') $a->fulldayevent = 1;
 
-				$a->datep = strtotime(GETPOST('date'));
+					$a->datep = strtotime(GETPOST('date'));
+				}
+				$a->datef = strtotime('+2 hour',$a->datep);
 			}
-			$a->datef = strtotime('+2 hour',$a->datep);
 
 			$a->userownerid = GETPOST('fk_user') ? GETPOST('fk_user') : $user->id;
 			$a->type_code = GETPOST('type_code') ? GETPOST('type_code') : 'AC_OTH';

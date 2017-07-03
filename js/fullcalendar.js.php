@@ -435,7 +435,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 										,label:$('#pop-new-event input[name=label]').val()
 										,note:note
 										,date:date.format()
-										,fk_soc:<?php if (empty($conf->global->COMPANY_USE_SEARCH_TO_SELECT)) { ?> $('#pop-new-event select[name=fk_soc]').val() <?php } else { ?> $('#pop-new-event input[name=fk_soc]').val() <?php } ?>
+										,fk_soc:$('#pop-new-event [name=fk_soc]').val()
 										,fk_contact:$('#pop-new-event select[name=contactid]').val()
 										,fk_user:$('#pop-new-event select[name=fk_user]').val()
 										,fk_project:<?php if (!empty($conf->global->FULLCALENDAR_SHOW_PROJECT)) { ?>$('#pop-new-event select[name=fk_project]').val()<?php } else { ?>fk_project<?php } ?>
