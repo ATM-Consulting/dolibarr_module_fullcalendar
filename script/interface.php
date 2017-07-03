@@ -152,10 +152,17 @@
 				$a->_{$param} = GETPOST($param);
 			}
 			//var_dump($conf->global->FULLCALENDAR_SHOW_THIS_HOURS,GETPOST('date'),$a);exit;
-			$res = $a->id;
+			
 			if (empty($a->id)) $res = $a->add($user);
-			else $a->userassigned = array($a->userownerid=>array('id'=>$a->userownerid)); // Si on fait juste un update, il faut formatter ce tableau 
-			$a->update($user);
+			else
+			{
+				if (empty($a->contactid)) $a->contact = null;
+				$a->fk_action = dol_getIdFromCode($db, $a->type_code, 'c_actioncomm');
+				if (!empty($a->userownerid))  $a->userassigned = array($a->userownerid=>array('id'=>$a->userownerid)); // Si on fait juste un update, il faut formatter ce tableau 
+				$res = $a->update($user);
+				if ($res > 0) $res = $a->id;
+			}
+			
 			
 			print $res;
 
