@@ -283,6 +283,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 						put:'event-move'
 						,id:event.id
 						,data:delta._data
+						,fulldayevent: event.allDay
 	        		}
 	        	})
 	        }

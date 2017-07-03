@@ -72,6 +72,9 @@
 					$a->datef = strtotime($TData['days'].' day', $a->datef);
 				}
 
+				if (GETPOST('fulldayevent') == 'true') $a->fulldayevent = 1;
+				else $a->fulldayevent = 0;
+				
 				$res = $a->update($user);
 
 
