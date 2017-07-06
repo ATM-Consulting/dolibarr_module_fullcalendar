@@ -1,6 +1,0 @@
-[submodule "lib/fullcalendar"]
-	path = lib/fullcalendar
-	url = https://github.com/fullcalendar/fullcalendar.git
-[submodule "lib/moment"]
-	path = lib/moment
-	url = https://github.com/moment/moment.git

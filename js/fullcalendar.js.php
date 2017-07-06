@@ -263,15 +263,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			 }
 			,loading:function(isLoading, view) {
 
-				// Engendre une impossibilité de naviguer sur les autres vues et de faire du prev, next (à voir si le décalage de pixel réapparait)
-				/*if(!isLoading && defaultView != 'month') {
-					$('#fullcalendar').fullCalendar( 'changeView', defaultView ); // sinon problème de positionnement
-				}*/
-
-				if(defaultView == 'month') {
-					$('#fullcalendar').fullCalendar( 'option', 'height', 'auto');
-
-				}
+				
 
 			}
 	        ,eventDrop:function( event, delta, revertFunc, jsEvent, ui, view ) {
