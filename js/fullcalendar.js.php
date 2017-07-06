@@ -215,11 +215,11 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				if(event.note) note+=event.note;
 
 				if(event.fk_soc>0){
-					 element.append('<div>'+event.societe+'</div>');
+					 element.append('<div style="z-index:99;position:relative;">'+event.societe+'</div>');
 					 note += '<div>'+event.societe+'</div>';
 				}
 				if(event.fk_contact>0){
-					 element.append('<div>'+event.contact+'</div>');
+					 element.append('<div style="z-index:99;position:relative;>'+event.contact+'</div>');
 					 note += '<div>'+event.contact+'</div>';
 				}
 				<?php
