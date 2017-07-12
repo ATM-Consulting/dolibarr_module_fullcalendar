@@ -407,7 +407,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			}
 			
 			$('#pop-new-event').dialog({
-				modal:true
+				modal:false
 				,width:'auto'
 				,title: title_dialog
 				,buttons:[
