@@ -136,7 +136,11 @@
 				$a->datef = strtotime('+2 hour',$a->datep);
 			}
 
-			$a->userownerid = GETPOST('fk_user') ? GETPOST('fk_user') : $user->id;
+			$TUser = GETPOST('fk_user');
+			if(empty($TUser))$TUser[] = $user->id;
+			if(!is_array($TUser))$TUser=array($TUser);
+			
+			$a->userownerid = $TUser[0];
 			$a->type_code = GETPOST('type_code') ? GETPOST('type_code') : 'AC_OTH';
 			$a->socid = GETPOST('fk_soc');
 			$a->contactid = GETPOST('fk_contact');
@@ -156,12 +160,19 @@
 			}
 			//var_dump($conf->global->FULLCALENDAR_SHOW_THIS_HOURS,GETPOST('date'),$a);exit;
 			
+			$a->userassigned = array();
+			if(!empty($TUser)) {
+				foreach($TUser as $fk_user) {
+					$a->userassigned[$fk_user] = array('id'=>$fk_user);
+				}
+			}
+			
 			if (empty($a->id)) $res = $a->add($user);
 			else
 			{
 				if (empty($a->contactid)) $a->contact = null;
 				$a->fk_action = dol_getIdFromCode($db, $a->type_code, 'c_actioncomm');
-				if (!empty($a->userownerid))  $a->userassigned = array($a->userownerid=>array('id'=>$a->userownerid)); // Si on fait juste un update, il faut formatter ce tableau 
+				
 				$res = $a->update($user);
 				if ($res > 0) $res = $a->id;
 			}
@@ -409,6 +420,7 @@ function _events($date_start, $date_end) {
 			,'fk_soc'=>$event->socid
 			,'fk_contact'=>$event->contactid
 			,'fk_user'=>$event->userownerid
+			,'TFk_user'=>array_keys($event->userassigned)
 			,'fk_project'=>$event->fk_project
 			,'societe'=>(!empty($TSociete[$event->socid]) ? $TSociete[$event->socid] : '')
 			,'contact'=>(!empty($TContact[$event->contactid]) ? $TContact[$event->contactid] : '')
