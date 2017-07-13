@@ -121,7 +121,7 @@
 			
 			$a->label = GETPOST('label');
 			$a->note= GETPOST('note');
-
+/*
 			if (empty($a->id))
 			{
 				$datep = date('H',strtotime(GETPOST('date')));
@@ -135,7 +135,12 @@
 				}
 				$a->datef = strtotime('+2 hour',$a->datep);
 			}
-
+*/
+			
+			$a->datep= strtotime(GETPOST('date_start'));
+			$a->datef= strtotime(GETPOST('date_end'));
+			
+			
 			$TUser = GETPOST('fk_user');
 			if(empty($TUser))$TUser[] = $user->id;
 			if(!is_array($TUser))$TUser=array($TUser);
