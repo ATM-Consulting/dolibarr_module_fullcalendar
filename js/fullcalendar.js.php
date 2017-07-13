@@ -459,43 +459,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				bt_add_lang = "<?php echo $langs->transnoentities('Update'); ?>";
 			}
 			
-			function formatResult(record) {
-					return record.text;
-			}
-			function formatSelection(record) {
-					return record.text;
-			}
-			
-			$('#pop-new-event #fk_user').select2({
-    				dir: 'ltr',
-					formatResult: formatResult,
-    				templateResult: formatResult,
-					formatSelection: formatSelection,
-    				templateResult: formatSelection
-    		});
-
-			/*
-				Qu'est-ce qui faut pas faire pour récupérer les users dans le bon order et conserver ainsi le owner
-			*/
-			var TDataSelect2=[];
-			for(i in TUserId) {
-				fk_user = TUserId[i];
-			
-				var $option = $('#pop-new-event #fk_user option[value='+fk_user+']');
-				if($option.length>0) {
-					TDataSelect2.push( {id:fk_user, text:$option.text() });
-				}
-			}
-			
-			if(TDataSelect2.length>0) {
-				$('#pop-new-event #fk_user').select2('data', TDataSelect2 );
-			}
-						
-			$('#pop-new-event').dialog({
-				modal:false
-				,width:'auto'
-				,title: title_dialog
-				,buttons:[
+			var TButton = [
 					{
 						text: bt_add_lang
 						, click: function() {
@@ -551,13 +515,80 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 						}
 					}
-					,{
+			];
+			
+			if (typeof calEvent === 'object')
+			{
+				TButton.push({
+					text: "<?php echo $langs->transnoentities('ToClone') ?>"
+					,click:function() {
+					
+						$.ajax({
+							url:"<?php echo dol_buildpath('/comm/action/card.php', 1) ?>"
+							,data:{
+								action:'confirm_clone'
+								,confirm:'yes'
+								,object:'action'
+								,id:$('#pop-new-event input[name=id]').val()
+								,fk_userowner:TUserId[0]
+								,socid:$('#pop-new-event [name=fk_soc]').val()
+							}
+						}).done(function() {	
+							
+								$('#fullcalendar').fullCalendar('removeEvents');
+								$('#fullcalendar').fullCalendar( 'refetchEvents' );
+								$('#pop-new-event').dialog( "close" );
+								
+						});
+					}
+				});
+			}
+			
+			TButton.push({
 						text: "<?php echo $langs->transnoentities('Cancel') ?>"
 						, click: function() {
 							$('#pop-new-event').dialog( "close" );
 						}
-					}
-				]
+					});
+
+			
+			function formatResult(record) {
+					return record.text;
+			}
+			function formatSelection(record) {
+					return record.text;
+			}
+			
+			$('#pop-new-event #fk_user').select2({
+    				dir: 'ltr',
+					formatResult: formatResult,
+    				templateResult: formatResult,
+					formatSelection: formatSelection,
+    				templateResult: formatSelection
+    		});
+
+			/*
+				Qu'est-ce qui faut pas faire pour récupérer les users dans le bon order et conserver ainsi le owner
+			*/
+			var TDataSelect2=[];
+			for(i in TUserId) {
+				fk_user = TUserId[i];
+			
+				var $option = $('#pop-new-event #fk_user option[value='+fk_user+']');
+				if($option.length>0) {
+					TDataSelect2.push( {id:fk_user, text:$option.text() });
+				}
+			}
+			
+			if(TDataSelect2.length>0) {
+				$('#pop-new-event #fk_user').select2('data', TDataSelect2 );
+			}
+						
+			$('#pop-new-event').dialog({
+				modal:false
+				,width:'auto'
+				,title: title_dialog
+				,buttons:TButton
 			});
 		}
 		
