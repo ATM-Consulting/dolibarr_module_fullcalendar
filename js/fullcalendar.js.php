@@ -48,8 +48,60 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	//$select_company = $form->select_thirdparty('','fk_soc','',1,1,0);
 	$select_company = $form->select_company('', 'fk_soc', '', 1);
 
-	$select_user = $form->select_dolusers($user->id, 'fk_user');
-
+	//$select_user = $form->select_dolusers($user->id, 'fk_user');
+	$TUserToSelect=array();
+	
+	$force_entity=0;
+	$sql = "SELECT DISTINCT u.rowid, u.lastname as lastname, u.firstname, u.statut, u.login, u.admin, u.entity";
+	if (! empty($conf->multicompany->enabled) && $conf->entity == 1 && $user->admin && ! $user->entity)
+	{
+		$sql.= ", e.label";
+	}
+	$sql.= " FROM ".MAIN_DB_PREFIX ."user as u";
+	if (! empty($conf->multicompany->enabled) && $conf->entity == 1 && $user->admin && ! $user->entity)
+	{
+		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX ."entity as e ON e.rowid=u.entity";
+		if ($force_entity) $sql.= " WHERE u.entity IN (0,".$force_entity.")";
+		else $sql.= " WHERE u.entity IS NOT NULL";
+	}
+	else
+	{
+		if (! empty($conf->global->MULTICOMPANY_TRANSVERSE_MODE))
+		{
+			$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."usergroup_user as ug";
+			$sql.= " ON ug.fk_user = u.rowid";
+			$sql.= " WHERE ug.entity = ".$conf->entity;
+		}
+		else
+		{
+			$sql.= " WHERE u.entity IN (0,".$conf->entity.")";
+		}
+	}
+	
+	if (! empty($user->societe_id)) $sql.= " AND u.fk_soc = ".$user->societe_id;
+	if (! empty($conf->global->USER_HIDE_INACTIVE_IN_COMBOBOX) || $noactive) $sql.= " AND u.statut <> 0";
+	
+	if(empty($conf->global->MAIN_FIRSTNAME_NAME_POSITION)){
+		$sql.= " ORDER BY u.firstname ASC";
+	}else{
+		$sql.= " ORDER BY u.lastname ASC";
+	}
+	
+	$resUser = $db->query($sql);
+	$userstatic=new User($db);
+	
+	while($objUser = $db->fetch_object($resUser)) {
+		$userstatic->id=$objUser->rowid;
+		$userstatic->lastname=$objUser->lastname;
+		$userstatic->firstname=$objUser->firstname;
+		
+		$TUserToSelect[$userstatic->id] = $userstatic->getFullName($langs,0,-1,80);
+		
+	}
+	//var_dump($TUserToSelect);
+	$conf->global->MAIN_USE_JQUERY_MULTISELECT = 0; // disabled JS inclusion to include later
+	$select_user = $form->multiselectarray('fk_user', $TUserToSelect,array($user->id), 0,0,'minwidth300');
+	
 	ob_start();
 	$form->select_contacts(-1, -1, 'contactid', 1, '', '', 0, 'minwidth200'); // contactid car nom non pris en compte par l'ajax en vers.<3.9
 	$select_contact = ob_get_clean();
@@ -367,6 +419,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 			$div.append('<input type="hidden" name="id" value="" />');
 			
+			var TUserId=[];
 			var fk_project = 0;
 			if (typeof calEvent === 'object') {
 				fk_project = calEvent.object.fk_project;
@@ -391,7 +444,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 					<?php if (!empty($conf->global->COMPANY_USE_SEARCH_TO_SELECT)) { ?>$div.find('#search_fk_soc').val(calEvent.object.thirdparty.name); <?php } ?>
 				}
 				$div.find('#contactid').val(calEvent.object.contactid).trigger('change');
-				$div.find('#fk_user').val(calEvent.object.userownerid).trigger('change');
+				TUserId = calEvent.TFk_user;
 				$div.find('#fk_project').val(calEvent.object.fk_project).trigger('change');
 			}
 			
@@ -406,6 +459,38 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				bt_add_lang = "<?php echo $langs->transnoentities('Update'); ?>";
 			}
 			
+			function formatResult(record) {
+					return record.text;
+			}
+			function formatSelection(record) {
+					return record.text;
+			}
+			
+			$('#pop-new-event #fk_user').select2({
+    				dir: 'ltr',
+					formatResult: formatResult,
+    				templateResult: formatResult,
+					formatSelection: formatSelection,
+    				templateResult: formatSelection
+    		});
+
+			/*
+				Qu'est-ce qui faut pas faire pour récupérer les users dans le bon order et conserver ainsi le owner
+			*/
+			var TDataSelect2=[];
+			for(i in TUserId) {
+				fk_user = TUserId[i];
+			
+				var $option = $('#pop-new-event #fk_user option[value='+fk_user+']');
+				if($option.length>0) {
+					TDataSelect2.push( {id:fk_user, text:$option.text() });
+				}
+			}
+			
+			if(TDataSelect2.length>0) {
+				$('#pop-new-event #fk_user').select2('data', TDataSelect2 );
+			}
+						
 			$('#pop-new-event').dialog({
 				modal:false
 				,width:'auto'
@@ -414,8 +499,15 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 					{
 						text: bt_add_lang
 						, click: function() {
-							
+						
 							if($('#pop-new-event input[name=label]').val() != '') {
+								
+								var TUserId=[];
+								var dataSelectUser = $('#pop-new-event #fk_user').select2('data');
+								for(i in dataSelectUser) {
+									TUserId.push(dataSelectUser[i].id);
+								}
+							
 
 								var note = $('#pop-new-event textarea[name=note]').val();
 								<?php if (!empty($conf->fckeditor->enabled)) { ?>note = CKEDITOR.instances['note'].getData(); <?php } ?>
@@ -431,7 +523,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 										,date:date.format()
 										,fk_soc:$('#pop-new-event [name=fk_soc]').val()
 										,fk_contact:$('#pop-new-event select[name=contactid]').val()
-										,fk_user:$('#pop-new-event select[name=fk_user]').val()
+										,fk_user:TUserId
 										,fk_project:<?php if (!empty($conf->global->FULLCALENDAR_SHOW_PROJECT)) { ?>$('#pop-new-event select[name=fk_project]').val()<?php } else { ?>fk_project<?php } ?>
 										,type_code:$('#pop-new-event select[name=type_code]').val()
 										<?php if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) { ?>
@@ -455,6 +547,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 								});
 
 							}
+							
 
 						}
 					}
