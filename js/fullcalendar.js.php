@@ -225,9 +225,9 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				}
 			?>
 			,eventAfterRender:function( event, element, view ) {
-				console.log(element);
+				
 				if(event.colors!=""){
-					console.log(event.id,event.colors);
+					
 					element.css({
 						"background-color":""
 						,"border":""
@@ -362,31 +362,61 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			$('#pop-new-event').remove();
 
 			$div = $('<div id="pop-new-event"></div>');
+			console.log(date);
+			var date_start = date._d;
+			var date_end = date._d;
 			
-			$div.append("<?php echo strtr(addslashes($select_type_action),array("\n"=>"\\\n")); ?>");
-			$div.append('<br /><input type="text" name="label" value="" placeholder="<?php echo $langs->trans('Title') ?>" style="width:300px"><br />');
+			$form = $('<form name="action"></form>');
+			/*TODO better display */
+			$form.append('<?php echo dol_escape_js($select_type_action); ?>');
+			$form.append('<br /><input type="text" name="label" value="" placeholder="<?php echo $langs->trans('Title') ?>" style="width:300px"><br />');
+			
+			//adding date
+			<?php 
+			/*
+			 * $form.append('<br /><?php echo $langs->trans("DateActionStart").' : '
+						.strtr($form->select_date(0,'ap',1,1,0,"action",1,0,1,0,'fulldayend')
+								,array( "'"=>"\'", "\n"=>'' )
+			); ?>');
+			$form.append('<br /><?php echo $langs->trans("DateActionEnd").' : '
+						.strtr($form->select_date(0,'p2',1,1,0,"action",1,0,1,0,'fulldayend')
+								,array( "'"=>"\'", "\n"=>'' )
+			); ?>');
+
+
+			 */
+			?>
+			
+			$form.append('<br /><?php echo $langs->trans("DateActionStart")?> : '+<?php 
+						echo json_encode($form->select_date(0,'ap',1,1,0,"action",1,0,1,0,'fulldayend')); 
+			?>);
+								
+			$form.append('<br /><?php echo $langs->trans("DateActionEnd") ?> : '+<?php 
+						echo json_encode($form->select_date(0,'p2',1,1,0,"action",1,0,1,0,'fulldayend')); 
+			?>);
+								
 			
 			<?php 
 				$doleditor=new DolEditor('note', '','',200,'dolibarr_notes','In',true,true,$conf->fckeditor->enabled,ROWS_5,90);
 				$fullcalendar_note = $doleditor->Create(1);
 			?>
-			$div.append(<?php echo json_encode($fullcalendar_note); ?>);
+			$form.append(<?php echo json_encode($fullcalendar_note); ?>);
 			
 			<?php if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) { ?>
-			$div.append('<br /><?php echo $langs->trans('Status').' / '.$langs->trans('Percentage') ?> :');
-			$div.append(<?php ob_start(); $formactions->form_select_status_action('formaction','0',1); $html_percent = ob_get_clean(); echo json_encode($html_percent); ?>);
+			$form.append('<br /><?php echo $langs->trans('Status').' / '.$langs->trans('Percentage') ?> :');
+			$form.append(<?php ob_start(); $formactions->form_select_status_action('formaction','0',1); $html_percent = ob_get_clean(); echo json_encode($html_percent); ?>);
 			<?php } ?>
 			
-			$div.append("<br /><?php echo $langs->trans('Company'); ?> : ");
-			$div.append(<?php echo json_encode($select_company); ?>);
-			$div.append("<br /><?php echo $langs->trans('Contact').' : '.strtr(addslashes('<span rel="contact">'.$select_contact.'</span>'),array("\n"=>"\\\n")); ?>");
-			$div.append("<br /><?php echo $langs->trans('User').' : '.strtr(addslashes($select_user),array("\n"=>" ","\r"=>"")); ?>");
+			$form.append("<br /><?php echo $langs->trans('Company'); ?> : ");
+			$form.append(<?php echo json_encode($select_company); ?>);
+			$form.append("<br /><?php echo $langs->trans('Contact').' : '.strtr(addslashes('<span rel="contact">'.$select_contact.'</span>'),array("\n"=>"\\\n")); ?>");
+			$form.append("<br /><?php echo $langs->trans('User').' : '.strtr(addslashes($select_user),array("\n"=>" ","\r"=>"")); ?>");
 			<?php
 
 			if(!empty($conf->global->FULLCALENDAR_SHOW_PROJECT)) {
 
 				?>
-				$div.append("<br /><?php echo $langs->trans('Project').' : '.strtr(addslashes($select_project),array("\n"=>" ","\r"=>"")); ?>");
+				$form.append("<br /><?php echo $langs->trans('Project').' : '.strtr(addslashes($select_project),array("\n"=>" ","\r"=>"")); ?>");
 				<?php
 			}
 
@@ -397,7 +427,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				foreach ($moreOptions as $param => $option)
 				{
 				?>
-					$div.append("<br /><?php echo strtr(addslashes($option),array("\n"=>" ","\r"=>"")); ?>");
+					$form.append("<br /><?php echo strtr(addslashes($option),array("\n"=>" ","\r"=>"")); ?>");
 				<?php
 				}
 
@@ -405,7 +435,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 			?>
 
-			$div.find('select[name=fk_soc]').change(function() {
+			$form.find('select[name=fk_soc]').change(function() {
 				var fk_soc = $(this).val();
 
 				$.ajax({
@@ -417,7 +447,9 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 			});
 
-			$div.append('<input type="hidden" name="id" value="" />');
+			$form.append('<input type="hidden" name="id" value="" />');
+		
+			$div.append($form);
 			
 			var TUserId=[];
 			var fk_project = 0;
@@ -446,10 +478,30 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				$div.find('#contactid').val(calEvent.object.contactid).trigger('change');
 				TUserId = calEvent.TFk_user;
 				$div.find('#fk_project').val(calEvent.object.fk_project).trigger('change');
+				
+				date_start = calEvent.start._d;
+				date_end = calEvent.end._d;
+				
 			}
 			
-			
 			$('body').append($div);
+
+			$('#pop-new-event #ap').val( formatDate(date_start ,"<?php echo $langs->trans("FormatDateShortJavaInput") ?>" ) );
+			$('#pop-new-event #p2').val( formatDate(date_end ,"<?php echo $langs->trans("FormatDateShortJavaInput") ?>" ) );
+			
+			dpChangeDay('ap',"<?php echo $langs->trans("FormatDateShortJavaInput") ?>");
+			dpChangeDay('p2',"<?php echo $langs->trans("FormatDateShortJavaInput") ?>");
+
+			hour_start = date_start.getUTCHours().toString();
+			if(hour_start.length<2) hour_start="0"+hour_start;		
+			hour_end = date_end.getUTCHours().toString();
+			if(hour_end.length<2) hour_end="0"+hour_end;	
+
+			$('#pop-new-event #aphour').val(hour_start);
+			$('#pop-new-event #apmin').val(formatDate(date_start ,'mm'));
+			$('#pop-new-event #p2hour').val(hour_end);
+			$('#pop-new-event #p2min').val(formatDate(date_end ,'mm'));
+
 
 			var title_dialog = "<?php echo $langs->transnoentities('AddAnAction') ?>";
 			var bt_add_lang = "<?php echo $langs->transnoentities('Add'); ?>";
@@ -490,6 +542,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 										,fk_user:TUserId
 										,fk_project:<?php if (!empty($conf->global->FULLCALENDAR_SHOW_PROJECT)) { ?>$('#pop-new-event select[name=fk_project]').val()<?php } else { ?>fk_project<?php } ?>
 										,type_code:$('#pop-new-event select[name=type_code]').val()
+										,date_start:$('#pop-new-event #apyear').val()+'-'+$('#pop-new-event #apmonth').val()+'-'+$('#pop-new-event #apday').val()+' '+$('#pop-new-event #aphour').val()+':'+$('#pop-new-event #apmin').val()+':00'
+										,date_end:$('#pop-new-event #p2year').val()+'-'+$('#pop-new-event #p2month').val()+'-'+$('#pop-new-event #p2day').val()+' '+$('#pop-new-event #p2hour').val()+':'+$('#pop-new-event #p2min').val()+':00'
 										<?php if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) { ?>
 										,complete:$('#pop-new-event select[name=complete]').val()
 										,percentage:$('#pop-new-event input[name=percentage]').val()
