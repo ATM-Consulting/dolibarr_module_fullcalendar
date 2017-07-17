@@ -491,12 +491,17 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			
 			dpChangeDay('ap',"<?php echo $langs->trans("FormatDateShortJavaInput") ?>");
 			dpChangeDay('p2',"<?php echo $langs->trans("FormatDateShortJavaInput") ?>");
-//console.log(date_start, formatDate(date_start ,'hh'), formatDate(date_start ,'mm'));
-		/*	$('#pop-new-event #aphour').val(date_start.getHours());
-			$('#pop-new-event #apmin').val(date_start.getMinutes());
-			$('#pop-new-event #p2hour').val(formatDate(date_end ,'hh'));
+
+			hour_start = date_start.getUTCHours().toString();
+			if(hour_start.length<2) hour_start="0"+hour_start;		
+			hour_end = date_end.getUTCHours().toString();
+			if(hour_end.length<2) hour_end="0"+hour_end;	
+
+			$('#pop-new-event #aphour').val(hour_start);
+			$('#pop-new-event #apmin').val(formatDate(date_start ,'mm'));
+			$('#pop-new-event #p2hour').val(hour_end);
 			$('#pop-new-event #p2min').val(formatDate(date_end ,'mm'));
-*/
+
 
 			var title_dialog = "<?php echo $langs->transnoentities('AddAnAction') ?>";
 			var bt_add_lang = "<?php echo $langs->transnoentities('Add'); ?>";
