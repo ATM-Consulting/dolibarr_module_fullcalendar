@@ -583,24 +583,72 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				TButton.push({
 					text: "<?php echo $langs->transnoentities('ToClone') ?>"
 					,click:function() {
-					
-						$.ajax({
-							url:"<?php echo dol_buildpath('/comm/action/card.php', 1) ?>"
-							,data:{
-								action:'confirm_clone'
-								,confirm:'yes'
-								,object:'action'
-								,id:$('#pop-new-event input[name=id]').val()
-								,fk_userowner:TUserId[0]
-								,socid:$('#pop-new-event [name=fk_soc]').val()
-							}
-						}).done(function() {	
-							
-								$('#fullcalendar').fullCalendar('removeEvents');
-								$('#fullcalendar').fullCalendar( 'refetchEvents' );
-								$('#pop-new-event').dialog( "close" );
+						//copier-coller moche pour sauvegarder avant de cloner
+						if($('#pop-new-event input[name=label]').val() != '') {
 								
-						});
+								var TUserId=[];
+								var dataSelectUser = $('#pop-new-event #fk_user').select2('data');
+								for(i in dataSelectUser) {
+									TUserId.push(dataSelectUser[i].id);
+								}
+							
+
+								var note = $('#pop-new-event textarea[name=note]').val();
+								<?php if (!empty($conf->fckeditor->enabled)) { ?>note = CKEDITOR.instances['note'].getData(); <?php } ?>
+								
+								$.ajax({
+									method: 'POST'
+									,url:'<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'
+									,data:{
+										put:'event'
+										,id:$('#pop-new-event input[name=id]').val()
+										,label:$('#pop-new-event input[name=label]').val()
+										,note:note
+										,date:date.format()
+										,fk_soc:$('#pop-new-event [name=fk_soc]').val()
+										,fk_contact:$('#pop-new-event select[name=contactid]').val()
+										,fk_user:TUserId
+										,fk_project:<?php if (!empty($conf->global->FULLCALENDAR_SHOW_PROJECT)) { ?>$('#pop-new-event select[name=fk_project]').val()<?php } else { ?>fk_project<?php } ?>
+										,type_code:$('#pop-new-event select[name=type_code]').val()
+										,date_start:$('#pop-new-event #apyear').val()+'-'+$('#pop-new-event #apmonth').val()+'-'+$('#pop-new-event #apday').val()+' '+$('#pop-new-event #aphour').val()+':'+$('#pop-new-event #apmin').val()+':00'
+										,date_end:$('#pop-new-event #p2year').val()+'-'+$('#pop-new-event #p2month').val()+'-'+$('#pop-new-event #p2day').val()+' '+$('#pop-new-event #p2hour').val()+':'+$('#pop-new-event #p2min').val()+':00'
+										<?php if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) { ?>
+										,complete:$('#pop-new-event select[name=complete]').val()
+										,percentage:$('#pop-new-event input[name=percentage]').val()
+										<?php } ?>
+										<?php
+										if(!empty($moreOptions)) {
+
+											foreach ($moreOptions as $param => $option)
+											{
+												echo ','.$param.':$("#pop-new-event select[name='.$param.']").val()';
+											}
+										}
+										?>
+									}
+								}).done(function() {
+									$.ajax({
+										url:"<?php echo dol_buildpath('/comm/action/card.php', 1) ?>"
+										,data:{
+											action:'confirm_clone'
+											,confirm:'yes'
+											,object:'action'
+											,id:$('#pop-new-event input[name=id]').val()
+											,fk_userowner:TUserId[0]
+											,socid:$('#pop-new-event [name=fk_soc]').val()
+										}
+									}).done(function() {	
+										
+											$('#fullcalendar').fullCalendar('removeEvents');
+											$('#fullcalendar').fullCalendar( 'refetchEvents' );
+											$('#pop-new-event').dialog( "close" );
+											
+									});
+								});
+
+							}
+					
+						
 					}
 				});
 			}
