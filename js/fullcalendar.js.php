@@ -249,7 +249,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			}
 			,eventRender:function( event, element, view ) {
 				var title = element.find('.fc-title').html();
-				element.find('.fc-title').html('<a class="url_title" href="'+event.url_title+'" onclick="event.stopPropagation();">'+title+'</a>');
+				element.find('.fc-title').html('<a class="url_title" href="'+event.url_title+'">'+title+'</a>');
+				
 				var note = "";
 				<?php
 
@@ -311,6 +312,11 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 				element.find(".classfortooltip").tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50});
 				element.find(".classforcustomtooltip").tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 5000});
+
+				element.find('a').click(function( event ) {
+  					event.stopPropagation();
+				});
+				
 
 			 }
 			,loading:function(isLoading, view) {
