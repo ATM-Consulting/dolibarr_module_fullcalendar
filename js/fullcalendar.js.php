@@ -502,6 +502,9 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			
 			if(date_end) {
 				hour_end = date_end.getUTCHours().toString();
+				if (date_start === date_end) hour_end = parseInt(hour_end) + 2; // décalage de 2H
+				hour_end = ('0'+hour_end).slice(-2); // mise sur 2 caractères
+				
 				if(hour_end.length<2) hour_end="0"+hour_end;	
 				$('#pop-new-event #p2').val( formatDate(date_end ,"<?php echo $langs->trans("FormatDateShortJavaInput") ?>" ) );
 				$('#pop-new-event #p2hour').val(hour_end);

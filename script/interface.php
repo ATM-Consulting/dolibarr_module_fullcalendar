@@ -96,7 +96,7 @@
 				}
 
 				if(!empty($TData['hours'])) {
-					if(empty($a->datef))$a->datef = $a->datep;
+					if(empty($a->datef))$a->datef = $a->datep + 3600 * 2; // décalage de 2H
 					$a->datef = strtotime($TData['hours'].' hour', $a->datef);
 				}
 
