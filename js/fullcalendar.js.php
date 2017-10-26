@@ -7,9 +7,9 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	require '../config.php';
 
 	require_once DOL_DOCUMENT_ROOT.'/core/class/doleditor.class.php';
-	
+
 	$langs->load('fullcalendar@fullcalendar');
-	
+
 	if(!empty($conf->global->MAIN_NOT_INC_FULLCALENDAR_HEAD) && empty($_REQUEST['force_use_js'])) exit;
 
 	if(empty($user->rights->fullcalendar->useit)) exit;
@@ -28,9 +28,9 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 	readfile(dol_buildpath('/fullcalendar/lib/moment/min/moment.min.js'));
 	readfile(dol_buildpath('/fullcalendar/lib/fullcalendar/dist/fullcalendar.min.js'));
-	
+
 	if(!is_file(dol_buildpath('/fullcalendar/lib/fullcalendar/dist/lang/'.$langjs.'.js'))) $langjs = 'en-gb';
-	
+
 	readfile(dol_buildpath('/fullcalendar/lib/fullcalendar/dist/lang/'.$langjs.'.js'));
 
 	if(!empty($user->array_options['options_googlecalendarapi'])) {
@@ -50,7 +50,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 	//$select_user = $form->select_dolusers($user->id, 'fk_user');
 	$TUserToSelect=array();
-	
+
 	$force_entity=0;
 	$sql = "SELECT DISTINCT u.rowid, u.lastname as lastname, u.firstname, u.statut, u.login, u.admin, u.entity";
 	if (! empty($conf->multicompany->enabled) && $conf->entity == 1 && $user->admin && ! $user->entity)
@@ -77,31 +77,31 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			$sql.= " WHERE u.entity IN (0,".$conf->entity.")";
 		}
 	}
-	
+
 	if (! empty($user->societe_id)) $sql.= " AND u.fk_soc = ".$user->societe_id;
 	if (! empty($conf->global->USER_HIDE_INACTIVE_IN_COMBOBOX) || $noactive) $sql.= " AND u.statut <> 0";
-	
+
 	if(empty($conf->global->MAIN_FIRSTNAME_NAME_POSITION)){
 		$sql.= " ORDER BY u.firstname ASC";
 	}else{
 		$sql.= " ORDER BY u.lastname ASC";
 	}
-	
+
 	$resUser = $db->query($sql);
 	$userstatic=new User($db);
-	
+
 	while($objUser = $db->fetch_object($resUser)) {
 		$userstatic->id=$objUser->rowid;
 		$userstatic->lastname=$objUser->lastname;
 		$userstatic->firstname=$objUser->firstname;
-		
+
 		$TUserToSelect[$userstatic->id] = $userstatic->getFullName($langs,0,-1,80);
-		
+
 	}
 	//var_dump($TUserToSelect);
 	$conf->global->MAIN_USE_JQUERY_MULTISELECT = 0; // disabled JS inclusion to include later
 	$select_user = $form->multiselectarray('fk_user', $TUserToSelect,array($user->id), 0,0,'minwidth300');
-	
+
 	ob_start();
 	$form->select_contacts(-1, -1, 'contactid', 1, '', '', 0, 'minwidth200'); // contactid car nom non pris en compte par l'ajax en vers.<3.9
 	$select_contact = ob_get_clean();
@@ -144,7 +144,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 		var month = $('form[name=listactionsfilter]').find('input[name=month]').val();
 		var defaultDate = year+'-'+month+'-<?php echo $defaultDay/*.' '.$hourStart.':00'*/ ?>';
 
-		
+
 		var defaultView='month';
 		if($('form.listactionsfilter input[name=action]').val() == 'show_week') defaultView = 'agendaWeek';
 		if($('form.listactionsfilter input[name=action]').val() == 'show_day') defaultView = 'agendaDay';
@@ -225,9 +225,9 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				}
 			?>
 			,eventAfterRender:function( event, element, view ) {
-				
+
 				if(event.colors!=""){
-					
+
 					element.css({
 						"background-color":""
 						,"border":""
@@ -250,7 +250,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			,eventRender:function( event, element, view ) {
 				var title = element.find('.fc-title').html();
 				element.find('.fc-title').html('<a class="url_title" href="'+event.url_title+'">'+title+'</a>');
-				
+
 				var note = "";
 				<?php
 
@@ -316,12 +316,12 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				element.find('a').click(function( event ) {
   					event.stopPropagation();
 				});
-				
+
 
 			 }
 			,loading:function(isLoading, view) {
 
-				
+
 
 			}
 	        ,eventDrop:function( event, delta, revertFunc, jsEvent, ui, view ) {
@@ -363,7 +363,53 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				$('#fullcalendar').fullCalendar( 'option' , 'aspectRatio', 1.35);
 			}
 	    });
-		
+		function formatDateUTC(date,format)
+		{
+			// alert('formatDate date='+date+' format='+format);
+
+			// Force parametres en chaine
+			format=format+"";
+
+			var result="";
+
+			var year=date.getUTCFullYear()+""; if (year.length < 4) { year=""+(year-0+1900); }
+			var month=date.getUTCMonth()+1;
+			var day=date.getUTCDate();
+			var hour=date.getUTCHours();
+			var minute=date.getUTCMinutes();
+			var seconde=date.getUTCSeconds();
+
+			var i=0;
+			while (i < format.length)
+			{
+				c=format.charAt(i);	// Recupere char du format
+				substr="";
+				j=i;
+				while ((format.charAt(j)==c) && (j < format.length))	// Recupere char successif identiques
+				{
+					substr += format.charAt(j++);
+				}
+
+				// alert('substr='+substr);
+				if (substr == 'yyyy')      { result=result+year; }
+				else if (substr == 'yy')   { result=result+year.substring(2,4); }
+				else if (substr == 'M')    { result=result+month; }
+				else if (substr == 'MM')   { result=result+(month<1||month>9?"":"0")+month; }
+				else if (substr == 'd')    { result=result+day; }
+				else if (substr == 'dd')   { result=result+(day<1||day>9?"":"0")+day; }
+				else if (substr == 'hh')   { if (hour > 12) hour-=12; result=result+(hour<0||hour>9?"":"0")+hour; }
+				else if (substr == 'HH')   { result=result+(hour<0||hour>9?"":"0")+hour; }
+				else if (substr == 'mm')   { result=result+(minute<0||minute>9?"":"0")+minute; }
+				else if (substr == 'ss')   { result=result+(seconde<0||seconde>9?"":"0")+seconde; }
+				else { result=result+substr; }
+
+				i+=substr.length;
+			}
+
+			// alert(result);
+			return result;
+		}
+
 		function showPopIn(date, calEvent) {
 			$('#pop-new-event').remove();
 
@@ -371,14 +417,14 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			console.log(date);
 			var date_start = date._d;
 			var date_end = date._d;
-			
+
 			$form = $('<form name="action"></form>');
 			/*TODO better display */
 			$form.append('<?php echo dol_escape_js($select_type_action); ?>');
 			$form.append('<br /><input type="text" name="label" value="" placeholder="<?php echo $langs->trans('Title') ?>" style="width:300px"><br />');
-			
+
 			//adding date
-			<?php 
+			<?php
 			/*
 			 * $form.append('<br /><?php echo $langs->trans("DateActionStart").' : '
 						.strtr($form->select_date(0,'ap',1,1,0,"action",1,0,1,0,'fulldayend')
@@ -392,27 +438,27 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 			 */
 			?>
-			
-			$form.append('<br /><?php echo $langs->trans("DateActionStart")?> : '+<?php 
-						echo json_encode($form->select_date(0,'ap',1,1,0,"action",1,0,1,0,'fulldayend')); 
+
+			$form.append('<br /><?php echo $langs->trans("DateActionStart")?> : '+<?php
+					echo json_encode($form->select_date(0,'ap',1,1,0,"action",1,0,1,0,'fulldayend'));
 			?>);
-								
-			$form.append('<br /><?php echo $langs->trans("DateActionEnd") ?> : '+<?php 
-						echo json_encode($form->select_date(0,'p2',1,1,0,"action",1,0,1,0,'fulldayend')); 
+
+			$form.append('<br /><?php echo $langs->trans("DateActionEnd") ?> : '+<?php
+					echo json_encode($form->select_date(0,'p2',1,1,0,"action",1,0,1,0,'fulldayend'));
 			?>);
-								
-			
-			<?php 
+
+
+			<?php
 				$doleditor=new DolEditor('note', '','',200,'dolibarr_notes','In',true,true,$conf->fckeditor->enabled,ROWS_5,90);
 				$fullcalendar_note = $doleditor->Create(1);
 			?>
 			$form.append(<?php echo json_encode($fullcalendar_note); ?>);
-			
+
 			<?php if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) { ?>
 			$form.append('<br /><?php echo $langs->trans('Status').' / '.$langs->trans('Percentage') ?> :');
 			$form.append(<?php ob_start(); $formactions->form_select_status_action('formaction','0',1); $html_percent = ob_get_clean(); echo json_encode($html_percent); ?>);
 			<?php } ?>
-			
+
 			$form.append("<br /><?php echo $langs->trans('Company'); ?> : ");
 			$form.append(<?php echo json_encode($select_company); ?>);
 			$form.append("<br /><?php echo $langs->trans('Contact').' : '.strtr(addslashes('<span rel="contact">'.$select_contact.'</span>'),array("\n"=>"\\\n")); ?>");
@@ -454,14 +500,14 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			});
 
 			$form.append('<input type="hidden" name="id" value="" />');
-		
+
 			$div.append($form);
-			
+
 			var TUserId=[];
 			var fk_project = 0;
 			if (typeof calEvent === 'object') {
 				fk_project = calEvent.object.fk_project;
-				
+
 				$div.find('input[name=id]').val(calEvent.id);
 				$div.find('#type_code').val(calEvent.object.type_code);
 				$div.find('input[name=label]').val(calEvent.object.label);
@@ -472,7 +518,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 					else if (calEvent.object.percentage == 0) $div.find('select[name=complete]').val(0).trigger('change');
 					else if (calEvent.object.percentage < 100) $div.find('select[name=complete]').val(50).trigger('change');
 					else if (calEvent.object.percentage >= 100) $div.find('select[name=complete]').val(100).trigger('change');
-					
+
 					$div.find('input[name=percentage]').val(calEvent.object.percentage);
 				}, 1);
 				<?php } ?>
@@ -484,32 +530,37 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				$div.find('#contactid').val(calEvent.object.contactid).trigger('change');
 				TUserId = calEvent.TFk_user;
 				$div.find('#fk_project').val(calEvent.object.fk_project).trigger('change');
-				
+
 				date_start = calEvent.start._d;
 				date_end = calEvent.end ? calEvent.end._d : null;
-				
+
 			}
-			
+
 			$('body').append($div);
 
 			hour_start = date_start.getUTCHours().toString();
-			if(hour_start.length<2) hour_start="0"+hour_start;		
+			if(hour_start.length<2) hour_start="0"+hour_start;
 			$('#pop-new-event #aphour').val(hour_start);
 			$('#pop-new-event #apmin').val(formatDate(date_start ,'mm'));
 
-			$('#pop-new-event #ap').val( formatDate(date_start ,"<?php echo $langs->trans("FormatDateShortJavaInput") ?>" ) );
+			var formated_date_start = formatDateUTC(date_start ,"<?php echo $langs->trans("FormatDateShortJavaInput") ?>" )
+			$('#pop-new-event #ap').val( formated_date_start );
 			dpChangeDay('ap',"<?php echo $langs->trans("FormatDateShortJavaInput") ?>");
-			
+
 			if(date_end) {
+
 				hour_end = date_end.getUTCHours().toString();
 				if (date_start === date_end) hour_end = parseInt(hour_end) + 2; // décalage de 2H
 				hour_end = ('0'+hour_end).slice(-2); // mise sur 2 caractères
-				
-				if(hour_end.length<2) hour_end="0"+hour_end;	
-				$('#pop-new-event #p2').val( formatDate(date_end ,"<?php echo $langs->trans("FormatDateShortJavaInput") ?>" ) );
+
+				if(hour_end.length<2) hour_end="0"+hour_end;
+
+				var formated_date_end = formatDateUTC(date_end ,"<?php echo $langs->trans("FormatDateShortJavaInput") ?>" );
+
+				$('#pop-new-event #p2').val( formated_date_end );
 				$('#pop-new-event #p2hour').val(hour_end);
 				$('#pop-new-event #p2min').val(formatDate(date_end ,'mm'));
-			
+
 			}
 			else {
 				$('#pop-new-event #p2').val('');
@@ -518,7 +569,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			}
 
 			dpChangeDay('p2',"<?php echo $langs->trans("FormatDateShortJavaInput") ?>");
-			
+
 			var title_dialog = "<?php echo $langs->transnoentities('AddAnAction') ?>";
 			var bt_add_lang = "<?php echo $langs->transnoentities('Add'); ?>";
 			if (typeof calEvent === 'object')
@@ -526,24 +577,24 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				title_dialog = "<?php echo $langs->transnoentities('EditAnAction') ?>";
 				bt_add_lang = "<?php echo $langs->transnoentities('Update'); ?>";
 			}
-			
+
 			var TButton = [
 					{
 						text: bt_add_lang
 						, click: function() {
-						
+
 							if($('#pop-new-event input[name=label]').val() != '') {
-								
+
 								var TUserId=[];
 								var dataSelectUser = $('#pop-new-event #fk_user').select2('data');
 								for(i in dataSelectUser) {
 									TUserId.push(dataSelectUser[i].id);
 								}
-							
+
 
 								var note = $('#pop-new-event textarea[name=note]').val();
 								<?php if (!empty($conf->fckeditor->enabled)) { ?>note = CKEDITOR.instances['note'].getData(); <?php } ?>
-								
+
 								$.ajax({
 									method: 'POST'
 									,url:'<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'
@@ -581,12 +632,12 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 								});
 
 							}
-							
+
 
 						}
 					}
 			];
-			
+
 			if (typeof calEvent === 'object')
 			{
 				TButton.push({
@@ -594,17 +645,17 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 					,click:function() {
 						//copier-coller moche pour sauvegarder avant de cloner
 						if($('#pop-new-event input[name=label]').val() != '') {
-								
+
 								var TUserId=[];
 								var dataSelectUser = $('#pop-new-event #fk_user').select2('data');
 								for(i in dataSelectUser) {
 									TUserId.push(dataSelectUser[i].id);
 								}
-							
+
 
 								var note = $('#pop-new-event textarea[name=note]').val();
 								<?php if (!empty($conf->fckeditor->enabled)) { ?>note = CKEDITOR.instances['note'].getData(); <?php } ?>
-								
+
 								$.ajax({
 									method: 'POST'
 									,url:'<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'
@@ -646,22 +697,22 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 											,fk_userowner:TUserId[0]
 											,socid:$('#pop-new-event [name=fk_soc]').val()
 										}
-									}).done(function() {	
-										
+									}).done(function() {
+
 											$('#fullcalendar').fullCalendar('removeEvents');
 											$('#fullcalendar').fullCalendar( 'refetchEvents' );
 											$('#pop-new-event').dialog( "close" );
-											
+
 									});
 								});
 
 							}
-					
-						
+
+
 					}
 				});
 			}
-			
+
 			TButton.push({
 						text: "<?php echo $langs->transnoentities('Cancel') ?>"
 						, click: function() {
@@ -669,14 +720,14 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 						}
 					});
 
-			
+
 			function formatResult(record) {
 					return record.text;
 			}
 			function formatSelection(record) {
 					return record.text;
 			}
-			
+
 			$('#pop-new-event #fk_user').select2({
     				dir: 'ltr',
 					formatResult: formatResult,
@@ -691,17 +742,17 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			var TDataSelect2=[];
 			for(i in TUserId) {
 				fk_user = TUserId[i];
-			
+
 				var $option = $('#pop-new-event #fk_user option[value='+fk_user+']');
 				if($option.length>0) {
 					TDataSelect2.push( {id:fk_user, text:$option.text() });
 				}
 			}
-			
+
 			if(TDataSelect2.length>0) {
 				$('#pop-new-event #fk_user').select2('data', TDataSelect2 );
 			}
-						
+
 			$('#pop-new-event').dialog({
 				modal:false
 				,width:'auto'
@@ -709,7 +760,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				,buttons:TButton
 			});
 		}
-		
+
 		$('form[name=listactionsfilter]').submit(function(event) {
 			console.log($('form[name=listactionsfilter]').serialize() );
 			console.log($('#fullcalendar'));
