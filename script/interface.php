@@ -74,7 +74,7 @@
 
 				if (GETPOST('fulldayevent') == 'true') $a->fulldayevent = 1;
 				else $a->fulldayevent = 0;
-				
+
 				$res = $a->update($user);
 
 
@@ -118,7 +118,7 @@
 			$a=new ActionComm($db);
 			$id = GETPOST('id');
 			if (!empty($id)) $a->fetch($id);
-			
+
 			$a->label = GETPOST('label');
 			$a->note= GETPOST('note');
 /*
@@ -136,22 +136,22 @@
 				$a->datef = strtotime('+2 hour',$a->datep);
 			}
 */
-			
+
 			$a->datep= strtotime(GETPOST('date_start'));
 			$a->datef= strtotime(GETPOST('date_end'));
-			
-			
+
+
 			$TUser = GETPOST('fk_user');
 			if(empty($TUser))$TUser[] = $user->id;
 			if(!is_array($TUser))$TUser=array($TUser);
-			
+
 			$a->userownerid = $TUser[0];
 			$a->type_code = GETPOST('type_code') ? GETPOST('type_code') : 'AC_OTH';
 			$a->socid = GETPOST('fk_soc');
 			$a->contactid = GETPOST('fk_contact');
 
 			$a->fk_project = GETPOST('fk_project','int');
-			
+
 			$percentage = -1; // Non applicable
 			if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) $percentage=in_array(GETPOST('status'),array(-1,100))?GETPOST('status'):(in_array(GETPOST('complete'),array(-1,100))?GETPOST('complete'):GETPOST("percentage"));	// [COPY FROM DOLIBARR] If status is -1 or 100, percentage is not defined and we must use status
 			$a->percentage = $percentage;
@@ -164,25 +164,35 @@
 				$a->_{$param} = GETPOST($param);
 			}
 			//var_dump($conf->global->FULLCALENDAR_SHOW_THIS_HOURS,GETPOST('date'),$a);exit;
-			
-			$a->userassigned = array();
-			if(!empty($TUser)) {
-				foreach($TUser as $fk_user) {
-					$a->userassigned[$fk_user] = array('id'=>$fk_user);
+
+			if($user->rights->agenda->allactions->create ||
+					(($a->authorid == $user->id || $a->userownerid == $user->id) && $user->rights->agenda->myactions->create)) {
+
+				$a->userassigned = array();
+				if(!empty($TUser)) {
+					foreach($TUser as $fk_user) {
+						$a->userassigned[$fk_user] = array('id'=>$fk_user);
+					}
 				}
+
 			}
-			
-			if (empty($a->id)) $res = $a->add($user);
+			elseif($a->id>0) {
+				$a->fetch_userassigned();
+			}
+
+			if (empty($a->id)) {
+				$res = $a->add($user);
+			}
 			else
 			{
 				if (empty($a->contactid)) $a->contact = null;
 				$a->fk_action = dol_getIdFromCode($db, $a->type_code, 'c_actioncomm');
-				
+
 				$res = $a->update($user);
 				if ($res > 0) $res = $a->id;
 			}
-			
-			
+
+
 			print $res;
 
 			break;
@@ -290,7 +300,7 @@ function _events($date_start, $date_end) {
 	}
 	// Sort on date
 	$sql.= ' ORDER BY datep';
-	
+
 	$TEvent=array();
 	if(isset($_REQUEST['DEBUG'])) print $sql;
 
@@ -408,7 +418,7 @@ function _events($date_start, $date_end) {
 			}
 
 		}
-		
+
 		$TEvent[]=array(
 			'id'=>$event->id
 			,'title'=>$event->label
@@ -445,7 +455,7 @@ function _events($date_start, $date_end) {
 	if (! empty($hookmanager->resArray['eventarray'])) $TEvent=array_merge($TEvent, $hookmanager->resArray['eventarray']);
 
 	completeWithExtEvent($TEvent, $TSociete, $TContact, $TProject);
-	
+
 	return $TEvent;
 
 }
@@ -523,22 +533,22 @@ function RGBToHSL($RGB) {
 
     return (object) Array('hue' => $h, 'saturation' => $s, 'lightness' => $l);
   }
-  
-  
+
+
 /**
  * Copié collé from Dolibarr "/comme/action/inndex.php"
  */
 function completeWithExtEvent(&$TEvent, &$TSociete, &$TContact, &$TProject)
 {
 	global $conf,$db,$user;
-	
+
 	if (!empty($conf->global->AGENDA_DISABLE_EXT) && !empty($user->conf->AGENDA_DISABLE_EXT)) return;
-	
+
 	$listofextcals=array();
-	
+
 	if (empty($conf->global->AGENDA_EXT_NB)) $conf->global->AGENDA_EXT_NB=5;
 	$MAXAGENDA=$conf->global->AGENDA_EXT_NB;
-	
+
 	// Define list of external calendars (global admin setup)
 	if (empty($conf->global->AGENDA_DISABLE_EXT))
 	{
@@ -581,11 +591,11 @@ function completeWithExtEvent(&$TEvent, &$TSociete, &$TContact, &$TProject)
 	}
 
 	if (empty($listofextcals)) return;
-	
-	
+
+
 	require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
-	
-	
+
+
 	$action=GETPOST('action','alpha');
 	$year=GETPOST("year","int")?GETPOST("year","int"):date("Y");
 	$month=GETPOST("month","int")?GETPOST("month","int"):date("m");
@@ -653,8 +663,8 @@ function completeWithExtEvent(&$TEvent, &$TSociete, &$TContact, &$TProject)
 		$firstdaytoshow=dol_mktime(0,0,0,$prev_month,$prev_day,$prev_year);
 		$lastdaytoshow=dol_mktime(0,0,0,$next_month,$next_day,$next_year);
 	}
-	
-	
+
+
 	// Complete $eventarray with external import Ical
 	require_once DOL_DOCUMENT_ROOT.'/comm/action/class/ical.class.php';
 	foreach($listofextcals as $extcal)
@@ -893,13 +903,13 @@ function completeWithExtEvent(&$TEvent, &$TSociete, &$TContact, &$TProject)
 						do
 						{
 							//if ($event->fulldayevent) print dol_print_date($daykeygmt,'dayhour','gmt').'-'.dol_print_date($daykey,'dayhour','gmt').'-'.dol_print_date($event->date_end_in_calendar,'dayhour','gmt').' ';
-							
-							
+
+
 							$editable = false;
 							if(($user->id == $event->userownerid) || $user->rights->agenda->allactions->create) {
 								$editable = true;
 							}
-							
+
 							//$eventarray[$daykey][]=$event;
 							$TEvent[]=array(
 								'id'=>$event->id
@@ -924,13 +934,13 @@ function completeWithExtEvent(&$TEvent, &$TSociete, &$TContact, &$TProject)
 								,'project'=>(!empty($TProject[$event->fk_project]) ? $TProject[$event->fk_project] : '')
 								,'more'=>''
 							);
-							
+
 							$daykey+=60*60*24;  $daykeygmt+=60*60*24;   // Add one day
 							if (($event->fulldayevent ? $daykeygmt : $daykey) > $event->date_end_in_calendar) $loop=false;
 						}
 						while ($loop);
 					}
-					
+
 				}
 			}
 		}
