@@ -414,7 +414,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			$('#pop-new-event').remove();
 
 			$div = $('<div id="pop-new-event"></div>');
-			console.log(date);
+
 			var date_start = date._d;
 			var date_end = date._d;
 
@@ -422,22 +422,6 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			/*TODO better display */
 			$form.append('<?php echo dol_escape_js($select_type_action); ?>');
 			$form.append('<br /><input type="text" name="label" value="" placeholder="<?php echo $langs->trans('Title') ?>" style="width:300px"><br />');
-
-			//adding date
-			<?php
-			/*
-			 * $form.append('<br /><?php echo $langs->trans("DateActionStart").' : '
-						.strtr($form->select_date(0,'ap',1,1,0,"action",1,0,1,0,'fulldayend')
-								,array( "'"=>"\'", "\n"=>'' )
-			); ?>');
-			$form.append('<br /><?php echo $langs->trans("DateActionEnd").' : '
-						.strtr($form->select_date(0,'p2',1,1,0,"action",1,0,1,0,'fulldayend')
-								,array( "'"=>"\'", "\n"=>'' )
-			); ?>');
-
-
-			 */
-			?>
 
 			$form.append('<br /><?php echo $langs->trans("DateActionStart")?> : '+<?php
 					echo json_encode($form->select_date(0,'ap',1,1,0,"action",1,0,1,0,'fulldayend'));
@@ -505,6 +489,9 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 			var TUserId=[];
 			var fk_project = 0;
+
+			var editable = true;
+
 			if (typeof calEvent === 'object') {
 				fk_project = calEvent.object.fk_project;
 
@@ -534,6 +521,13 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				date_start = calEvent.start._d;
 				date_end = calEvent.end ? calEvent.end._d : null;
 
+				editable = calEvent.editable;
+			}
+
+			if(!editable) {
+			//un peu violent mais quand pas le droit d'édition c'est le plus simple
+				window.open("<?php echo dol_buildpath('/comm/action/card.php',1) ?>?id="+calEvent.id);
+				return false;
 			}
 
 			$('body').append($div);
@@ -578,8 +572,11 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				bt_add_lang = "<?php echo $langs->transnoentities('Update'); ?>";
 			}
 
-			var TButton = [
-					{
+			var TButton = [];
+
+			if(editable) {
+
+			TButton.push({
 						text: bt_add_lang
 						, click: function() {
 
@@ -636,9 +633,11 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 						}
 					}
-			];
+			);
 
-			if (typeof calEvent === 'object')
+			}
+
+			if (typeof calEvent === 'object' && editable)
 			{
 				TButton.push({
 					text: "<?php echo $langs->transnoentities('ToClone') ?>"

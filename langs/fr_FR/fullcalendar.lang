@@ -21,3 +21,4 @@ FULLCALENDAR_FILTER_ON_STATE=Ajouter le filtre par département client
 FULLCALENDAR_CAN_UPDATE_PERCENT=Permettre la mise à jour de l'état d'avancement (pourcentage)
 
 EditAnAction=Éditer un événement
+NoRightsToEdit=Vous n'avez pas le droit d'édition
