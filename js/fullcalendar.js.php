@@ -140,8 +140,14 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			$("#selectstatus").closest("tr").after(select_departement);
 		<?php } ?>
 
-		var year = $('form[name=listactionsfilter]').find('input[name=year]').val();
-		var month = $('form[name=listactionsfilter]').find('input[name=month]').val();
+		<?php if ((float) DOL_VERSION < 7.0) { ?>
+			var $form_selector = $('form[name=listactionsfilter]');
+		<?php } else { ?>
+			var $form_selector = $('form#searchFormList');
+		<?php } ?>
+		
+		var year = $form_selector.find('input[name=year]').val();
+		var month = $form_selector.find('input[name=month]').val();
 		var defaultDate = year+'-'+month+'-<?php echo $defaultDay/*.' '.$hourStart.':00'*/ ?>';
 
 		
@@ -155,7 +161,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 		$('table.cal_month').prev('table').find('td.titre_right').remove();
 
 		$('table.cal_month').after('<div id="fullcalendar"></div>');
-		var currentsource = '<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'+'?'+$('form[name=listactionsfilter]').serialize();
+		var currentsource = '<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'+'?'+$form_selector.serialize();
 		$('#fullcalendar').fullCalendar({
 	        header:{
 	        	left:   'title',
@@ -304,14 +310,24 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 				element.prepend('<div style="float:right;">'+event.statut+'</div>');
 
-				element.tipTip({
-					maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50
-					,content : '<strong>'+event.title+'</strong><br />'+ note
-				});
+				if ($.tipTip)
+				{
+				
+					element.tipTip({
+						maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50
+						,content : '<strong>'+event.title+'</strong><br />'+ note
+					});
 
-				element.find(".classfortooltip").tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50});
-				element.find(".classforcustomtooltip").tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 5000});
-
+					element.find(".classfortooltip").tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50});
+					element.find(".classforcustomtooltip").tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 5000});
+				}
+				else
+				{
+					element.tooltip({
+						maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50
+						,content : '<strong>'+event.title+'</strong><br />'+ note
+					});
+				}
 			 }
 			,loading:function(isLoading, view) {
 
@@ -646,16 +662,16 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			});
 		}
 		
-		$('form[name=listactionsfilter]').submit(function(event) {
-			console.log($('form[name=listactionsfilter]').serialize() );
+		$form_selector.submit(function(event) {
+			console.log($form_selector.serialize() );
 			console.log($('#fullcalendar'));
-			var newsource = '<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'+'?'+$('form[name=listactionsfilter]').serialize();
+			var newsource = '<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'+'?'+$form_selector.serialize();
 			$('#fullcalendar').fullCalendar('removeEvents');
 			$('#fullcalendar').fullCalendar('removeEventSource', currentsource);
 			$('#fullcalendar').fullCalendar( 'addEventSource', newsource);
 			currentsource = newsource;
 			event.preventDefault();
-			var url = '<?php echo dol_buildpath('/comm/action/index.php',1) ?>?'+$('form[name=listactionsfilter]').serialize() ;
+			var url = '<?php echo dol_buildpath('/comm/action/index.php',1) ?>?'+$form_selector.serialize() ;
 			history.pushState("FullCalendar","FullCalendar", url)
 
 
