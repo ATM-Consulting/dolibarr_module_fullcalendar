@@ -140,8 +140,14 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			$("#selectstatus").closest("tr").after(select_departement);
 		<?php } ?>
 
-		var year = $('form[name=listactionsfilter]').find('input[name=year]').val();
-		var month = $('form[name=listactionsfilter]').find('input[name=month]').val();
+		<?php if ((float) DOL_VERSION < 7.0) { ?>
+			var $form_selector = $('form[name=listactionsfilter]');
+		<?php } else { ?>
+			var $form_selector = $('form#searchFormList');
+		<?php } ?>
+		
+		var year = $form_selector.find('input[name=year]').val();
+		var month = $form_selector.find('input[name=month]').val();
 		var defaultDate = year+'-'+month+'-<?php echo $defaultDay/*.' '.$hourStart.':00'*/ ?>';
 
 
@@ -155,7 +161,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 		$('table.cal_month').prev('table').find('td.titre_right').remove();
 
 		$('table.cal_month').after('<div id="fullcalendar"></div>');
-		var currentsource = '<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'+'?'+$('form[name=listactionsfilter]').serialize();
+		var currentsource = '<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'+'?'+$form_selector.serialize();
 		$('#fullcalendar').fullCalendar({
 	        header:{
 	        	left:   'title',
@@ -249,8 +255,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			}
 			,eventRender:function( event, element, view ) {
 				var title = element.find('.fc-title').html();
-				element.find('.fc-title').html('<a class="url_title" href="'+event.url_title+'">'+title+'</a>');
-
+				element.find('.fc-title').html('<a class="url_title" href="'+event.url_title+'" onclick="event.stopPropagation();">'+title+'</a>');
 				var note = "";
 				<?php
 
@@ -305,19 +310,24 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 				element.prepend('<div style="float:right;">'+event.statut+'</div>');
 
-				element.tipTip({
-					maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50
-					,content : '<strong>'+event.title+'</strong><br />'+ note
-				});
+				if ($.tipTip)
+				{
+				
+					element.tipTip({
+						maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50
+						,content : '<strong>'+event.title+'</strong><br />'+ note
+					});
 
-				element.find(".classfortooltip").tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50});
-				element.find(".classforcustomtooltip").tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 5000});
-
-				element.find('a').click(function( event ) {
-  					event.stopPropagation();
-				});
-
-
+					element.find(".classfortooltip").tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50});
+					element.find(".classforcustomtooltip").tipTip({maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 5000});
+				}
+				else
+				{
+					element.tooltip({
+						maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50
+						,content : '<strong>'+event.title+'</strong><br />'+ note
+					});
+				}
 			 }
 			,loading:function(isLoading, view) {
 
@@ -523,6 +533,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 				editable = calEvent.editable;
 			}
+			
+			$('body').append($div);
 
 			if(!editable) {
 			//un peu violent mais quand pas le droit d'édition c'est le plus simple
@@ -532,10 +544,23 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 			$('body').append($div);
 
+			
+			$('#pop-new-event #ap').val( formatDate(date_start ,"<?php echo $langs->trans("FormatDateShortJavaInput") ?>" ) );
+			$('#pop-new-event #p2').val( formatDate(date_end ,"<?php echo $langs->trans("FormatDateShortJavaInput") ?>" ) );
+			
+			dpChangeDay('ap',"<?php echo $langs->trans("FormatDateShortJavaInput") ?>");
+			dpChangeDay('p2',"<?php echo $langs->trans("FormatDateShortJavaInput") ?>");
+
 			hour_start = date_start.getUTCHours().toString();
-			if(hour_start.length<2) hour_start="0"+hour_start;
+			if(hour_start.length<2) hour_start="0"+hour_start;		
+			hour_end = date_end.getUTCHours().toString();
+			if(hour_end.length<2) hour_end="0"+hour_end;	
+
+
 			$('#pop-new-event #aphour').val(hour_start);
 			$('#pop-new-event #apmin').val(formatDate(date_start ,'mm'));
+			$('#pop-new-event #p2hour').val(hour_end);
+			$('#pop-new-event #p2min').val(formatDate(date_end ,'mm'));
 
 			var formated_date_start = formatDateUTC(date_start ,"<?php echo $langs->trans("FormatDateShortJavaInput") ?>" )
 			$('#pop-new-event #ap').val( formated_date_start );
@@ -759,17 +784,17 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				,buttons:TButton
 			});
 		}
-
-		$('form[name=listactionsfilter]').submit(function(event) {
-			console.log($('form[name=listactionsfilter]').serialize() );
+		
+		$form_selector.submit(function(event) {
+			console.log($form_selector.serialize() );
 			console.log($('#fullcalendar'));
-			var newsource = '<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'+'?'+$('form[name=listactionsfilter]').serialize();
+			var newsource = '<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'+'?'+$form_selector.serialize();
 			$('#fullcalendar').fullCalendar('removeEvents');
 			$('#fullcalendar').fullCalendar('removeEventSource', currentsource);
 			$('#fullcalendar').fullCalendar( 'addEventSource', newsource);
 			currentsource = newsource;
 			event.preventDefault();
-			var url = '<?php echo dol_buildpath('/comm/action/index.php',1) ?>?'+$('form[name=listactionsfilter]').serialize() ;
+			var url = '<?php echo dol_buildpath('/comm/action/index.php',1) ?>?'+$form_selector.serialize() ;
 			history.pushState("FullCalendar","FullCalendar", url)
 
 

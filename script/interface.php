@@ -303,7 +303,7 @@ function _events($date_start, $date_end) {
 
 	$TEvent=array();
 	if(isset($_REQUEST['DEBUG'])) print $sql;
-
+//echo $sql;exit;
 	$res= $db->query($sql);
 	//var_dump($db);
 
