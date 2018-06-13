@@ -362,11 +362,17 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	        ,dayClick:function( date, jsEvent, view ) {
 	        	console.log(date.format());
 	        	//document.location.href = "<?php echo dol_buildpath('/comm/action/card.php?action=create',1); ?>"
-
+				
 				showPopIn(date);
 
 	        }
 			,eventClick:function(calEvent, jsEvent, view) {
+			
+				$(jsEvent.currentTarget).find('a').click(function( event ) {
+					event.stopImmediatePropagation();
+					
+					});
+			
 				showPopIn(calEvent.start, calEvent);
 			}
 			,eventAfterAllRender:function (view) {
