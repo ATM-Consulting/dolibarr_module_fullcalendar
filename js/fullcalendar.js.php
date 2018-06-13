@@ -285,8 +285,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 					?>
 					if(event.fk_user>0){
-						 element.append('<div>'+event.user+'</div>');
-						 note += '<div>'+event.user+'</div>';
+						 element.append('<div style="z-index:99;position:relative;">'+event.user+'</div>');
+						 note += '<div style="z-index:99;position:relative;">'+event.user+'</div>';
 					}
 					<?php
 
@@ -296,16 +296,16 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 					?>
 					if(event.fk_project>0){
-						 element.append('<div>'+event.project+'</div>');
-						 note = '<div>'+event.project+'</div>'+note;
+						 element.append('<div style="z-index:99;position:relative;">'+event.project+'</div>');
+						 note = '<div style="z-index:99;position:relative;">'+event.project+'</div>'+note;
 					}
 					<?php
 				}
 
 				?>
 				if(event.more)  {
-					 element.append('<div>'+event.more+'</div>');
-					 note = note+'<div>'+event.more+'</div>';
+					 element.append('<div style="z-index:99;position:relative;">'+event.more+'</div>');
+					 note = note+'<div style="z-index:99;position:relative;">'+event.more+'</div>';
 				}
 
 				element.prepend('<div style="float:right;">'+event.statut+'</div>');
