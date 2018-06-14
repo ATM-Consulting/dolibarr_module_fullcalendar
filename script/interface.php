@@ -446,11 +446,10 @@ function _events($date_start, $date_end) {
 		);
 
 	}
-		$use_workstation_color=null;
-		if(GETPOST('use_workstation_color'))$use_workstation_color=1;
+		
 	//TODO getCalendarEvents compatbile standard
 	// Complete $eventarray with events coming from external module
-	$parameters=array('use_workstation_color'=>$use_workstation_color,'sql'=>$sql); $action = 'getEvents';
+	$parameters=array('use_color_from'=>GETPOST('use_color_from'),'sql'=>$sql); $action = 'getEvents';
 	$reshook=$hookmanager->executeHooks('updateFullcalendarEvents',$parameters,$TEvent,$action);
 	if (! empty($hookmanager->resArray['eventarray'])) $TEvent=array_merge($TEvent, $hookmanager->resArray['eventarray']);
 
