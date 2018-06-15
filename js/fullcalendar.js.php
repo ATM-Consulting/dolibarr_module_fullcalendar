@@ -302,6 +302,18 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 					<?php
 				}
 
+				if(!empty($conf->global->FULLCALENDAR_SHOW_ORDER)) {
+				    
+				    ?>
+					if(event.fk_project>0 && event.fk_project_order>0){
+						 element.append('<div style="z-index:99;position:relative;">'+event.project_order+'</div>');
+						 note = '<div style="z-index:99;position:relative;">'+event.project_order+'</div>'+note;
+					}
+					<?php
+				    
+				}
+				
+				
 				?>
 				if(event.more)  {
 					 element.append('<div style="z-index:99;position:relative;">'+event.more+'</div>');

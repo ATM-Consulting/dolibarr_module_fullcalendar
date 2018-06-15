@@ -310,7 +310,7 @@ function _events($date_start, $date_end) {
 	$TSociete = array();
 	$TContact = array();
 	$TUser = array();
-	$TProject = array();
+	$TProject = $TProjectObject = array();
 
 	$TEventObject=array();
 	while($obj=$db->fetch_object($res)) {
@@ -366,9 +366,44 @@ function _events($date_start, $date_end) {
             $p = new Project($db);
             $p->fetch($event->fk_project);
             $TProject[$event->fk_project]  = $p->getNomUrl(1);
+            $TProjectObject[$event->fk_project]  = $p;
 
         }
 
+        if(!empty($conf->global->FULLCALENDAR_SHOW_ORDER) && $event->fk_project>0) {
+            if( !isset($TProject[$event->fk_project]) ) {
+                $p = new Project($db);
+                $p->fetch($event->fk_project);
+                $TProject[$event->fk_project]  = $p->getNomUrl(1);
+                $TProjectObject[$event->fk_project]  = $p;
+            }
+            
+            if(!isset($TProjectObject[$event->fk_project]->fk_project_order)) {
+                // c'est de la merde cette fonction, je custom :: $orders = $TProjectObject[$event->fk_project]->get_element_list('commande','commande');
+                
+                
+                $res = $db->query("SELECT rowid, ref FROM ".MAIN_DB_PREFIX."commande WHERE fk_projet=".$event->fk_project." ORDER BY date_commande DESC LIMIT 1");
+                if($res===false) {
+                    var_dump($db);exit;
+                }
+                else{
+                    
+                    dol_include_once('/commande/class/commande.class.php');
+                    
+                    $obj = $db->fetch_object($res);
+                    $o=new Commande($db);
+                    $o->id = $obj->rowid;
+                    $o->ref = $obj->ref;
+                    
+                    $event->fk_project_order = $o->id;
+                    $event->project_order = $o->getNomUrl(1);
+                    
+                }
+                
+            }
+             
+            
+        }
 
 		if(!empty($conf->global->FULLCALENDAR_SHOW_AFFECTED_USER) && !empty($event->userassigned)) {
 
@@ -441,7 +476,12 @@ function _events($date_start, $date_end) {
 			,'contact'=>(!empty($TContact[$event->contactid]) ? $TContact[$event->contactid] : '')
 			,'user'=>(!empty($TUserassigned) ? implode(', ',$TUserassigned) : '')
 			,'project'=>(!empty($TProject[$event->fk_project]) ? $TProject[$event->fk_project] : '')
-			,'more'=>''
+			
+		    ,'project_order'=>(!empty( $event->project_order ) ? $event->project_order : '')
+		    ,'fk_project_order'=>(!empty( $event->fk_project_order ) ? $event->fk_project_order : '0')
+		    
+		    
+		    ,'more'=>''
 			,'object'=>$event
 		);
 
