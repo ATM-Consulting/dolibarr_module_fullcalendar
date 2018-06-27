@@ -787,12 +787,12 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 				var $option = $('#pop-new-event #fk_user option[value='+fk_user+']');
 				if($option.length>0) {
-					TDataSelect2.push( {id:fk_user, text:$option.text() });
+					TDataSelect2.push(fk_user);
 				}
 			}
 
 			if(TDataSelect2.length>0) {
-				$('#pop-new-event #fk_user').select2('data', TDataSelect2 );
+				$('#pop-new-event #fk_user').val(TDataSelect2).trigger('change'); // Select2 écoute l'événement change
 			}
 
 			$('#pop-new-event').dialog({
