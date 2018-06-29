@@ -147,6 +147,10 @@
 
 			$a->userownerid = $TUser[0];
 			$a->type_code = GETPOST('type_code') ? GETPOST('type_code') : 'AC_OTH';
+			$a->code = $a->type_code; // Up to Dolibarr 3.4, code is used in ActionComm:add() instead of type_code. It's seems unused, but you never know for sure.
+			$a->fk_action = dol_getIdFromCode($db, $a->type_code, 'c_actioncomm'); // type_code is not saved in ActionComm::update(), fk_action is up to Dolibarr 6.0
+			$a->type_id = $a->fk_action; // type_id used instead of fk_action in ActionComm::update() since Dolibarr 7.0, used in ::add()/::create() since the beginning
+
 			$a->socid = GETPOST('fk_soc');
 			$a->contactid = GETPOST('fk_contact');
 
@@ -186,7 +190,6 @@
 			else
 			{
 				if (empty($a->contactid)) $a->contact = null;
-				$a->fk_action = dol_getIdFromCode($db, $a->type_code, 'c_actioncomm');
 
 				$res = $a->update($user);
 				if ($res > 0) $res = $a->id;
