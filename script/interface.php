@@ -185,7 +185,11 @@
 			}
 
 			if (empty($a->id)) {
-				$res = $a->add($user);
+				if(method_exists($a, 'create')) {
+					$res = $a->create($user);
+				} else {
+					$res = $a->add($user);
+				}
 			}
 			else
 			{
