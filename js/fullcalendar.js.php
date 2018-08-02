@@ -134,6 +134,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 ?>
 
 	$(document).ready(function() {
+	
+		$('.wordbreak').hide(); //hide std dolibarr btn to change date
 
 		<?php if (!empty($conf->global->FULLCALENDAR_FILTER_ON_STATE)) { ?>
 			var select_departement = <?php echo json_encode('<tr><td>'.fieldLabel('State','state_id').'</td><td>'.$formcompany->select_state(GETPOST('state_id'), 'FR').'</td></tr>'); ?>;
