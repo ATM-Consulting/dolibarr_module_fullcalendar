@@ -324,9 +324,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 				element.prepend('<div style="float:right;">'+event.statut+'</div>');
 
-				if ($.tipTip)
+				if ($().tipTip) // ou $.fn.tipTip, mais $.tipTip ne fonctionne pas
 				{
-				
 					element.tipTip({
 						maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50
 						,content : '<strong>'+event.title+'</strong><br />'+ note
@@ -338,8 +337,21 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				else
 				{
 					element.tooltip({
-						maxWidth: "600px", edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50
-						,content : '<strong>'+event.title+'</strong><br />'+ note
+						items: 'a.fc-event' // La boîte entière de l'événement montre un tooltip, par défaut, ce sont tous les éléments contenus dans le sélecteur avec une balise title
+						, show: { collision: "flipfit", effect: "toggle", delay: 50 }
+						, hide: { delay: 50 }
+						, position: { my: "left+10 center", at: "right center" }
+						, content : '<strong>'+event.title+'</strong><br />'+ note
+					});
+
+					// On remet les tooltips des liens désactivés par l'appel ci-dessus
+					element.find(".classfortooltip, .classforcustomtooltip").tooltip({
+						show: { collision: "flipfit", effect: "toggle", delay: 50 }
+						, hide: { delay: 50 }
+						, tooltipClass: "mytooltip"
+						, content: function() {
+							return $(this).prop('title');
+						}
 					});
 				}
 			 }
