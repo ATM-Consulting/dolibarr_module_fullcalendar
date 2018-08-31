@@ -381,13 +381,9 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 	        }
 			,eventClick:function(calEvent, jsEvent, view) {
-			
-				$(jsEvent.currentTarget).find('a').click(function( event ) {
-					event.stopImmediatePropagation();
-					
-					});
-			
-				showPopIn(calEvent.start, calEvent);
+				if(! $(jsEvent.target).is('a[href]')) { // Si la cible du click est un lien avec un adresse, on ne montre pas la popin et on suit le lien
+					showPopIn(calEvent.start, calEvent);
+				}
 			}
 			,eventAfterAllRender:function (view) {
 				$('#fullcalendar').fullCalendar( 'option' , 'aspectRatio', 1.35);
