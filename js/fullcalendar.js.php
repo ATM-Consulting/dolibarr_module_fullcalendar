@@ -509,7 +509,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 			?>
 
-			$form.find('select[name=fk_soc]').change(function() {
+			$form.find('#fk_soc').change(function() {
 				var fk_soc = $(this).val();
 
 				$.ajax({
