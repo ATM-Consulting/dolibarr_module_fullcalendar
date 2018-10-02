@@ -134,7 +134,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 ?>
 
 	$(document).ready(function() {
-	
+
 		$('.wordbreak').hide(); //hide std dolibarr btn to change date
 
 		<?php if (!empty($conf->global->FULLCALENDAR_FILTER_ON_STATE)) { ?>
@@ -831,6 +831,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 		});
 
+	
+		$('#actioncode, #projectid').select2({ width : '100%' });
 
 	});
 
