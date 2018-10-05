@@ -572,50 +572,40 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 			$('body').append($div);
 
-			
-			$('#pop-new-event #ap').val( formatDate(date_start ,"<?php echo $langs->trans("FormatDateShortJavaInput") ?>" ) );
-			$('#pop-new-event #p2').val( formatDate(date_end ,"<?php echo $langs->trans("FormatDateShortJavaInput") ?>" ) );
-			
-			dpChangeDay('ap',"<?php echo $langs->trans("FormatDateShortJavaInput") ?>");
-			dpChangeDay('p2',"<?php echo $langs->trans("FormatDateShortJavaInput") ?>");
 
-			hour_start = date_start.getUTCHours().toString();
-			if(hour_start.length<2) hour_start="0"+hour_start;		
-			hour_end = date_end.getUTCHours().toString();
-			if(hour_end.length<2) hour_end="0"+hour_end;	
+			var formattedDateStart = '', formattedHoursStart = '', formattedMinutesStart = '', formattedDateEnd = '', formattedHoursEnd = '', formattedMinutesEnd = '';
 
+			if(date_start)
+			{
+				formattedDateStart = formatDateUTC(date_start, "<?php echo $langs->trans("FormatDateShortJavaInput") ?>");
+				formattedHoursStart = formatDateUTC(date_start, 'HH');
+				formattedMinutesStart = formatDateUTC(date_start, 'mm');
 
-			$('#pop-new-event #aphour').val(hour_start);
-			$('#pop-new-event #apmin').val(formatDate(date_start ,'mm'));
-			$('#pop-new-event #p2hour').val(hour_end);
-			$('#pop-new-event #p2min').val(formatDate(date_end ,'mm'));
-
-			var formated_date_start = formatDateUTC(date_start ,"<?php echo $langs->trans("FormatDateShortJavaInput") ?>" )
-			$('#pop-new-event #ap').val( formated_date_start );
-			dpChangeDay('ap',"<?php echo $langs->trans("FormatDateShortJavaInput") ?>");
-
-			if(date_end) {
-
-				hour_end = date_end.getUTCHours().toString();
-				if (date_start === date_end) hour_end = parseInt(hour_end) + 2; // décalage de 2H
-				hour_end = ('0'+hour_end).slice(-2); // mise sur 2 caractères
-
-				if(hour_end.length<2) hour_end="0"+hour_end;
-
-				var formated_date_end = formatDateUTC(date_end ,"<?php echo $langs->trans("FormatDateShortJavaInput") ?>" );
-
-				$('#pop-new-event #p2').val( formated_date_end );
-				$('#pop-new-event #p2hour').val(hour_end);
-				$('#pop-new-event #p2min').val(formatDate(date_end ,'mm'));
-
-			}
-			else {
-				$('#pop-new-event #p2').val('');
-				$('#pop-new-event #p2hour').val('');
-				$('#pop-new-event #p2min').val('');
+				// Décalage de deux heures si dates identiques
+				if(date_end == date_start)
+				{
+					date_end.setTime(date_start.getTime() + 2 * 3600 * 1000); // Paramètres en millisecondes
+				}
 			}
 
-			dpChangeDay('p2',"<?php echo $langs->trans("FormatDateShortJavaInput") ?>");
+			if(date_end)
+			{
+				formattedDateEnd = formatDateUTC(date_end, "<?php echo $langs->trans("FormatDateShortJavaInput") ?>");
+				formattedHoursEnd = formatDateUTC(date_end, 'HH');
+				formattedMinutesEnd = formatDateUTC(date_end, 'mm');
+			}
+
+			$('#pop-new-event #ap').val(formattedDateStart);
+			$('#pop-new-event #aphour').val(formattedHoursStart);
+			$('#pop-new-event #apmin').val(formattedMinutesStart);
+
+			$('#pop-new-event #p2').val(formattedDateEnd);
+			$('#pop-new-event #p2hour').val(formattedHoursEnd);
+			$('#pop-new-event #p2min').val(formattedMinutesEnd);
+
+			dpChangeDay('ap', "<?php echo $langs->trans("FormatDateShortJavaInput") ?>");
+			dpChangeDay('p2', "<?php echo $langs->trans("FormatDateShortJavaInput") ?>");
+
 
 			var title_dialog = "<?php echo $langs->transnoentities('AddAnAction') ?>";
 			var bt_add_lang = "<?php echo $langs->transnoentities('Add'); ?>";
