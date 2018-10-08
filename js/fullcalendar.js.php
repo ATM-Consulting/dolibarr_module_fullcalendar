@@ -275,11 +275,11 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				if(event.note) note+=event.note;
 
 				if(event.fk_soc>0){
-					 element.append('<div style="z-index:99;position:relative;">'+event.societe+'</div>');
+					 element.append('<div style="z-index:3;position:relative;">'+event.societe+'</div>');
 					 note += '<div>'+event.societe+'</div>';
 				}
 				if(event.fk_contact>0){
-					 element.append('<div style="z-index:99;position:relative;">'+event.contact+'</div>');
+					 element.append('<div style="z-index:3;position:relative;">'+event.contact+'</div>');
 					 note += '<div>'+event.contact+'</div>';
 				}
 				<?php
@@ -287,8 +287,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 					?>
 					if(event.fk_user>0){
-						 element.append('<div style="z-index:99;position:relative;">'+event.user+'</div>');
-						 note += '<div style="z-index:99;position:relative;">'+event.user+'</div>';
+						 element.append('<div style="z-index:3;position:relative;">'+event.user+'</div>');
+						 note += '<div style="z-index:3;position:relative;">'+event.user+'</div>';
 					}
 					<?php
 
@@ -298,8 +298,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 					?>
 					if(event.fk_project>0){
-						 element.append('<div style="z-index:99;position:relative;">'+event.project+'</div>');
-						 note = '<div style="z-index:99;position:relative;">'+event.project+'</div>'+note;
+						 element.append('<div style="z-index:3;position:relative;">'+event.project+'</div>');
+						 note = '<div style="z-index:3;position:relative;">'+event.project+'</div>'+note;
 					}
 					<?php
 				}
@@ -308,8 +308,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				    
 				    ?>
 					if(event.fk_project>0 && event.fk_project_order>0){
-						 element.append('<div style="z-index:99;position:relative;">'+event.project_order+'</div>');
-						 note = '<div style="z-index:99;position:relative;">'+event.project_order+'</div>'+note;
+						 element.append('<div style="z-index:3;position:relative;">'+event.project_order+'</div>');
+						 note = '<div style="z-index:3;position:relative;">'+event.project_order+'</div>'+note;
 					}
 					<?php
 				    
@@ -318,8 +318,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				
 				?>
 				if(event.more)  {
-					 element.append('<div style="z-index:99;position:relative;">'+event.more+'</div>');
-					 note = note+'<div style="z-index:99;position:relative;">'+event.more+'</div>';
+					 element.append('<div style="z-index:3;position:relative;">'+event.more+'</div>');
+					 note = note+'<div style="z-index:3;position:relative;">'+event.more+'</div>';
 				}
 
 				element.prepend('<div style="float:right;">'+event.statut+'</div>');
