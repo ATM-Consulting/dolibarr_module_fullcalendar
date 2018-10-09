@@ -146,6 +146,21 @@ echo ajax_constantonoff('FULLCALENDAR_SHOW_PROJECT');
 print '</form>';
 print '</td></tr>';
 
+
+$var=!$var;
+
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("FULLCALENDAR_SHOW_ORDER").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="action" value="set_FULLCALENDAR_SHOW_ORDER">';
+echo ajax_constantonoff('FULLCALENDAR_SHOW_ORDER');
+
+print '</form>';
+print '</td></tr>';
+
 $var=!$var;
 print '<tr '.$bc[$var].'>';
 print '<td>'.$langs->trans("FULLCALENDAR_HIDE_DAYS").'</td>';
