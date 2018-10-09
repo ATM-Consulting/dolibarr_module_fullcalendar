@@ -8,6 +8,7 @@
 	$langs->load("agenda");
 	$langs->load("other");
 	$langs->load("commercial");
+	$langs->load("companies");
 
 	$get=GETPOST('get');
 	$put=GETPOST('put');
