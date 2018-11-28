@@ -99,7 +99,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 	}
 	//var_dump($TUserToSelect);
-	$conf->global->MAIN_USE_JQUERY_MULTISELECT = 0; // disabled JS inclusion to include later
+
 	$select_user = $form->multiselectarray('fk_user', $TUserToSelect,array($user->id), 0,0,'minwidth300');
 
 	ob_start();
@@ -108,8 +108,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 	ob_start();
 	$formProject = new FormProjets($db);
-	$select_project = $formProject->select_projects_list(-1, 0, 'fk_project',0,0,1);
-	$select_project .= ob_get_clean();
+	$formProject->select_projects(-1, 0, 'fk_project', 0, 0, 1, 1);
+	$select_project = ob_get_clean();
 
 	$defaultDay = date('d');
 
@@ -461,36 +461,37 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			$form.append('<?php echo dol_escape_js($select_type_action); ?>');
 			$form.append('<br /><input type="text" name="label" value="" placeholder="<?php echo $langs->trans('Title') ?>" style="width:300px"><br />');
 
-			$form.append('<br /><?php echo $langs->trans("DateActionStart")?> : '+<?php
-					echo json_encode($form->select_date(0,'ap',1,1,0,"action",1,0,1,0,'fulldayend'));
-			?>);
+			$form.append('<br /><?php echo $langs->trans("DateActionStart")?> : ');
+			$form.append(<?php echo json_encode($form->select_date(0,'ap',1,1,0,"action",1,0,1,0,'fulldayend')); ?>);
 
-			$form.append('<br /><?php echo $langs->trans("DateActionEnd") ?> : '+<?php
-					echo json_encode($form->select_date(0,'p2',1,1,0,"action",1,0,1,0,'fulldayend'));
-			?>);
+			$form.append('<br /><?php echo $langs->trans("DateActionEnd") ?> : ');
+			$form.append(<?php echo json_encode($form->select_date(0,'p2',1,1,0,"action",1,0,1,0,'fulldayend')); ?>);
 
 
 			<?php
 				$doleditor=new DolEditor('note', '','',200,'dolibarr_notes','In',true,true,$conf->fckeditor->enabled,ROWS_5,90);
 				$fullcalendar_note = $doleditor->Create(1);
 			?>
-			$form.append(<?php echo json_encode($fullcalendar_note); ?>);
+			$form.append('<br />'+<?php echo json_encode($fullcalendar_note); ?>);
 
 			<?php if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) { ?>
 			$form.append('<br /><?php echo $langs->trans('Status').' / '.$langs->trans('Percentage') ?> :');
 			$form.append(<?php ob_start(); $formactions->form_select_status_action('formaction','0',1); $html_percent = ob_get_clean(); echo json_encode($html_percent); ?>);
 			<?php } ?>
 
-			$form.append("<br /><?php echo $langs->trans('Company'); ?> : ");
+			$form.append('<br /><?php echo $langs->trans('Company'); ?> : ');
 			$form.append(<?php echo json_encode($select_company); ?>);
-			$form.append("<br /><?php echo $langs->trans('Contact').' : '.strtr(addslashes('<span rel="contact">'.$select_contact.'</span>'),array("\n"=>"\\\n")); ?>");
-			$form.append("<br /><?php echo $langs->trans('User').' : '.strtr(addslashes($select_user),array("\n"=>" ","\r"=>"")); ?>");
+			$form.append('<br /><?php echo $langs->trans('Contact'); ?> : ');
+			$form.append(<?php echo json_encode('<span rel="contact">'.$select_contact.'</span>'); ?>);
+			$form.append('<br /><?php echo $langs->trans('User'); ?> : ');
+			$form.append(<?php echo json_encode($select_user); ?>);
 			<?php
 
 			if(!empty($conf->global->FULLCALENDAR_SHOW_PROJECT)) {
 
 				?>
-				$form.append("<br /><?php echo $langs->trans('Project').' : '.strtr(addslashes($select_project),array("\n"=>" ","\r"=>"")); ?>");
+				$form.append('<br /><?php echo $langs->trans('Project'); ?> : ');
+				$form.append(<?php echo json_encode($select_project); ?>);
 				<?php
 			}
 
@@ -501,7 +502,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				foreach ($moreOptions as $param => $option)
 				{
 				?>
-					$form.append("<br /><?php echo strtr(addslashes($option),array("\n"=>" ","\r"=>"")); ?>");
+					$form.append('<br />'+<?php echo json_encode($option); ?>);
 				<?php
 				}
 
@@ -647,7 +648,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 										,fk_soc:$('#pop-new-event [name=fk_soc]').val()
 										,fk_contact:$('#pop-new-event select[name=contactid]').val()
 										,fk_user:TUserId
-										,fk_project:<?php if (!empty($conf->global->FULLCALENDAR_SHOW_PROJECT)) { ?>$('#pop-new-event select[name=fk_project]').val()<?php } else { ?>fk_project<?php } ?>
+										,fk_project:<?php if (!empty($conf->global->FULLCALENDAR_SHOW_PROJECT)) { ?>$('#pop-new-event #fk_project').val()<?php } else { ?>fk_project<?php } ?>
 										,type_code:$('#pop-new-event select[name=type_code]').val()
 										,date_start:$('#pop-new-event #apyear').val()+'-'+$('#pop-new-event #apmonth').val()+'-'+$('#pop-new-event #apday').val()+' '+$('#pop-new-event #aphour').val()+':'+$('#pop-new-event #apmin').val()+':00'
 										,date_end:$('#pop-new-event #p2year').val()+'-'+$('#pop-new-event #p2month').val()+'-'+$('#pop-new-event #p2day').val()+' '+$('#pop-new-event #p2hour').val()+':'+$('#pop-new-event #p2min').val()+':00'
@@ -710,7 +711,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 										,fk_soc:$('#pop-new-event [name=fk_soc]').val()
 										,fk_contact:$('#pop-new-event select[name=contactid]').val()
 										,fk_user:TUserId
-										,fk_project:<?php if (!empty($conf->global->FULLCALENDAR_SHOW_PROJECT)) { ?>$('#pop-new-event select[name=fk_project]').val()<?php } else { ?>fk_project<?php } ?>
+										,fk_project:<?php if (!empty($conf->global->FULLCALENDAR_SHOW_PROJECT)) { ?>$('#pop-new-event #fk_project').val()<?php } else { ?>fk_project<?php } ?>
 										,type_code:$('#pop-new-event select[name=type_code]').val()
 										,date_start:$('#pop-new-event #apyear').val()+'-'+$('#pop-new-event #apmonth').val()+'-'+$('#pop-new-event #apday').val()+' '+$('#pop-new-event #aphour').val()+':'+$('#pop-new-event #apmin').val()+':00'
 										,date_end:$('#pop-new-event #p2year').val()+'-'+$('#pop-new-event #p2month').val()+'-'+$('#pop-new-event #p2day').val()+' '+$('#pop-new-event #p2hour').val()+':'+$('#pop-new-event #p2min').val()+':00'
@@ -821,9 +822,15 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 		});
 
-	
-		$('#actioncode, #projectid').select2({ width : '100%' });
 
+<?php
+	if(! empty($conf->use_javascript_ajax))
+	{
+?>
+		$('#actioncode, #projectid').select2({ width: '100%' });
+<?php
+	}
+?>
 	});
 
 <?php
