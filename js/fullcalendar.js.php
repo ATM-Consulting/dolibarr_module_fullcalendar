@@ -561,6 +561,15 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				date_end = calEvent.end ? calEvent.end._d : null;
 
 				editable = calEvent.editable;
+
+<?php
+	$parameters=array(); $action = 'showPopIn'; $object = null;
+	$reshook=$hookmanager->executeHooks('addShowPopInBehaviour',$parameters,$object,$action);
+	if ($reshook >= 0 && ! empty($hookmanager->resPrint))
+	{
+		print $hookmanager->resPrint;
+	}
+?>
 			}
 			
 			$('body').append($div);

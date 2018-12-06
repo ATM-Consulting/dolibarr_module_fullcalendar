@@ -325,6 +325,7 @@ function _events($date_start, $date_end) {
 		$event = new ActionComm($db);
 		$event->fetch($obj->id);
 		if (method_exists($event, 'fetch_thirdparty')) $event->fetch_thirdparty();
+		if (method_exists($event, 'fetchObjectLinked')) $event->fetchObjectLinked();
 		$event->fetch_userassigned();
 
 		$event->color = $obj->color;
