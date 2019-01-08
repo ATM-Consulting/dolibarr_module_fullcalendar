@@ -49,7 +49,15 @@ $action = GETPOST('action', 'alpha');
 if (preg_match('/set_(.*)/',$action,$reg))
 {
 	$code=$reg[1];
-	if (dolibarr_set_const($db, $code, GETPOST($code), 'chaine', 0, '', $conf->entity) > 0)
+
+	$value = GETPOST($code);
+
+	if(preg_match('/^FULLCALENDAR_PREFILL_DATETIME_/', $code))
+	{
+		$value = dol_mktime(GETPOST($code . 'hour'), GETPOST($code . 'min'), 0, 1, 1, 1970);
+	}
+
+	if (dolibarr_set_const($db, $code, $value, 'chaine', 0, '', $conf->entity) > 0)
 	{
 		header("Location: ".$_SERVER["PHP_SELF"]);
 		exit;
@@ -273,6 +281,92 @@ print '<td>'.$langs->trans("FULLCALENDAR_CAN_UPDATE_PERCENT").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
 echo ajax_constantonoff('FULLCALENDAR_CAN_UPDATE_PERCENT');
+print '</td></tr>';
+
+
+print '</td></tr>';
+
+$TElementsToDisable = array(
+	  '#FULLCALENDAR_PREFILL_DATETIME_MORNING_STARThour'
+	, '#FULLCALENDAR_PREFILL_DATETIME_MORNING_STARTmin'
+	, '#FULLCALENDAR_PREFILL_DATETIME_MORNING_ENDhour'
+	, '#FULLCALENDAR_PREFILL_DATETIME_MORNING_ENDmin'
+	, '#FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_STARThour'
+	, '#FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_STARTmin'
+	, '#FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_ENDhour'
+	, '#FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_ENDmin'
+);
+
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("FULLCALENDAR_PREFILL_DATETIMES").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+print ajax_constantonoff('FULLCALENDAR_PREFILL_DATETIMES', array('disabled' => $TElementsToDisable));
+print '</td></tr>';
+
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$langs->trans("FULLCALENDAR_PREFILL_DATETIME_MORNING_START").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+print '<form method="post" action="'.$_SERVER['PHP_SELF'].'" name="formFULLCALENDAR_PREFILL_DATETIME_MORNING_START">';
+print '<input type="hidden" name="action" value="set_FULLCALENDAR_PREFILL_DATETIME_MORNING_START">';
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<table id="BLBLBLBL" class="nobordernopadding" cellpadding="0" cellspacing="0">';
+print '<tr><td>';
+print $form->select_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_MORNING_START, 'FULLCALENDAR_PREFILL_DATETIME_MORNING_START', 1, 1, 0,'formFULLCALENDAR_PREFILL_DATETIME_MORNING_START',0, 0, 0, empty($conf->global->FULLCALENDAR_PREFILL_DATETIMES));
+print '</td>';
+print '<td align="left"><input type="submit" class="button" value="'.$langs->trans("Modify").'"></td>';
+print '</tr></table></form>';
+print '</td></tr>';
+
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$langs->trans("FULLCALENDAR_PREFILL_DATETIME_MORNING_END").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+print '<form method="post" action="'.$_SERVER['PHP_SELF'].'" name="formFULLCALENDAR_PREFILL_DATETIME_MORNING_END">';
+print '<input type="hidden" name="action" value="set_FULLCALENDAR_PREFILL_DATETIME_MORNING_END">';
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<table id="BLBLBLBL" class="nobordernopadding" cellpadding="0" cellspacing="0">';
+print '<tr><td>';
+print $form->select_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_MORNING_END, 'FULLCALENDAR_PREFILL_DATETIME_MORNING_END', 1, 1, 0,'formFULLCALENDAR_PREFILL_DATETIME_MORNING_END',0, 0, 0, empty($conf->global->FULLCALENDAR_PREFILL_DATETIMES));
+print '</td>';
+print '<td align="left"><input type="submit" class="button" value="'.$langs->trans("Modify").'"></td>';
+print '</tr></table></form>';
+print '</td></tr>';
+
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$langs->trans("FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+print '<form method="post" action="'.$_SERVER['PHP_SELF'].'" name="formFULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START">';
+print '<input type="hidden" name="action" value="set_FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START">';
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<table id="BLBLBLBL" class="nobordernopadding" cellpadding="0" cellspacing="0">';
+print '<tr><td>';
+print $form->select_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START, 'FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START', 1, 1, 0,'formFULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START',0, 0, 0, empty($conf->global->FULLCALENDAR_PREFILL_DATETIMES));
+print '</td>';
+print '<td align="left"><input type="submit" class="button" value="'.$langs->trans("Modify").'"></td>';
+print '</tr></table></form>';
+print '</td></tr>';
+
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$langs->trans("FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+print '<form method="post" action="'.$_SERVER['PHP_SELF'].'" name="formFULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END">';
+print '<input type="hidden" name="action" value="set_FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END">';
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<table id="BLBLBLBL" class="nobordernopadding" cellpadding="0" cellspacing="0">';
+print '<tr><td>';
+print $form->select_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END, 'FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END', 1, 1, 0,'formFULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END',0, 0, 0, empty($conf->global->FULLCALENDAR_PREFILL_DATETIMES));
+print '</td>';
+print '<td align="left"><input type="submit" class="button" value="'.$langs->trans("Modify").'"></td>';
+print '</tr></table></form>';
 print '</td></tr>';
 
 print '</table>';
