@@ -467,8 +467,78 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			$form.append('<br /><?php echo $langs->trans("DateActionEnd") ?> : ');
 			$form.append(<?php echo json_encode($form->select_date(0,'p2',1,1,0,"action",1,0,1,0,'fulldayend')); ?>);
 
+			<?php if(! empty($conf->global->FULLCALENDAR_PREFILL_DATETIMES)) { ?>
 
-			<?php
+			$form.append('<br />Pré-remplissage : <a href="javascript:;" class="prefillDate" id="prefillDateMorning">Matin</a> | ');
+			$form.append(' <a href class="prefillDate" id="prefillDateAfternoon">Après-midi</a> | ');
+			$form.append(' <a href class="prefillDate" id="prefillDateDay">Journée</a><br />');
+
+			$form.on('click', 'a.prefillDate', function()
+			{
+				var morningStartHour = <?php echo dol_print_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_MORNING_START, '%H'); ?>;
+				var morningStartMin = <?php echo dol_print_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_MORNING_START, '%M'); ?>;
+				var morningEndHour = <?php echo dol_print_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_MORNING_END, '%H'); ?>;
+				var morningEndMin = <?php echo dol_print_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_MORNING_END, '%M'); ?>;
+				var afternoonStartHour = <?php echo dol_print_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START, '%H'); ?>;
+				var afternoonStartMin = <?php echo dol_print_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START, '%M'); ?>;
+				var afternoonEndHour = <?php echo dol_print_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END, '%H'); ?>;
+				var afternoonEndMin = <?php echo dol_print_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END, '%M'); ?>;
+
+				var dateEnd = $('#ap').val();
+				var dateEndDay = $('#apday').val();
+				var dateEndMonth = $('#apmonth').val();
+				var dateEndYear = $('#apyear').val();
+
+				switch($(this).prop('id'))
+				{
+					case 'prefillDateMorning':
+						startHour = morningStartHour;
+						startMin = morningStartMin;
+						endHour = morningEndHour;
+						endMin = morningEndMin;
+
+						break;
+
+					case 'prefillDateAfternoon':
+						startHour = afternoonStartHour;
+						startMin = afternoonStartMin;
+						endHour = afternoonEndHour;
+						endMin = afternoonEndMin;
+
+						break;
+
+					case 'prefillDateDay':
+						startHour = morningStartHour;
+						startMin = morningStartMin;
+						endHour = afternoonEndHour;
+						endMin = afternoonEndMin;
+
+						break;
+
+					default:
+						return false;
+				}
+
+				if(startHour < 10)	startHour = '0' + startHour;
+				if(startMin < 10)	startMin = '0' + startMin;
+				if(endHour < 10)	endHour = '0' + endHour;
+				if(endMin < 10)		endMin = '0' + endMin;
+
+				$('#aphour').val(startHour);
+				$('#apmin').val(startMin);
+
+				$('#p2').val(dateEnd);
+				$('#p2day').val(dateEndDay);
+				$('#p2month').val(dateEndMonth);
+				$('#p2year').val(dateEndYear);
+				$('#p2hour').val(endHour);
+				$('#p2min').val(endMin);
+
+				return false;
+			});
+
+			<?php }
+
 				$doleditor=new DolEditor('note', '','',200,'dolibarr_notes','In',true,true,$conf->fckeditor->enabled,ROWS_5,90);
 				$fullcalendar_note = $doleditor->Create(1);
 			?>
