@@ -20,6 +20,7 @@ FULLCALENDAR_USE_HUGE_WHITE_BORDER=Utilser des bordures blanches pour séparer l
 FULLCALENDAR_FILTER_ON_STATE=Ajouter le filtre par département client
 FULLCALENDAR_CAN_UPDATE_PERCENT=Permettre la mise à jour de l'état d'avancement (pourcentage)
 FULLCALENDAR_SHOW_ORDER=Voir la dernière commande liée au projet
+FULLCALENDAR_ENABLE_EVENT_LIST_MULTIDATE_FILTER=Activer le filtrage de la liste des événements par plage de date
 FULLCALENDAR_PREFILL_DATETIMES=Activer le pré-remplissage des horaires par plage (matin / après-midi / journée)
 FULLCALENDAR_PREFILL_DATETIME_MORNING_START=Début de la plage du matin
 FULLCALENDAR_PREFILL_DATETIME_MORNING_END=Fin de la page du matin

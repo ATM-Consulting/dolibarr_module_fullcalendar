@@ -64,4 +64,82 @@ class Actionsfullcalendar
 		}
 		return 0;
 	}
+
+
+	function printFieldListWhere($parameters, &$object, &$action, $hookmanager)
+	{
+		global $conf;
+
+		$TContexts = explode(':', $parameters['context']);
+
+		if(in_array('agendalist', $TContexts) && ! empty($conf->global->FULLCALENDAR_ENABLE_EVENT_LIST_MULTIDATE_FILTER))
+		{
+			global $db;
+
+			$datestart1=dol_mktime(0, 0, 0, GETPOST('datestart1month','int'), GETPOST('datestart1day','int'), GETPOST('datestart1year','int'));
+			$datestart2=dol_mktime(0, 0, 0, GETPOST('datestart2month','int'), GETPOST('datestart2day','int'), GETPOST('datestart2year','int'));
+			$dateend1=dol_mktime(0, 0, 0, GETPOST('dateend1month','int'), GETPOST('dateend1day','int'), GETPOST('dateend1year','int'));
+			$dateend2=dol_mktime(0, 0, 0, GETPOST('dateend2month','int'), GETPOST('dateend2day','int'), GETPOST('dateend2year','int'));
+
+			$moreSQL = '';
+
+			if($datestart1 > 0)
+			{
+				$moreSQL.= ' AND a.datep >= "' . $db->idate(intval($datestart1)) . '"';
+			}
+
+			if($datestart2 > 0)
+			{
+				$moreSQL.= ' AND a.datep < "' . $db->idate(intval($datestart2 + 24 * 3600)) . '"';
+			}
+
+			if($dateend1 > 0)
+			{
+				$moreSQL.= ' AND a.datep2 >= "' . $db->idate(intval($dateend1)) . '"';
+			}
+
+			if($dateend2 > 0)
+			{
+				$moreSQL.= ' AND a.datep2 < "' . $db->idate(intval($dateend2 + 24 * 3600)) . '"';
+			}
+
+			$this->resprints = $moreSQL;
+		}
+
+		return 0;
+	}
+
+
+	function printFieldListOption($parameters, &$object, &$action, $hookmanager)
+	{
+		global $conf;
+
+		$TContexts = explode(':', $parameters['context']);
+
+		if(in_array('agendalist', $TContexts) && ! empty($conf->global->FULLCALENDAR_ENABLE_EVENT_LIST_MULTIDATE_FILTER))
+		{
+			global $form;
+
+			$datestart1=dol_mktime(0, 0, 0, GETPOST('datestart1month','int'), GETPOST('datestart1day','int'), GETPOST('datestart1year','int'));
+			$datestart2=dol_mktime(0, 0, 0, GETPOST('datestart2month','int'), GETPOST('datestart2day','int'), GETPOST('datestart2year','int'));
+			$dateend1=dol_mktime(0, 0, 0, GETPOST('dateend1month','int'), GETPOST('dateend1day','int'), GETPOST('dateend1year','int'));
+			$dateend2=dol_mktime(0, 0, 0, GETPOST('dateend2month','int'), GETPOST('dateend2day','int'), GETPOST('dateend2year','int'));
+
+			$dateStart1Input = $form->select_date($datestart1, 'datestart1', 0, 0, 1, '', 1, 0, 1);
+			$dateStart2Input = $form->select_date($datestart2, 'datestart2', 0, 0, 1, '', 1, 0, 1);
+			$dateEnd1Input = $form->select_date($dateend1, 'dateend1', 0, 0, 1, '', 1, 0, 1);
+			$dateEnd2Input = $form->select_date($dateend2, 'dateend2', 0, 0, 1, '', 1, 0, 1);
+
+?>
+			<script type="text/javascript">
+			$(document).ready(function() {
+				$('#datestart').parent().html("<?php echo str_replace(array('\n', '<script', '</script'), array('', '<scr"+"ipt', '</scr"+"ipt'), dol_escape_js($dateStart1Input . '<br />' . $dateStart2Input, 2)); ?>");
+				$('#dateend').parent().html("<?php echo str_replace(array('\n', '<script', '</script'), array('', '<scr"+"ipt', '</scr"+"ipt'), dol_escape_js($dateEnd1Input . '<br />' . $dateEnd2Input, 2)); ?>");
+			});
+			</script>
+<?php
+
+			return 0;
+		}
+	}
 }

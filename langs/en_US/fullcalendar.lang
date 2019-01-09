@@ -20,6 +20,7 @@ FULLCALENDAR_USE_HUGE_WHITE_BORDER=Use white borders to separate the events on t
 FULLCALENDAR_FILTER_ON_STATE=Add filter by customer department
 FULLCALENDAR_CAN_UPDATE_PERCENT=Enable updating task status (progress percentage)
 FULLCALENDAR_SHOW_ORDER=See the last customer order linked to project
+FULLCALENDAR_ENABLE_EVENT_LIST_MULTIDATE_FILTER=Enable filtering the event list by date ranges
 FULLCALENDAR_PREFILL_DATETIMES=Enable event times pre-filling by time slot (morning / afternoon / day)
 FULLCALENDAR_PREFILL_DATETIME_MORNING_START=Start of morning time slot
 FULLCALENDAR_PREFILL_DATETIME_MORNING_END=End of morning time slot
