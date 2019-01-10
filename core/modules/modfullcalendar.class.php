@@ -90,7 +90,7 @@ class modfullcalendar extends DolibarrModules
 		//                        );
 
 		$this->module_parts = array(
-				'hooks'=>array('agenda')
+				'hooks'=>array('agenda', 'agendalist')
 				,'js'=>array()
 		);
 

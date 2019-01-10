@@ -286,6 +286,14 @@ print '</td></tr>';
 
 print '</td></tr>';
 
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("FULLCALENDAR_ENABLE_EVENT_LIST_MULTIDATE_FILTER").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+echo ajax_constantonoff('FULLCALENDAR_ENABLE_EVENT_LIST_MULTIDATE_FILTER');
+print '</td></tr>';
+
 $TElementsToDisable = array(
 	  '#FULLCALENDAR_PREFILL_DATETIME_MORNING_STARThour'
 	, '#FULLCALENDAR_PREFILL_DATETIME_MORNING_STARTmin'
