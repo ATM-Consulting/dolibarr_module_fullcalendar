@@ -270,9 +270,20 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 					});';
 
 				}
-
 				?>
-				if(event.note) note+=event.note;
+
+				if(event.note)
+				{
+					<?php
+					if(! empty($conf->global->FULLCALENDAR_SHOW_EVENT_DESCRIPTION))
+					{
+						?>
+						element.append('<div style="z-index:3;position:relative;">' + event.note + '</div>');
+						<?php
+					}
+					?>
+					note+=event.note;
+				}
 
 				if(event.fk_soc>0){
 					 element.append('<div style="z-index:3;position:relative;">'+event.societe+'</div>');
