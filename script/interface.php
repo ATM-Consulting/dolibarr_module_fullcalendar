@@ -235,6 +235,7 @@ function _events($date_start, $date_end) {
 
 	$filter=GETPOST("filter",'',3);
 	$filtert = GETPOST("usertodo","int",3)?GETPOST("usertodo","int",3):GETPOST("filtert","int",3);
+	if(empty($filtert)) $filtert = GETPOST("search_filtert","int",3);
 	$usergroup = GETPOST("usergroup","int",3);
 	$showbirthday = empty($conf->use_javascript_ajax)?GETPOST("showbirthday","int"):1;
 
