@@ -587,7 +587,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 					url: "<?php echo dol_buildpath('/core/ajax/contacts.php?action=getContacts&htmlname=contactid&showempty=1',1) ?>&id="+fk_soc
 					,dataType:'json'
 				}).done(function(data) {
-				$('#pop-new-event span[rel=contact]').html('<select class="flat" id="contactid" name="contactid">'+data.value+'</select>');
+					<?php if((float)DOL_VERSION > 7) { ?> $('#pop-new-event span[rel=contact]').html('<select class="flat" id="contactid" name="contactid">'+data.value+'</select>');
+					<?php } else { ?> $('#pop-new-event span[rel=contact]').html(data.value); <?php } ?>
 				});
 
 			});
