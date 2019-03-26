@@ -27,6 +27,7 @@ FULLCALENDAR_PREFILL_DATETIME_MORNING_START=Début de la plage du matin
 FULLCALENDAR_PREFILL_DATETIME_MORNING_END=Fin de la page du matin
 FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START=Début de la page de l'après-midi
 FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END=Fin de la page de l'après-midi
+FULLCALENDAR_AUTO_FILL_TITLE=Pré-remplissage du champ titre si vide lors de la sélection du type de l’événement
 
 EditAnAction=Éditer un événement
 NoRightsToEdit=Vous n'avez pas le droit d'édition
