@@ -135,6 +135,21 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 	$(document).ready(function() {
 
+
+
+        <?php if (!empty($conf->global->FULLCALENDAR_AUTO_FILL_TITLE)) { ?>
+        $(document).on("change", "#pop-new-event #type_code", function() {
+            var typeCodeTitle = $( "#type_code option:selected" ).text();
+
+            var labelContent =$( "#pop-new-event input[name='label']" ).val();
+            if(!labelContent.length){
+                $( "#pop-new-event input[name='label']" ).val(typeCodeTitle);
+            }
+        });
+        <?php } ?>
+
+
+
 		$('.wordbreak').hide(); //hide std dolibarr btn to change date
 
 		<?php if (!empty($conf->global->FULLCALENDAR_FILTER_ON_STATE)) { ?>
