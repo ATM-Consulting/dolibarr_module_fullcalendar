@@ -585,11 +585,11 @@ function RGBToHSL($RGB) {
 
 
 /**
- * Copié collé from Dolibarr "/comme/action/inndex.php"
+ * Copié collé from Dolibarr "/comm/action/index.php"
  */
 function completeWithExtEvent(&$TEvent, &$TSociete, &$TContact, &$TProject)
 {
-	global $conf,$db,$user;
+	global $conf,$db,$user,$langs;
 
 	if (!empty($conf->global->AGENDA_DISABLE_EXT) && !empty($user->conf->AGENDA_DISABLE_EXT)) return;
 
