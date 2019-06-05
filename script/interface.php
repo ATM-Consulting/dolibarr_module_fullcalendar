@@ -585,7 +585,7 @@ function RGBToHSL($RGB) {
 
 
 /**
- * Copié collé from Dolibarr "/com/action/index.php"
+ * Copié collé from Dolibarr "/comm/action/index.php"
  */
 function completeWithExtEvent(&$TEvent, &$TSociete, &$TContact, &$TProject)
 {
