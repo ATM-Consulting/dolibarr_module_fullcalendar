@@ -1,9 +1,9 @@
 <?php
 
 	require '../config.php';
-	dol_include_once('/comm/action/class/actioncomm.class.php');
-	dol_include_once('/contact/class/contact.class.php');
-	dol_include_once('/projet/class/project.class.php');
+    require_once DOL_DOCUMENT_ROOT.'/comm/action/class/actioncomm.class.php';
+    require_once DOL_DOCUMENT_ROOT.'/contact/class/contact.class.php';
+    require_once DOL_DOCUMENT_ROOT.'/projet/class/project.class.php';
 
 	$langs->load("agenda");
 	$langs->load("other");
