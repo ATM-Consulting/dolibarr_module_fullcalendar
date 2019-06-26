@@ -121,7 +121,7 @@
 			if (!empty($id)) $a->fetch($id);
 
 			$a->label = GETPOST('label');
-			$a->note= GETPOST('note');
+			$a->note=$a->note_private= GETPOST('note');
 /*
 			if (empty($a->id))
 			{
