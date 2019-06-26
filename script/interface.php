@@ -221,11 +221,19 @@ function _events($date_start, $date_end) {
 
 	//First try with GETPOST(array) (I don't know when it can be an array but why not)
 	$actioncode=GETPOST("actioncode", "array", 3)?GETPOST("actioncode", "array", 3):(GETPOST("actioncode")=='0'?'0':'');
+    if(empty($actioncode)){
+        $actioncode=GETPOST("search_actioncode", "array", 3)?GETPOST("search_actioncode", "array", 3):(GETPOST("search_actioncode")=='0'?'0':'');
+    }
+
 
 	//If empty then try GETPOST(alpha) (this one works with comm/action/index.php
 	if(empty($actioncode)) {
 
 		$actioncode=GETPOST("actioncode","alpha",3)?GETPOST("actioncode","alpha",3):(GETPOST("actioncode")=='0'?'0':'');
+        if(empty($actioncode)){
+            $actioncode=GETPOST("search_actioncode", "alpha", 3)?GETPOST("search_actioncode", "alpha", 3):(GETPOST("search_actioncode")=='0'?'0':'');
+        }
+
 		if(!empty($actioncode)) $actioncode=array($actioncode);
 
 	}
