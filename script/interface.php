@@ -39,9 +39,8 @@
 			}
 	*/
 			$TEvent = _events($start, $end);
+			foreach ($TEvent as &$event) unset($event['object']->db);
 			__out($TEvent, 'json');
-
-
 			break;
 		default:
 
