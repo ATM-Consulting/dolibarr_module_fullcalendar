@@ -1,4 +1,5 @@
 <?php
+header('Content-Type: text/javascript');
 $refer = '';
 if(isset($_SERVER['HTTP_REFERER'])) $refer = $_SERVER['HTTP_REFERER'];
 
