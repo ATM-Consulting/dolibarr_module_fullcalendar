@@ -213,6 +213,7 @@ function _events($date_start, $date_end) {
 
 	$pid=GETPOST("projectid","int",3);
 	$status=GETPOST("status");
+	if(empty($status)) $status = GETPOST("search_status");
 	$type=GETPOST("type");
 	$state_id = GETPOST('state_id');
 
