@@ -59,17 +59,17 @@
 
 				if(!empty($TData['minutes'])) {
 					$a->datep = strtotime($TData['minutes'].' minute', $a->datep);
-					$a->datef = strtotime($TData['minutes'].' minute', $a->datef);
+					if (!empty($a->datef)) $a->datef = strtotime($TData['minutes'].' minute', $a->datef);
 				}
 
 				if(!empty($TData['hours'])) {
 					$a->datep = strtotime($TData['hours'].' hour', $a->datep);
-					$a->datef = strtotime($TData['hours'].' hour', $a->datef);
+                    if (!empty($a->datef)) $a->datef = strtotime($TData['hours'].' hour', $a->datef);
 				}
 
 				if(!empty($TData['days'])) {
 					$a->datep = strtotime($TData['days'].' day', $a->datep);
-					$a->datef = strtotime($TData['days'].' day', $a->datef);
+                    if (!empty($a->datef)) $a->datef = strtotime($TData['days'].' day', $a->datef);
 				}
 
 				if (GETPOST('fulldayevent') == 'true') $a->fulldayevent = 1;
