@@ -22,7 +22,7 @@
  * 	\brief		This file is a sample box definition file
  * 				Put some comments here
  */
-include_once DOL_DOCUMENT_ROOT . "/core/boxes/modules_boxes.php";
+dol_include_once("/core/boxes/modules_boxes.php");
 
 /**
  * Class to manage the box
@@ -61,8 +61,6 @@ class fullcalendarbox extends ModeleBoxes
         global $conf, $user, $langs, $db;
 
         $this->max = $max;
-
-        //include_once DOL_DOCUMENT_ROOT . "/fullcalendar/class/fullcalendar.class.php";
 
         $text = $langs->trans("MyBoxDescription", $max);
         $this->info_box_head = array(

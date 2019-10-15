@@ -39,6 +39,7 @@
 			}
 	*/
 			$TEvent = _events($start, $end);
+			foreach ($TEvent as &$event) unset($event['object']->db);
 			__out($TEvent, 'json');
 
 
@@ -69,18 +70,18 @@
 				else{
 					if(!empty($TData['minutes'])) {
 						$a->datep = strtotime($TData['minutes'].' minute', $a->datep);
-						$a->datef = strtotime($TData['minutes'].' minute', $a->datef);
+					    if (!empty($a->datef)) $a->datef = strtotime($TData['minutes'].' minute', $a->datef);
 					}
 
 					if(!empty($TData['hours'])) {
 						$a->datep = strtotime($TData['hours'].' hour', $a->datep);
-						$a->datef = strtotime($TData['hours'].' hour', $a->datef);
-					}
+                        if (!empty($a->datef)) $a->datef = strtotime($TData['hours'].' hour', $a->datef);
+                    }
 				}
 
 				if(!empty($TData['days'])) {
 					$a->datep = strtotime($TData['days'].' day', $a->datep);
-					$a->datef = strtotime($TData['days'].' day', $a->datef);
+                    if (!empty($a->datef)) $a->datef = strtotime($TData['days'].' day', $a->datef);
 				}
 
 
@@ -233,6 +234,7 @@ function _events($date_start, $date_end) {
 
 	$pid=GETPOST("projectid","int",3);
 	$status=GETPOST("status");
+	if(empty($status)) $status = GETPOST("search_status");
 	$type=GETPOST("type");
 	$state_id = GETPOST('state_id');
 
