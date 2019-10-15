@@ -179,6 +179,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 		$('table.cal_month').after('<div id="fullcalendar"></div>');
 		var currentsource = '<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'+'?'+$form_selector.serialize();
+
+
 		$('#fullcalendar').fullCalendar({
 	        header:{
 	        	left:   'title',
@@ -348,6 +350,10 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 					 note = note+'<div style="z-index:3;position:relative;">'+event.more+'</div>';
 				}
 
+                if(event.splitedfulldayevent)  {
+                    note = note+'<div style="z-index:3;position:relative;"><span class="badge badge-info"><?php print addslashes($langs->transnoentities('FullDayEventSplited')); ?></span></div>';
+                }
+
 				element.prepend('<div style="float:right;">'+event.statut+'</div>');
 
 				if ($().tipTip) // ou $.fn.tipTip, mais $.tipTip ne fonctionne pas
@@ -388,6 +394,11 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			}
 	        ,eventDrop:function( event, delta, revertFunc, jsEvent, ui, view ) {
 	        	console.log(delta);
+                // disable for fullday events
+                if(event.splitedfulldayevent)  {
+                    //revertFunc();
+                    //return false;
+                }
 
 	        	$.ajax({
 	        		url:'<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'
@@ -396,11 +407,19 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 						,id:event.id
 						,data:delta._data
 						,fulldayevent: event.allDay
+						,splitedfulldayevent: event.splitedfulldayevent
 	        		}
-	        	})
+	        	}).done(function() {
+                    $('#fullcalendar').fullCalendar('refetchEvents');
+                });
 	        }
 	        ,eventResize:function( event, delta, revertFunc, jsEvent, ui, view ) {
 	        	console.log(delta);
+	        	// disable resizing for fullday events
+                if(event.splitedfulldayevent)  {
+                    revertFunc();
+                    return false;
+                }
 
 	        	$.ajax({
 	        		url:'<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'
@@ -408,8 +427,11 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 						put:'event-resize'
 						,id:event.id
 						,data:delta._data
+                        ,splitedfulldayevent: event.splitedfulldayevent
 	        		}
-	        	})
+	        	}).done(function() {
+                    $('#fullcalendar').fullCalendar('refetchEvents');
+                });
 	        }
 	        ,dayClick:function( date, jsEvent, view ) {
 	        	console.log(date.format());
@@ -420,7 +442,13 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	        }
 			,eventClick:function(calEvent, jsEvent, view) {
 				if(! $(jsEvent.target).is('a[href]')) { // Si la cible du click est un lien avec un adresse, on ne montre pas la popin et on suit le lien
-					showPopIn(calEvent.start, calEvent);
+
+                    // disable editing for splited fullday events
+                    if(calEvent.splitedfulldayevent)  {
+                        return false;
+                    }
+
+				    showPopIn(calEvent.start, calEvent);
 				}
 			}
 			,eventAfterAllRender:function (view) {
