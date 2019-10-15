@@ -28,6 +28,7 @@ FULLCALENDAR_PREFILL_DATETIME_MORNING_END=Fin de la page du matin
 FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START=Début de la page de l'après-midi
 FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END=Fin de la page de l'après-midi
 FULLCALENDAR_AUTO_FILL_TITLE=Pré-remplissage du champ titre si vide lors de la sélection du type de l’événement
-
+FULLCALENDAR_SPLIT_DAYS=Afficher les évenements sur une journée comme 2 évènements : un le matin et l'autre l'après midi (Attention : le pré-remplissage des horaires par plage doit être activé et configuré )
 EditAnAction=Éditer un événement
 NoRightsToEdit=Vous n'avez pas le droit d'édition
+FullDayEventSplited=évènement sur la journée convertie pour l'affichage
