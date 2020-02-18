@@ -41,6 +41,8 @@
 			$TEvent = _events($start, $end);
 			foreach ($TEvent as &$event) unset($event['object']->db);
 			__out($TEvent, 'json');
+
+
 			break;
 		default:
 
@@ -57,14 +59,24 @@
 
 				$TData = $_REQUEST['data'];
 
-				if(!empty($TData['minutes'])) {
-					$a->datep = strtotime($TData['minutes'].' minute', $a->datep);
-					if (!empty($a->datef)) $a->datef = strtotime($TData['minutes'].' minute', $a->datef);
-				}
+				if (GETPOST('fulldayevent') == 'true') $a->fulldayevent = 1;
+				else $a->fulldayevent = 0;
 
-				if(!empty($TData['hours'])) {
-					$a->datep = strtotime($TData['hours'].' hour', $a->datep);
-                    if (!empty($a->datef)) $a->datef = strtotime($TData['hours'].' hour', $a->datef);
+				$splitedfulldayevent = GETPOST('splitedfulldayevent', 'int');
+				if(!empty($splitedfulldayevent))
+				{
+					$a->fulldayevent = 1;
+				}
+				else{
+					if(!empty($TData['minutes'])) {
+						$a->datep = strtotime($TData['minutes'].' minute', $a->datep);
+					    if (!empty($a->datef)) $a->datef = strtotime($TData['minutes'].' minute', $a->datef);
+					}
+
+					if(!empty($TData['hours'])) {
+						$a->datep = strtotime($TData['hours'].' hour', $a->datep);
+                        if (!empty($a->datef)) $a->datef = strtotime($TData['hours'].' hour', $a->datef);
+                    }
 				}
 
 				if(!empty($TData['days'])) {
@@ -72,8 +84,6 @@
                     if (!empty($a->datef)) $a->datef = strtotime($TData['days'].' day', $a->datef);
 				}
 
-				if (GETPOST('fulldayevent') == 'true') $a->fulldayevent = 1;
-				else $a->fulldayevent = 0;
 
 				$res = $a->update($user);
 
@@ -90,20 +100,31 @@
 
 				$TData = $_REQUEST['data'];
 
-				if(!empty($TData['minutes'])) {
-					if(empty($a->datef))$a->datef = $a->datep;
-					$a->datef = strtotime($TData['minutes'].' minute', $a->datef);
+				$splitedfulldayevent = GETPOST('splitedfulldayevent', 'int');
+				if(!empty($splitedfulldayevent))
+				{
+					$a->fulldayevent = 1;
+				}
+				else{
+
+					if(!empty($TData['minutes'])) {
+						if(empty($a->datef))$a->datef = $a->datep;
+						$a->datef = strtotime($TData['minutes'].' minute', $a->datef);
+					}
+
+					if(!empty($TData['hours'])) {
+						if(empty($a->datef))$a->datef = $a->datep + 3600 * 2; // décalage de 2H
+						$a->datef = strtotime($TData['hours'].' hour', $a->datef);
+					}
 				}
 
-				if(!empty($TData['hours'])) {
-					if(empty($a->datef))$a->datef = $a->datep + 3600 * 2; // décalage de 2H
-					$a->datef = strtotime($TData['hours'].' hour', $a->datef);
-				}
 
 				if(!empty($TData['days'])) {
 					if(empty($a->datef))$a->datef = $a->datep;
 					$a->datef = strtotime($TData['days'].' day', $a->datef);
 				}
+
+
 
 				$res = $a->update($user);
 
@@ -340,6 +361,38 @@ function _events($date_start, $date_end) {
 		$event->color = $obj->color;
 		$event->type_color = $obj->type_color;
 
+		if(!empty($conf->global->FULLCALENDAR_SPLIT_DAYS)
+		&& !empty($conf->global->FULLCALENDAR_PREFILL_DATETIMES)
+		&& !empty($conf->global->FULLCALENDAR_PREFILL_DATETIME_MORNING_START)
+		&& !empty($conf->global->FULLCALENDAR_PREFILL_DATETIME_MORNING_END)
+		&& !empty($conf->global->FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START)
+		&& !empty($conf->global->FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END)
+		&& !empty($event->fulldayevent)
+		&& ($event->datef - $event->datep) <= 86400 // ne peut pas le faire sur plusieurs jours
+		)
+		{
+			$datep = $event->datep;
+			$datef = $event->datef;
+
+			// Morning
+			$eventMorning = clone $event;
+			$eventMorning->fulldayevent = 0;
+			$eventMorning->splitedfulldayevent = 1;
+			$eventMorning->datep = $datep + _convertTimestampLocalToNoLocalSecond($conf->global->FULLCALENDAR_PREFILL_DATETIME_MORNING_START); // Date action start (datep)
+			$eventMorning->datef = $datep + _convertTimestampLocalToNoLocalSecond($conf->global->FULLCALENDAR_PREFILL_DATETIME_MORNING_END); // Date action end (datep2)
+			$TEventObject[] = $eventMorning;
+
+
+			// Afternoon
+			$eventAfternoon = clone $event;
+			$eventAfternoon->fulldayevent = 0;
+			$eventAfternoon->splitedfulldayevent = 1;
+			$eventAfternoon->datep = $datep + _convertTimestampLocalToNoLocalSecond($conf->global->FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START); // Date action start (datep)
+			$eventAfternoon->datef = $datep + _convertTimestampLocalToNoLocalSecond($conf->global->FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END); // Date action end (datep2)
+			$TEventObject[] = $eventAfternoon;
+		}
+
+		$event->splitedfulldayevent = 0;
 		$TEventObject[] = $event;
 	}
 
@@ -497,8 +550,9 @@ function _events($date_start, $date_end) {
 			
 		    ,'project_order'=>(!empty( $event->project_order ) ? $event->project_order : '')
 		    ,'fk_project_order'=>(!empty( $event->fk_project_order ) ? $event->fk_project_order : '0')
-		    
-		    
+
+			,'splitedfulldayevent'=> $event->splitedfulldayevent
+			,'fulldayevent'=> $event->fulldayevent
 		    ,'more'=>''
 			,'object'=>$event
 		);
@@ -1003,4 +1057,13 @@ function completeWithExtEvent(&$TEvent, &$TSociete, &$TContact, &$TProject)
 		}
 	}
 
+}
+/*
+ * convert stored hours with $form->select_date
+ */
+function _convertTimestampLocalToNoLocalSecond($timestamp)
+{
+	global $db;
+	$date = dol_print_date($timestamp, '%Y-%m-%d %H:%M:%S');
+	return $db->jdate($date, true);
 }
