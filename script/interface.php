@@ -311,25 +311,15 @@ function _events($date_start, $date_end) {
 
         $sql.=" AND ( ca.code IN ('".implode("','", $actioncode)."')";
 
-        if (empty($conf->global->AGENDA_USE_EVENT_TYPE))
+        if (in_array('AC_NON_AUTO', $actioncode)) $sql .= " OR ca.type != 'systemauto'";
+        elseif (in_array('AC_ALL_AUTO', $actioncode)) $sql .= " OR ca.type = 'systemauto'";
+        elseif(empty($conf->global->AGENDA_USE_EVENT_TYPE))
         {
-            if (in_array('AC_NON_AUTO', $actioncode)) $sql .= " OR ca.type != 'systemauto'";
-            elseif (in_array('AC_ALL_AUTO', $actioncode)) $sql .= " OR ca.type = 'systemauto'";
-            else
-            {
-                if (in_array('AC_OTH', $actioncode)) $sql .= " OR ca.type != 'systemauto'";
-                if (in_array('AC_OTH_AUTO', $actioncode)) $sql .= " OR ca.type = 'systemauto'";
-            }
-
+            if (in_array('AC_OTH', $actioncode)) $sql .= " OR ca.type != 'systemauto'";
+            if (in_array('AC_OTH_AUTO', $actioncode)) $sql .= " OR ca.type = 'systemauto'";
         }
-        else
-        {
-            if (in_array('AC_NON_AUTO', $actioncode)) $sql .= " OR ca.type != 'systemauto'";
-            elseif (in_array('AC_ALL_AUTO', $actioncode)) $sql .= " OR ca.type = 'systemauto'";
-            else
-            {
-                $sql .= " OR ca.code IN ('".implode("','", $actioncode)."')";
-            }
+        else {
+            $sql .= " OR ca.code IN ('".implode("','", $actioncode)."')";
         }
 
         $sql.=" )";
