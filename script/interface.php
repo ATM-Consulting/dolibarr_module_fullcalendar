@@ -306,8 +306,26 @@ function _events($date_start, $date_end) {
 	if ($usergroup > 0) $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."usergroup_user as ugu ON ugu.fk_user = ar.fk_element";
 	$sql.= ' WHERE 1=1';
 	$sql.= ' AND a.entity IN ('.getEntity('agenda', 1).')';
-	if ($actioncode) $sql.=" AND ca.code IN ('".implode("','", $actioncode)."')";
-	if ($conf->global->DONT_SHOW_AUTO_EVENT && strpos(implode(',', $actioncode),'AC_OTH_AUTO') == false) $sql.=" AND ca.code != 'AC_OTH_AUTO'";
+
+    if ($actioncode){
+
+        $sql.=" AND ( ca.code IN ('".implode("','", $actioncode)."')";
+
+        if (in_array('AC_NON_AUTO', $actioncode)) $sql .= " OR ca.type != 'systemauto'";
+        elseif (in_array('AC_ALL_AUTO', $actioncode)) $sql .= " OR ca.type = 'systemauto'";
+        elseif(empty($conf->global->AGENDA_USE_EVENT_TYPE))
+        {
+            if (in_array('AC_OTH', $actioncode)) $sql .= " OR ca.type != 'systemauto'";
+            if (in_array('AC_OTH_AUTO', $actioncode)) $sql .= " OR ca.type = 'systemauto'";
+        }
+        else {
+            $sql .= " OR ca.code IN ('".implode("','", $actioncode)."')";
+        }
+
+        $sql.=" )";
+    }
+
+    if ($conf->global->DONT_SHOW_AUTO_EVENT && strpos(implode(',', $actioncode),'AC_OTH_AUTO') == false) $sql.=" AND ca.code != 'AC_OTH_AUTO'";
 	if ($pid) $sql.=" AND a.fk_project=".$db->escape($pid);
 	if (! $user->rights->societe->client->voir && ! $socid) $sql.= " AND (a.fk_soc IS NULL OR sc.fk_user = " .$user->id . ")";
 	if ($socid > 0) $sql.= ' AND a.fk_soc = '.$socid;
@@ -338,6 +356,7 @@ function _events($date_start, $date_end) {
 	}
 	// Sort on date
 	$sql.= ' ORDER BY datep';
+
 
 	$TEvent=array();
 	if(isset($_REQUEST['DEBUG'])) print $sql;
