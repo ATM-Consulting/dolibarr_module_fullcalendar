@@ -1,4 +1,5 @@
 <?php
+if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token renewal
 
 	require '../config.php';
     require_once DOL_DOCUMENT_ROOT.'/comm/action/class/actioncomm.class.php';
