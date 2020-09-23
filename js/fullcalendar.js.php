@@ -620,6 +620,10 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				<?php
 			}
 
+			/**
+			 * conf utilisées en 13.0 pour activer les notifications
+			 * si l'une d'elle est activée, on rajoute ce qu'il faut au formulaire
+			 */
 			if ($conf->global->AGENDA_REMINDER_EMAIL || $conf->global->AGENDA_REMINDER_BROWSER)
 			{
 				$select_typereminder = $form->select_type_duration('offsetunit');
@@ -719,6 +723,9 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				$div.find('input[name=label]').val(calEvent.object.label);
 				$div.find('textarea[name=note]').val(calEvent.object.note);
 
+				/**
+				 * si l'event porte ce champs, c'est qu'il a des notif attachées...
+				 */
 				if (calEvent.reminder_offsetvalue)
 				{
 					$div.find('#addreminder').prop('checked', true);
@@ -868,6 +875,10 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 												echo ','.$param.':$("#pop-new-event select[name='.$param.']").val()';
 											}
 										}
+										/**
+										 * conf disponible en 13.0
+										 * envoie des données servant à créer les notifs
+										 */
 										if ($conf->global->AGENDA_REMINDER_EMAIL || $conf->global->AGENDA_REMINDER_BROWSER)
 										{
 											?>

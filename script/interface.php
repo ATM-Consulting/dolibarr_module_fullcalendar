@@ -584,6 +584,11 @@ function _events($date_start, $date_end) {
 		,'object'=>$event
 		);
 
+		/**
+		 * $conf dispo en 13.0 permettant de gérer les notification push et mail
+		 * si activées, on tente de récupérer les infos notifs
+		 * sachant que s'il y en a plusieurs, ce qui change c'est juste le fk_user
+		 */
 		if ($conf->global->AGENDA_REMINDER_EMAIL || $conf->global->AGENDA_REMINDER_BROWSER)
 		{
 			$sqlremind = "SELECT acr.rowid FROM ".MAIN_DB_PREFIX."actioncomm_reminder acr WHERE acr.fk_actioncomm = ".$event->id;
@@ -1118,6 +1123,7 @@ function _convertTimestampLocalToNoLocalSecond($timestamp)
 }
 
 /**
+ * function qui ajoute les notif agenda pour chaque user assigné à l'event
  * @param ActionComm $a
  * @param string $mode
  */
