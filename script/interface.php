@@ -3,8 +3,10 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 
 	require '../config.php';
     require_once DOL_DOCUMENT_ROOT.'/comm/action/class/actioncomm.class.php';
+    require_once DOL_DOCUMENT_ROOT.'/comm/action/class/actioncommreminder.class.php';
     require_once DOL_DOCUMENT_ROOT.'/contact/class/contact.class.php';
     require_once DOL_DOCUMENT_ROOT.'/projet/class/project.class.php';
+	require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
 
 	$langs->load("agenda");
 	$langs->load("other");
@@ -209,8 +211,10 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 			if (empty($a->id)) {
 				if(method_exists($a, 'create')) {
 					$res = $a->create($user);
+					addReminders($a);
 				} else {
 					$res = $a->add($user);
+					addReminders($a);
 				}
 			}
 			else
@@ -218,7 +222,11 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 				if (empty($a->contactid)) $a->contact = null;
 
 				$res = $a->update($user);
-				if ($res > 0) $res = $a->id;
+				if ($res > 0)
+				{
+					$res = $a->id;
+					addReminders($a, 'update');
+				}
 			}
 
 
@@ -468,32 +476,32 @@ function _events($date_start, $date_end) {
                 $TProject[$event->fk_project]  = $p->getNomUrl(1);
                 $TProjectObject[$event->fk_project]  = $p;
             }
-            
+
             if(!isset($TProjectObject[$event->fk_project]->fk_project_order)) {
                 // c'est de la merde cette fonction, je custom :: $orders = $TProjectObject[$event->fk_project]->get_element_list('commande','commande');
-                
-                
+
+
                 $res = $db->query("SELECT rowid, ref FROM ".MAIN_DB_PREFIX."commande WHERE fk_projet=".$event->fk_project." ORDER BY date_commande DESC LIMIT 1");
                 if($res===false) {
                     var_dump($db);exit;
                 }
                 else{
-                    
+
                     dol_include_once('/commande/class/commande.class.php');
-                    
+
                     $obj = $db->fetch_object($res);
                     $o=new Commande($db);
                     $o->id = $obj->rowid;
                     $o->ref = $obj->ref;
-                    
+
                     $event->fk_project_order = $o->id;
                     $event->project_order = $o->getNomUrl(1);
-                    
+
                 }
-                
+
             }
-             
-            
+
+
         }
 
 		if(!empty($conf->global->FULLCALENDAR_SHOW_AFFECTED_USER) && !empty($event->userassigned)) {
@@ -544,41 +552,62 @@ function _events($date_start, $date_end) {
 			}
 
 		}
-
-		$TEvent[]=array(
+		$tmpEvent=array(
 			'id'=>$event->id
-			,'title'=>$event->label
-			,'allDay'=>(bool)($event->fulldayevent)
-			,'start'=>(empty($event->datep) ? '' : dol_print_date($event->datep, '%Y-%m-%d %H:%M:%S'))
-			,'end'=>(empty($event->datef) ? '' : dol_print_date($event->datef, '%Y-%m-%d %H:%M:%S'))
-			,'url_title'=>dol_buildpath('/comm/action/card.php?id='.$event->id,1)
-			,'editable'=>$editable
-			,'color'=>$color
-			,'isDarkColor'=>isDarkColor($color)
-			,'colors'=>$colors
-			,'note'=>$event->note
-			,'statut'=>$event->getLibStatut(3)
-			,'fk_soc'=>$event->socid
-			,'fk_contact'=>$event->contactid
-			,'fk_user'=>$event->userownerid
-			,'TFk_user'=>array_keys($event->userassigned)
-			,'fk_project'=>$event->fk_project
-			,'societe'=>(!empty($TSociete[$event->socid]) ? $TSociete[$event->socid] : '')
-			,'contact'=>(!empty($TContact[$event->contactid]) ? $TContact[$event->contactid] : '')
-			,'user'=>(!empty($TUserassigned) ? implode(', ',$TUserassigned) : '')
-			,'project'=>(!empty($TProject[$event->fk_project]) ? $TProject[$event->fk_project] : '')
-			
-		    ,'project_order'=>(!empty( $event->project_order ) ? $event->project_order : '')
-		    ,'fk_project_order'=>(!empty( $event->fk_project_order ) ? $event->fk_project_order : '0')
+		,'title'=>$event->label
+		,'allDay'=>(bool)($event->fulldayevent)
+		,'start'=>(empty($event->datep) ? '' : dol_print_date($event->datep, '%Y-%m-%d %H:%M:%S'))
+		,'end'=>(empty($event->datef) ? '' : dol_print_date($event->datef, '%Y-%m-%d %H:%M:%S'))
+		,'url_title'=>dol_buildpath('/comm/action/card.php?id='.$event->id,1)
+		,'editable'=>$editable
+		,'color'=>$color
+		,'isDarkColor'=>isDarkColor($color)
+		,'colors'=>$colors
+		,'note'=>$event->note
+		,'statut'=>$event->getLibStatut(3)
+		,'fk_soc'=>$event->socid
+		,'fk_contact'=>$event->contactid
+		,'fk_user'=>$event->userownerid
+		,'TFk_user'=>array_keys($event->userassigned)
+		,'fk_project'=>$event->fk_project
+		,'societe'=>(!empty($TSociete[$event->socid]) ? $TSociete[$event->socid] : '')
+		,'contact'=>(!empty($TContact[$event->contactid]) ? $TContact[$event->contactid] : '')
+		,'user'=>(!empty($TUserassigned) ? implode(', ',$TUserassigned) : '')
+		,'project'=>(!empty($TProject[$event->fk_project]) ? $TProject[$event->fk_project] : '')
 
-			,'splitedfulldayevent'=> $event->splitedfulldayevent
-			,'fulldayevent'=> $event->fulldayevent
-		    ,'more'=>''
-			,'object'=>$event
+		,'project_order'=>(!empty( $event->project_order ) ? $event->project_order : '')
+		,'fk_project_order'=>(!empty( $event->fk_project_order ) ? $event->fk_project_order : '0')
+
+		,'splitedfulldayevent'=> $event->splitedfulldayevent
+		,'fulldayevent'=> $event->fulldayevent
+		,'more'=>''
+		,'object'=>$event
 		);
 
+		if ($conf->global->AGENDA_REMINDER_EMAIL || $conf->global->AGENDA_REMINDER_BROWSER)
+		{
+			$sqlremind = "SELECT acr.rowid FROM ".MAIN_DB_PREFIX."actioncomm_reminder acr WHERE acr.fk_actioncomm = ".$event->id;
+			$resql = $db->query($sqlremind);
+			if ($resql && $db->num_rows($resql))
+			{
+				$obj = $db->fetch_object($resql);
+
+				$actionCommReminder = new ActionCommReminder($db);
+				$res = $actionCommReminder->fetch($obj->rowid);
+				if ($res > 0)
+				{
+					$tmpEvent['reminder_offsetvalue'] = $actionCommReminder->offsetvalue;
+					$tmpEvent['reminder_offsetunit'] = $actionCommReminder->offsetunit;
+					$tmpEvent['reminder_typeremind'] = $actionCommReminder->typeremind;
+					$tmpEvent['reminder_fk_email_template'] = $actionCommReminder->fk_email_template;
+				}
+			}
+		}
+
+		$TEvent[] = $tmpEvent;
+
 	}
-		
+
 	//TODO getCalendarEvents compatbile standard
 	// Complete $eventarray with events coming from external module
 	$parameters=array('use_color_from'=>GETPOST('use_color_from'),'sql'=>$sql); $action = 'getEvents';
@@ -1086,4 +1115,62 @@ function _convertTimestampLocalToNoLocalSecond($timestamp)
 	global $db;
 	$date = dol_print_date($timestamp, '%Y-%m-%d %H:%M:%S');
 	return $db->jdate($date, true);
+}
+
+/**
+ * @param ActionComm $a
+ * @param string $mode
+ */
+function addReminders($a, $mode = 'create')
+{
+	global $db, $conf, $user;
+
+	if ($conf->global->AGENDA_REMINDER_EMAIL || $conf->global->AGENDA_REMINDER_BROWSER)
+	{
+		if ($mode == 'update')
+		{
+			// delete reminders to recreate them
+			$sql = "DELETE FROM ".MAIN_DB_PREFIX."actioncomm_reminder WHERE fk_actioncomm = ".$a->id;
+			$resql = $db->query($sql);
+		}
+
+		$setReminder = GETPOST('setReminder');
+		$reminderValue = GETPOST('reminderValue');
+		$reminderUnit = GETPOST('reminderUnit');
+		$reminderType = GETPOST('reminderType');
+		$reminderTemplate = GETPOST('reminderTemplate');
+
+		if ($setReminder)
+		{
+			$actionCommReminder = new ActionCommReminder($db);
+
+			if ($reminderUnit == 'minute'){
+				$dateremind = dol_time_plus_duree($a->datep, -$reminderValue, 'i');
+			} elseif ($reminderUnit == 'hour'){
+				$dateremind = dol_time_plus_duree($a->datep, -$reminderValue, 'h');
+			} elseif ($reminderUnit == 'day') {
+				$dateremind = dol_time_plus_duree($a->datep, -$reminderValue, 'd');
+			} elseif ($reminderUnit == 'week') {
+				$dateremind = dol_time_plus_duree($a->datep, -$reminderValue, 'w');
+			} elseif ($reminderUnit == 'month') {
+				$dateremind = dol_time_plus_duree($a->datep, -$reminderValue, 'm');
+			} elseif ($reminderUnit == 'year') {
+				$dateremind = dol_time_plus_duree($a->datep, -$reminderValue, 'y');
+			}
+
+			$actionCommReminder->dateremind = $dateremind;
+			$actionCommReminder->typeremind = $reminderType;
+			$actionCommReminder->offsetunit = $reminderUnit;
+			$actionCommReminder->offsetvalue = $reminderValue;
+			$actionCommReminder->status = $actionCommReminder::STATUS_TODO;
+			$actionCommReminder->fk_actioncomm = $a->id;
+			if ($reminderType == 'email') $actionCommReminder->fk_email_template = $reminderTemplate;
+
+			foreach ($a->userassigned as $userassigned)
+			{
+				$actionCommReminder->fk_user = $userassigned['id'];
+				$res = $actionCommReminder->create($user);
+			}
+		}
+	}
 }
