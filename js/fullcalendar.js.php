@@ -882,7 +882,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 										if ($conf->global->AGENDA_REMINDER_EMAIL || $conf->global->AGENDA_REMINDER_BROWSER)
 										{
 											?>
-												,setReminder: $('#pop-new-event input[name=addreminder]').val()
+												,setReminder: $('#pop-new-event input[name=addreminder]').prop('checked') == false ? 0 : 1
 												,reminderValue:$('#pop-new-event input[name=offsetvalue]').val()
 												,reminderUnit:$('#pop-new-event select[name=offsetunittype_duration]').val()
 												,reminderType:$('#pop-new-event select[name=selectremindertype]').val()
