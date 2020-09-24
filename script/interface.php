@@ -89,7 +89,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 
 
 				$res = $a->update($user);
-
+				addReminders($a, 'drop');
 
 			}
 
@@ -1133,18 +1133,43 @@ function addReminders($a, $mode = 'create')
 
 	if ($conf->global->AGENDA_REMINDER_EMAIL || $conf->global->AGENDA_REMINDER_BROWSER)
 	{
-		if ($mode == 'update')
-		{
-			// delete reminders to recreate them
-			$sql = "DELETE FROM ".MAIN_DB_PREFIX."actioncomm_reminder WHERE fk_actioncomm = ".$a->id;
-			$resql = $db->query($sql);
-		}
-
 		$setReminder = GETPOST('setReminder');
 		$reminderValue = GETPOST('reminderValue');
 		$reminderUnit = GETPOST('reminderUnit');
 		$reminderType = GETPOST('reminderType');
 		$reminderTemplate = GETPOST('reminderTemplate');
+
+		if ($mode == 'drop')
+		{
+			// aller rechercher les infos de reminder attaché
+			$sqlremind = "SELECT acr.rowid FROM ".MAIN_DB_PREFIX."actioncomm_reminder acr WHERE acr.fk_actioncomm = ".$a->id;
+			$resql = $db->query($sqlremind);
+			if ($resql && $db->num_rows($resql))
+			{
+				$setReminder = true;
+
+				$obj = $db->fetch_object($resql);
+
+				$actionCommReminder = new ActionCommReminder($db);
+				$res = $actionCommReminder->fetch($obj->rowid);
+				if ($res > 0)
+				{
+					$reminderValue = $actionCommReminder->offsetvalue;
+					$reminderUnit = $actionCommReminder->offsetunit;
+					$reminderType = $actionCommReminder->typeremind;
+					$reminderTemplate = $actionCommReminder->fk_email_template;
+				}
+			}
+
+
+		}
+
+		if ($mode == 'update' || $mode == 'drop')
+		{
+			// delete reminders to recreate them
+			$sql = "DELETE FROM ".MAIN_DB_PREFIX."actioncomm_reminder WHERE fk_actioncomm = ".$a->id;
+			$resql = $db->query($sql);
+		}
 
 		if ($setReminder)
 		{
