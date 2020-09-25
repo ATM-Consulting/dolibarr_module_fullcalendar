@@ -163,7 +163,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 		<?php } else { ?>
 			var $form_selector = $('form#searchFormList');
 		<?php } ?>
-		
+
 		var year = $form_selector.find('input[name=year]').val();
 		var month = $form_selector.find('input[name=month]').val();
 		var defaultDate = year+'-'+month+'-<?php echo $defaultDay/*.' '.$hourStart.':00'*/ ?>';
@@ -334,17 +334,17 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				}
 
 				if(!empty($conf->global->FULLCALENDAR_SHOW_ORDER)) {
-				    
+
 				    ?>
 					if(event.fk_project>0 && event.fk_project_order>0){
 						 element.append('<div style="z-index:3;position:relative;">'+event.project_order+'</div>');
 						 note = '<div style="z-index:3;position:relative;">'+event.project_order+'</div>'+note;
 					}
 					<?php
-				    
+
 				}
-				
-				
+
+
 				?>
 				if(event.more)  {
 					 element.append('<div style="z-index:3;position:relative;">'+event.more+'</div>');
@@ -437,7 +437,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	        ,dayClick:function( date, jsEvent, view ) {
 	        	console.log(date.format());
 	        	//document.location.href = "<?php echo dol_buildpath('/comm/action/card.php?action=create',1); ?>"
-				
+
 				showPopIn(date);
 
 	        }
@@ -620,7 +620,65 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				<?php
 			}
 
+			/**
+			 * conf utilisées en 13.0 pour activer les notifications
+			 * si l'une d'elle est activée, on rajoute ce qu'il faut au formulaire
+			 */
+			if ($conf->global->AGENDA_REMINDER_EMAIL || $conf->global->AGENDA_REMINDER_BROWSER)
+			{
+				$select_typereminder = $form->select_type_duration('offsetunit');
 
+				$TRemindTypes = array();
+				if (!empty($conf->global->AGENDA_REMINDER_EMAIL)) $TRemindTypes['email'] = $langs->trans('EMail');
+				if (!empty($conf->global->AGENDA_REMINDER_BROWSER)) $TRemindTypes['browser'] = $langs->trans('BrowserPush');
+				$select_remindertype =  str_replace("\n", '', $form->selectarray('selectremindertype', $TRemindTypes));
+
+				$select_mailtemplate = str_replace("\n", '', $form->select_model_mail('actioncommsend', 'actioncomm_send', 1));
+
+				$script = '<script type="text/javascript">$(document).ready(function () {
+	            		$("#addreminder").click(function(){
+	            		    if (this.checked) {
+	            		      $(".reminderparameters").show();
+                            } else {
+                            $(".reminderparameters").hide();
+                            }
+	            		 });
+
+	            		$("#selectremindertype").change(function(){
+	            	        var selected_option = $("#selectremindertype option:selected").val();
+	            		    if(selected_option == "email") {
+	            		        $("#select_actioncommsendmodel_mail").closest("tr").show();
+	            		    } else {
+	            			    $("#select_actioncommsendmodel_mail").closest("tr").hide();
+	            		    };
+	            		});
+
+                   });</script>';
+
+				?>
+				$form.append('<br /><br /><?php echo $langs->trans('AddReminder'); ?> : ');
+				$form.append('<input type="checkbox" id="addreminder" name="addreminder" >');
+
+				$form.append('<hr>');
+
+				$reminderparameters = $('<table class="reminderparameters" style="width: 100%;display: none"></table>'); //style="display: none;"
+
+				// temps
+				$reminderparameters.append('<tr><td width="30%"><?php echo $db->escape($langs->trans("ReminderTime")); ?> : </td><td><input type="number" name="offsetvalue" value="10" size="5"></td></tr>');
+
+				// unité de temps
+				$reminderparameters.append('<tr><td width="30%"><?php echo $db->escape($langs->trans("TimeType")); ?> : </td><td><?php echo $select_typereminder; ?></td></tr>');
+
+				// type de rappel
+				$reminderparameters.append('<tr><td width="30%"><?php echo $db->escape($langs->trans("ReminderType")); ?> : </td><td><?php echo $select_remindertype; ?></td></tr>');
+
+				// template mail
+				$reminderparameters.append('<tr><td width="30%"><?php echo $db->escape($langs->trans("EMailTemplates")); ?> : </td><td><?php echo $select_mailtemplate; ?></td></tr>');
+				$reminderparameters.append(<?php echo json_encode($script); ?>)
+				$form.append($reminderparameters)
+				<?php
+
+			}
 
 			if(!empty($moreOptions)) {
 
@@ -664,6 +722,23 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				$div.find('#type_code').val(calEvent.object.type_code);
 				$div.find('input[name=label]').val(calEvent.object.label);
 				$div.find('textarea[name=note]').val(calEvent.object.note);
+
+				/**
+				 * si l'event porte ce champs, c'est qu'il a des notif attachées...
+				 */
+				if (calEvent.reminder_offsetvalue)
+				{
+					$div.find('#addreminder').prop('checked', true);
+					$div.find('.reminderparameters').show();
+					$div.find('input[name=offsetvalue]').val(calEvent.reminder_offsetvalue);
+
+					$div.find('select[name=offsetunittype_duration]').val(calEvent.reminder_offsetunit).change();
+					$div.find('select[name=selectremindertype]').val(calEvent.reminder_typeremind).change();
+					if (calEvent.reminder_typeremind == 'browser') $div.find('select[name=actioncommsendmodel_mail]').closest('tr').hide();
+					if (calEvent.reminder_fk_email_template) $div.find('select[name=actioncommsendmodel_mail]').val(calEvent.reminder_fk_email_template).change();
+
+				}
+
 				<?php if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) { ?>
 				setTimeout(function() { // async needed
 					if (calEvent.object.percentage == -1) $div.find('select[name=complete]').val(-1).trigger('change');
@@ -688,6 +763,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 				editable = calEvent.editable;
 
+
 <?php
 	$parameters=array(); $action = 'showPopIn'; $object = null;
 	$reshook=$hookmanager->executeHooks('addShowPopInBehaviour',$parameters,$object,$action);
@@ -697,7 +773,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	}
 ?>
 			}
-			
+
 			$('body').append($div);
 
 			if(!editable) {
@@ -799,6 +875,20 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 												echo ','.$param.':$("#pop-new-event select[name='.$param.']").val()';
 											}
 										}
+										/**
+										 * conf disponible en 13.0
+										 * envoie des données servant à créer les notifs
+										 */
+										if ($conf->global->AGENDA_REMINDER_EMAIL || $conf->global->AGENDA_REMINDER_BROWSER)
+										{
+											?>
+												,setReminder: $('#pop-new-event input[name=addreminder]').prop('checked') == false ? 0 : 1
+												,reminderValue:$('#pop-new-event input[name=offsetvalue]').val()
+												,reminderUnit:$('#pop-new-event select[name=offsetunittype_duration]').val()
+												,reminderType:$('#pop-new-event select[name=selectremindertype]').val()
+												,reminderTemplate:$('#pop-new-event select[name=actioncommsendmodel_mail]').val()
+											<?php
+										}
 										?>
 									}
 								}).done(function() {
@@ -862,6 +952,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 												echo ','.$param.':$("#pop-new-event select[name='.$param.']").val()';
 											}
 										}
+
 										?>
 									}
 								}).done(function() {
@@ -938,7 +1029,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				,buttons:TButton
 			});
 		}
-		
+
 		$form_selector.submit(function(event) {
 			console.log($form_selector.serialize() );
 			console.log($('#fullcalendar'));
@@ -950,7 +1041,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			event.preventDefault();
 			var url = '<?php echo dol_buildpath('/comm/action/index.php',1) ?>?'+$form_selector.serialize() ;
 			history.pushState("FullCalendar","FullCalendar", url)
-			
+
 			var $a = $('table[summary=bookmarkstable] a.vsmenu[href*=create]');
 			$a.attr('href',"<?php echo dol_buildpath('/bookmarks/card.php',1)  ?>?action=create&url_source="+encodeURIComponent(url)+"&url="+encodeURIComponent(url));
 			$('option[value=newbookmark]').attr("rel","<?php echo dol_buildpath('/bookmarks/card.php',1) ?>?action=create&url="+encodeURIComponent(url));
