@@ -151,7 +151,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 
 
-		$('.wordbreak').hide(); //hide std dolibarr btn to change date
+		$('.wordbreak, .wordbreakimp').hide(); //hide std dolibarr btn to change date
 
 		<?php if (!empty($conf->global->FULLCALENDAR_FILTER_ON_STATE)) { ?>
 			var select_departement = <?php echo json_encode('<tr><td>'.fieldLabel('State','state_id').'</td><td>'.$formcompany->select_state(GETPOST('state_id'), 'FR').'</td></tr>'); ?>;
@@ -163,7 +163,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 		<?php } else { ?>
 			var $form_selector = $('form#searchFormList');
 		<?php } ?>
-		
+
 		var year = $form_selector.find('input[name=year]').val();
 		var month = $form_selector.find('input[name=month]').val();
 		var defaultDate = year+'-'+month+'-<?php echo $defaultDay/*.' '.$hourStart.':00'*/ ?>';
@@ -334,17 +334,17 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				}
 
 				if(!empty($conf->global->FULLCALENDAR_SHOW_ORDER)) {
-				    
+
 				    ?>
 					if(event.fk_project>0 && event.fk_project_order>0){
 						 element.append('<div style="z-index:3;position:relative;">'+event.project_order+'</div>');
 						 note = '<div style="z-index:3;position:relative;">'+event.project_order+'</div>'+note;
 					}
 					<?php
-				    
+
 				}
-				
-				
+
+
 				?>
 				if(event.more)  {
 					 element.append('<div style="z-index:3;position:relative;">'+event.more+'</div>');
@@ -437,7 +437,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	        ,dayClick:function( date, jsEvent, view ) {
 	        	console.log(date.format());
 	        	//document.location.href = "<?php echo dol_buildpath('/comm/action/card.php?action=create',1); ?>"
-				
+
 				showPopIn(date);
 
 	        }
@@ -697,7 +697,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	}
 ?>
 			}
-			
+
 			$('body').append($div);
 
 			if(!editable) {
@@ -938,7 +938,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				,buttons:TButton
 			});
 		}
-		
+
 		$form_selector.submit(function(event) {
 			console.log($form_selector.serialize() );
 			console.log($('#fullcalendar'));
@@ -950,7 +950,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			event.preventDefault();
 			var url = '<?php echo dol_buildpath('/comm/action/index.php',1) ?>?'+$form_selector.serialize() ;
 			history.pushState("FullCalendar","FullCalendar", url)
-			
+
 			var $a = $('table[summary=bookmarkstable] a.vsmenu[href*=create]');
 			$a.attr('href',"<?php echo dol_buildpath('/bookmarks/card.php',1)  ?>?action=create&url_source="+encodeURIComponent(url)+"&url="+encodeURIComponent(url));
 			$('option[value=newbookmark]').attr("rel","<?php echo dol_buildpath('/bookmarks/card.php',1) ?>?action=create&url="+encodeURIComponent(url));
