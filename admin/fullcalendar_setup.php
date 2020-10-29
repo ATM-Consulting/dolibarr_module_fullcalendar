@@ -50,11 +50,11 @@ if (preg_match('/set_(.*)/',$action,$reg))
 {
 	$code=$reg[1];
 
-	$value = GETPOST($code);
+	$value = GETPOST($code, 'none');
 
 	if(preg_match('/^FULLCALENDAR_PREFILL_DATETIME_/', $code))
 	{
-		$value = dol_mktime(GETPOST($code . 'hour'), GETPOST($code . 'min'), 0, 1, 1, 1970);
+		$value = dol_mktime(GETPOST($code . 'hour', 'none'), GETPOST($code . 'min', 'none'), 0, 1, 1, 1970);
 	}
 
 	if (dolibarr_set_const($db, $code, $value, 'chaine', 0, '', $conf->entity) > 0)
@@ -67,7 +67,7 @@ if (preg_match('/set_(.*)/',$action,$reg))
 		dol_print_error($db);
 	}
 }
-	
+
 if (preg_match('/del_(.*)/',$action,$reg))
 {
 	$code=$reg[1];
