@@ -11,19 +11,19 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 	$langs->load("commercial");
 	$langs->load("companies");
 
-	$get=GETPOST('get');
-	$put=GETPOST('put');
+	$get=GETPOST('get', 'none');
+	$put=GETPOST('put', 'none');
 
 
 	if(empty($get) && empty($put)) $get = 'events';
 
 	switch ($get) {
 		case 'events':
-			$start = GETPOST('start');
-			$end = GETPOST('end');
-			$year = GETPOST('year');
-			$month = GETPOST('month');
-			$day = GETPOST('day');
+			$start = GETPOST('start', 'none');
+			$end = GETPOST('end', 'none');
+			$year = GETPOST('year', 'none');
+			$month = GETPOST('month', 'none');
+			$day = GETPOST('day', 'none');
 
 	/*
 			if(!empty($year)) {
@@ -55,12 +55,12 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 		case 'event-move':
 
 			$a=new ActionComm($db);
-			if($a->fetch(GETPOST('id'))>0) {
+			if($a->fetch(GETPOST('id', 'int'))>0) {
 				$a->fetch_userassigned();
 
 				$TData = $_REQUEST['data'];
 
-				if (GETPOST('fulldayevent') == 'true') $a->fulldayevent = 1;
+				if (GETPOST('fulldayevent', 'none') == 'true') $a->fulldayevent = 1;
 				else $a->fulldayevent = 0;
 
 				$splitedfulldayevent = GETPOST('splitedfulldayevent', 'int');
@@ -96,7 +96,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 
 		case 'event-resize':
 			$a=new ActionComm($db);
-			if($a->fetch(GETPOST('id'))>0) {
+			if($a->fetch(GETPOST('id', 'int'))>0) {
 				$a->fetch_userassigned();
 
 				$TData = $_REQUEST['data'];
@@ -138,58 +138,58 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 
 		case 'event':
 			$a=new ActionComm($db);
-			$id = GETPOST('id');
+			$id = GETPOST('id', 'int');
 			if (!empty($id)) $a->fetch($id);
 
-			$a->label = GETPOST('label');
-			$a->note=$a->note_private= GETPOST('note');
+			$a->label = GETPOST('label', 'none');
+			$a->note=$a->note_private= GETPOST('note', 'none');
 /*
 			if (empty($a->id))
 			{
-				$datep = date('H',strtotime(GETPOST('date')));
+				$datep = date('H',strtotime(GETPOST('date', 'none')));
 				if($datep == '00' && !empty($conf->global->FULLCALENDAR_SHOW_THIS_HOURS) ){
-					$a->datep = strtotime('+'.substr($conf->global->FULLCALENDAR_SHOW_THIS_HOURS,0,1).' hour',strtotime(GETPOST('date')));
+					$a->datep = strtotime('+'.substr($conf->global->FULLCALENDAR_SHOW_THIS_HOURS,0,1).' hour',strtotime(GETPOST('date', 'none')));
 				}
 				else{
 					if($datep=='00') $a->fulldayevent = 1;
 
-					$a->datep = strtotime(GETPOST('date'));
+					$a->datep = strtotime(GETPOST('date', 'none'));
 				}
 				$a->datef = strtotime('+2 hour',$a->datep);
 			}
 */
 
-			$a->datep= strtotime(GETPOST('date_start'));
-			$a->datef= strtotime(GETPOST('date_end'));
+			$a->datep= strtotime(GETPOST('date_start', 'none'));
+			$a->datef= strtotime(GETPOST('date_end', 'none'));
 
 
-			$TUser = GETPOST('fk_user');
+			$TUser = GETPOST('fk_user', 'none');
 			if(empty($TUser))$TUser[] = $user->id;
 			if(!is_array($TUser))$TUser=array($TUser);
 
 			$a->userownerid = $TUser[0];
-			$a->type_code = GETPOST('type_code') ? GETPOST('type_code') : 'AC_OTH';
+			$a->type_code = GETPOST('type_code', 'none') ? GETPOST('type_code', 'none') : 'AC_OTH';
 			$a->code = $a->type_code; // Up to Dolibarr 3.4, code is used in ActionComm:add() instead of type_code. It's seems unused, but you never know for sure.
 			$a->fk_action = dol_getIdFromCode($db, $a->type_code, 'c_actioncomm'); // type_code is not saved in ActionComm::update(), fk_action is up to Dolibarr 6.0
 			$a->type_id = $a->fk_action; // type_id used instead of fk_action in ActionComm::update() since Dolibarr 7.0, used in ::add()/::create() since the beginning
 
-			$a->socid = GETPOST('fk_soc');
-			$a->contactid = GETPOST('fk_contact');
+			$a->socid = GETPOST('fk_soc', 'int');
+			$a->contactid = GETPOST('fk_contact', 'int');
 
 			$a->fk_project = GETPOST('fk_project','int');
 
 			$percentage = -1; // Non applicable
-			if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) $percentage=in_array(GETPOST('status'),array(-1,100))?GETPOST('status'):(in_array(GETPOST('complete'),array(-1,100))?GETPOST('complete'):GETPOST("percentage"));	// [COPY FROM DOLIBARR] If status is -1 or 100, percentage is not defined and we must use status
+			if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) $percentage=in_array(GETPOST('status', 'none'),array(-1,100))?GETPOST('status', 'none'):(in_array(GETPOST('complete', 'none'),array(-1,100))?GETPOST('complete', 'none'):GETPOST("percentage", 'none'));	// [COPY FROM DOLIBARR] If status is -1 or 100, percentage is not defined and we must use status
 			$a->percentage = $percentage;
 
-			$moreParams = GETPOST('moreParams');
+			$moreParams = GETPOST('moreParams', 'none');
 			$moreParams = explode(',', $moreParams);
 			$TParam = array();
 			foreach ($moreParams as $param)
 			{
-				$a->_{$param} = GETPOST($param);
+				$a->_{$param} = GETPOST($param, 'none');
 			}
-			//var_dump($conf->global->FULLCALENDAR_SHOW_THIS_HOURS,GETPOST('date'),$a);exit;
+			//var_dump($conf->global->FULLCALENDAR_SHOW_THIS_HOURS,GETPOST('date', 'none'),$a);exit;
 
 			if($user->rights->agenda->allactions->create ||
 					(($a->authorid == $user->id || $a->userownerid == $user->id) && $user->rights->agenda->myactions->create)) {
@@ -234,26 +234,26 @@ function _events($date_start, $date_end) {
 	$hookmanager->initHooks(array('agenda'));
 
 	$pid=GETPOST("projectid","int",3);
-	$status=GETPOST("status");
-	if(empty($status)) $status = GETPOST("search_status");
-	$type=GETPOST("type");
-	$state_id = GETPOST('state_id');
+	$status=GETPOST("status", 'none');
+	if(empty($status)) $status = GETPOST("search_status", 'none');
+	$type=GETPOST("type", 'none');
+	$state_id = GETPOST('state_id', 'int');
 
-	$maxprint=(GETPOST("maxprint")?GETPOST("maxprint"):$conf->global->AGENDA_MAX_EVENTS_DAY_VIEW);
+	$maxprint=(GETPOST("maxprint", 'none')?GETPOST("maxprint", 'none'):$conf->global->AGENDA_MAX_EVENTS_DAY_VIEW);
 
-	//First try with GETPOST(array) (I don't know when it can be an array but why not)
-	$actioncode=GETPOST("actioncode", "array", 3)?GETPOST("actioncode", "array", 3):(GETPOST("actioncode")=='0'?'0':'');
+	//First try with GETPOST(array, 'none') (I don't know when it can be an array but why not)
+	$actioncode=GETPOST("actioncode", "array", 3)?GETPOST("actioncode", "array", 3):(GETPOST("actioncode", 'none')=='0'?'0':'');
     if(empty($actioncode)){
-        $actioncode=GETPOST("search_actioncode", "array", 3)?GETPOST("search_actioncode", "array", 3):(GETPOST("search_actioncode")=='0'?'0':'');
+        $actioncode=GETPOST("search_actioncode", "array", 3)?GETPOST("search_actioncode", "array", 3):(GETPOST("search_actioncode", 'none')=='0'?'0':'');
     }
 
 
-	//If empty then try GETPOST(alpha) (this one works with comm/action/index.php
+	//If empty then try GETPOST(alpha, 'none') (this one works with comm/action/index.php
 	if(empty($actioncode)) {
 
-		$actioncode=GETPOST("actioncode","alpha",3)?GETPOST("actioncode","alpha",3):(GETPOST("actioncode")=='0'?'0':'');
+		$actioncode=GETPOST("actioncode","alpha",3)?GETPOST("actioncode","alpha",3):(GETPOST("actioncode", 'none')=='0'?'0':'');
         if(empty($actioncode)){
-            $actioncode=GETPOST("search_actioncode", "alpha", 3)?GETPOST("search_actioncode", "alpha", 3):(GETPOST("search_actioncode")=='0'?'0':'');
+            $actioncode=GETPOST("search_actioncode", "alpha", 3)?GETPOST("search_actioncode", "alpha", 3):(GETPOST("search_actioncode", 'none')=='0'?'0':'');
         }
 
 		if(!empty($actioncode)) $actioncode=array($actioncode);
@@ -468,32 +468,32 @@ function _events($date_start, $date_end) {
                 $TProject[$event->fk_project]  = $p->getNomUrl(1);
                 $TProjectObject[$event->fk_project]  = $p;
             }
-            
+
             if(!isset($TProjectObject[$event->fk_project]->fk_project_order)) {
                 // c'est de la merde cette fonction, je custom :: $orders = $TProjectObject[$event->fk_project]->get_element_list('commande','commande');
-                
-                
+
+
                 $res = $db->query("SELECT rowid, ref FROM ".MAIN_DB_PREFIX."commande WHERE fk_projet=".$event->fk_project." ORDER BY date_commande DESC LIMIT 1");
                 if($res===false) {
                     var_dump($db);exit;
                 }
                 else{
-                    
+
                     dol_include_once('/commande/class/commande.class.php');
-                    
+
                     $obj = $db->fetch_object($res);
                     $o=new Commande($db);
                     $o->id = $obj->rowid;
                     $o->ref = $obj->ref;
-                    
+
                     $event->fk_project_order = $o->id;
                     $event->project_order = $o->getNomUrl(1);
-                    
+
                 }
-                
+
             }
-             
-            
+
+
         }
 
 		if(!empty($conf->global->FULLCALENDAR_SHOW_AFFECTED_USER) && !empty($event->userassigned)) {
@@ -567,7 +567,7 @@ function _events($date_start, $date_end) {
 			,'contact'=>(!empty($TContact[$event->contactid]) ? $TContact[$event->contactid] : '')
 			,'user'=>(!empty($TUserassigned) ? implode(', ',$TUserassigned) : '')
 			,'project'=>(!empty($TProject[$event->fk_project]) ? $TProject[$event->fk_project] : '')
-			
+
 		    ,'project_order'=>(!empty( $event->project_order ) ? $event->project_order : '')
 		    ,'fk_project_order'=>(!empty( $event->fk_project_order ) ? $event->fk_project_order : '0')
 
@@ -578,10 +578,10 @@ function _events($date_start, $date_end) {
 		);
 
 	}
-		
+
 	//TODO getCalendarEvents compatbile standard
 	// Complete $eventarray with events coming from external module
-	$parameters=array('use_color_from'=>GETPOST('use_color_from'),'sql'=>$sql); $action = 'getEvents';
+	$parameters=array('use_color_from'=>GETPOST('use_color_from', 'none'),'sql'=>$sql); $action = 'getEvents';
 	$reshook=$hookmanager->executeHooks('updateFullcalendarEvents',$parameters,$TEvent,$action);
 	if (! empty($hookmanager->resArray['eventarray'])) $TEvent=array_merge($TEvent, $hookmanager->resArray['eventarray']);
 
