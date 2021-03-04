@@ -140,6 +140,11 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 
 		case 'event':
 			$a=new ActionComm($db);
+            // Gestion changements v13
+            // Gestion de la rétrocompatibilité
+            $contactId = $a->contact_id;
+            if (empty ($contactId)) $contactId = $a->contactid;
+
 			$id = GETPOST('id', 'int');
 			if (!empty($id)) $a->fetch($id);
 
@@ -176,7 +181,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 			$a->type_id = $a->fk_action; // type_id used instead of fk_action in ActionComm::update() since Dolibarr 7.0, used in ::add()/::create() since the beginning
 
 			$a->socid = GETPOST('fk_soc', 'int');
-			$a->contactid = GETPOST('fk_contact', 'int');
+			$contactId = GETPOST('fk_contact', 'int');
 
 			$a->fk_project = GETPOST('fk_project','int');
 
@@ -219,7 +224,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 			}
 			else
 			{
-				if (empty($a->contactid)) $a->contact = null;
+				if (empty($contactId)) $a->contact = null;
 
 				$res = $a->update($user);
 				if ($res > 0)
@@ -381,6 +386,11 @@ function _events($date_start, $date_end) {
 	$TEventObject=array();
 	while($obj=$db->fetch_object($res)) {
 		$event = new ActionComm($db);
+        // Gestion changements v13
+        // Gestion de la rétrocompatibilité
+        $eventContactId = $event->contact_id;
+        if (empty ($eventContactId)) $eventContactId = $event->contactid;
+
 		$event->fetch($obj->id);
 		if (method_exists($event, 'fetch_thirdparty')) $event->fetch_thirdparty();
 		if (method_exists($event, 'fetchObjectLinked')) $event->fetchObjectLinked();
@@ -432,10 +442,10 @@ function _events($date_start, $date_end) {
 			$TSociete[$event->socid]  = $societe->getNomUrl(1);
 
 		}
-		if($event->contactid>0 && !isset($TContact[$event->contactid])) {
+		if($eventContactId>0 && !isset($TContact[$eventContactId])) {
             $contact = new Contact($db);
-            $contact->fetch($event->contactid);
-            $TContact[$event->contactid]  = $contact->getNomUrl(1);
+            $contact->fetch($eventContactId);
+            $TContact[$eventContactId]  = $contact->getNomUrl(1);
 
         }
 
@@ -566,12 +576,12 @@ function _events($date_start, $date_end) {
 		,'note'=>$event->note
 		,'statut'=>$event->getLibStatut(3)
 		,'fk_soc'=>$event->socid
-		,'fk_contact'=>$event->contactid
+		,'fk_contact'=>$eventContactId
 		,'fk_user'=>$event->userownerid
 		,'TFk_user'=>array_keys($event->userassigned)
 		,'fk_project'=>$event->fk_project
 		,'societe'=>(!empty($TSociete[$event->socid]) ? $TSociete[$event->socid] : '')
-		,'contact'=>(!empty($TContact[$event->contactid]) ? $TContact[$event->contactid] : '')
+		,'contact'=>(!empty($TContact[$eventContactId]) ? $TContact[$eventContactId] : '')
 		,'user'=>(!empty($TUserassigned) ? implode(', ',$TUserassigned) : '')
 		,'project'=>(!empty($TProject[$event->fk_project]) ? $TProject[$event->fk_project] : '')
 
@@ -963,6 +973,11 @@ function completeWithExtEvent(&$TEvent, &$TSociete, &$TContact, &$TProject)
 
 				// Create a new object action
 				$event=new ActionComm($db);
+				// Gestion changements v13
+                // Gestion de la rétrocompatibilité
+                $eventContactId = $event->contact_id;
+                if (empty ($eventContactId)) $eventContactId = $event->contactid;
+
 				$addevent = false;
 				if (isset($icalevent['DTSTART;VALUE=DATE'])) // fullday event
 				{
@@ -1090,11 +1105,11 @@ function completeWithExtEvent(&$TEvent, &$TSociete, &$TContact, &$TProject)
 								,'note'=>$event->note
 								,'statut'=>$event->getLibStatut(3)
 								,'fk_soc'=>$event->socid
-								,'fk_contact'=>$event->contactid
+								,'fk_contact'=>$eventContactId
 								,'fk_user'=>$event->userownerid
 								,'fk_project'=>$event->fk_project
 								,'societe'=>(!empty($TSociete[$event->socid]) ? $TSociete[$event->socid] : '')
-								,'contact'=>(!empty($TContact[$event->contactid]) ? $TContact[$event->contactid] : '')
+								,'contact'=>(!empty($TContact[$eventContactId]) ? $TContact[$eventContactId] : '')
 								,'user'=>''
 								,'project'=>(!empty($TProject[$event->fk_project]) ? $TProject[$event->fk_project] : '')
 								,'more'=>''
