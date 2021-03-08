@@ -28,13 +28,19 @@ function fullcalendarAdminPrepareHead()
     global $langs, $conf;
 
     $langs->load("fullcalendar@fullcalendar");
+    $langs->load("projects");
 
     $h = 0;
     $head = array();
 
+
     $head[$h][0] = dol_buildpath("/fullcalendar/admin/fullcalendar_setup.php", 1);
-    $head[$h][1] = $langs->trans("Parameters");
+    $head[$h][1] = $langs->trans("Agenda");
     $head[$h][2] = 'settings';
+    $h++;
+    $head[$h][0] = dol_buildpath("/fullcalendar/admin/fullcalendar_task_setup.php", 1);
+    $head[$h][1] = $langs->trans("Task");
+    $head[$h][2] = 'tasks';
     $h++;
     $head[$h][0] = dol_buildpath("/fullcalendar/admin/fullcalendar_about.php", 1);
     $head[$h][1] = $langs->trans("About");

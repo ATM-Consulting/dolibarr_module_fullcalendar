@@ -226,6 +226,33 @@ class modfullcalendar extends DolibarrModules
 		//							'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
 		// $r++;
 
+        $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=project',			                // Put 0 if this is a top menu
+								'type'=>'left',			                // This is a Top menu entry
+								'titre'=>'Ordonnancement',
+								'mainmenu'=>'project',
+								'leftmenu'=>'fullcalendar_ordo',
+								'url'=>'',
+								'langs'=>'fullcalendar@fullcalendar',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+								'position'=>100,
+								'perms'=>'$conf->global->FULLCALENDAR_ENABLE_TASKS',			                // Use 'perms'=>'$user->rights->report->level1->level2' if you want your menu with a permission rules
+								'target'=>'',
+								'enabled' => '1',
+								'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
+		$r++;
+		 $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=project,fk_leftmenu=fullcalendar_ordo',			                // Put 0 if this is a top menu
+								'type'=>'left',			                // This is a Top menu entry
+								'titre'=>'Tasks',
+								'mainmenu'=>'project',
+								'leftmenu'=>'fullcalendar_ordo_tasks',
+								'url'=>'/fullcalendar/task.php',
+								'langs'=>'projects',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+								'position'=>100,
+								'perms'=>'$conf->global->FULLCALENDAR_ENABLE_TASKS',			                // Use 'perms'=>'$user->rights->report->level1->level2' if you want your menu with a permission rules
+								'target'=>'',
+								'enabled' => '1',
+								'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
+		$r++;
+
 
 		// Exports
 		$r=1;

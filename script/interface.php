@@ -6,6 +6,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
     require_once DOL_DOCUMENT_ROOT.'/comm/action/class/actioncommreminder.class.php';
     require_once DOL_DOCUMENT_ROOT.'/contact/class/contact.class.php';
     require_once DOL_DOCUMENT_ROOT.'/projet/class/project.class.php';
+    require_once DOL_DOCUMENT_ROOT.'/projet/class/task.class.php';
 	require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
 
 	$langs->load("agenda");
@@ -47,6 +48,13 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 
 
 			break;
+        case 'tasks':
+            $start = GETPOST('start', 'none');
+			$end = GETPOST('end', 'none');
+            $TEvent = _tasks($start, $end);
+            foreach ($TEvent as &$event) unset($event['object']->db);
+            __out($TEvent, 'json');
+            break;
 		default:
 
 			break;
@@ -95,6 +103,30 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 
 
 			break;
+        case 'task-move':
+
+			$task=new Task($db);
+			if($task->fetch(GETPOST('id', 'int'))>0) {
+                $TData = $_REQUEST['data'];
+
+                if(! empty($TData['minutes'])) {
+                    $task->date_start = strtotime($TData['minutes'].' minute', $task->date_start);
+                    if(! empty($task->date_end)) $task->date_end = strtotime($TData['minutes'].' minute', $task->date_end);
+                }
+
+                if(! empty($TData['hours'])) {
+                    $task->date_start = strtotime($TData['hours'].' hour', $task->date_start);
+                    if(! empty($task->date_end)) $task->date_end = strtotime($TData['hours'].' hour', $task->date_end);
+                }
+                if(! empty($TData['days'])) {
+                    $task->date_start = strtotime($TData['days'].' day', $task->date_start);
+                    if(! empty($task->date_end)) $task->date_end = strtotime($TData['days'].' day', $task->date_end);
+                }
+
+                $res = $task->update($user);
+            }
+
+			break;
 
 		case 'event-resize':
 			$a=new ActionComm($db);
@@ -136,6 +168,28 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 
 
 
+			break;
+        case 'task-resize':
+            $task = new Task($db);
+            if($task->fetch(GETPOST('id', 'int')) > 0) {
+                $TData = $_REQUEST['data'];
+                if(! empty($TData['minutes'])) {
+                    if(empty($task->date_end)) $task->date_end = $task->date_start;
+                    $task->date_end = strtotime($TData['minutes'].' minute', $task->date_end);
+                }
+
+                if(! empty($TData['hours'])) {
+                    if(empty($task->date_end)) $task->date_end = $task->date_start + 3600 * 2; // décalage de 2H
+                    $task->date_end = strtotime($TData['hours'].' hour', $task->date_end);
+                }
+
+                if(! empty($TData['days'])) {
+                    if(empty($task->date_end)) $task->date_end = $task->date_start;
+                    $task->date_end = strtotime($TData['days'].' day', $task->date_end);
+                }
+                $res = $task->update($user);
+            }
+            
 			break;
 
 		case 'event':
@@ -194,7 +248,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 			$TParam = array();
 			foreach ($moreParams as $param)
 			{
-				$a->_{$param} = GETPOST($param, 'none');
+                $a->_{$param} = GETPOST($param, 'none');
 			}
 			//var_dump($conf->global->FULLCALENDAR_SHOW_THIS_HOURS,GETPOST('date', 'none'),$a);exit;
 
@@ -240,6 +294,59 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 			break;
 	}
 
+    /**
+     * @param string date $date_start
+     * @param string date $date_end
+     * @return array Task
+     */
+	function _tasks($date_start, $date_end) {
+	    global $db, $user, $conf;
+	    $TEvent = array();
+	    $task = new Task($db);
+	    $t_start = strtotime($date_start);
+	    $t_end = strtotime($date_end);
+
+        //TODO get color by entity
+	    $color = explode(',', $conf->global->THEME_ELDY_TOPMENU_BACK1);
+        $color = sprintf("#%02x%02x%02x", $color[0], $color[1], $color[2]); //Conversion de la couleur en hexa
+
+	    $sql = "SELECT rowid FROM ".MAIN_DB_PREFIX.$task->table_element;
+	    $sql .= " WHERE 	(datee>='".$db->idate($t_start-(60*60*24*7))."' AND dateo<='".$db->idate($t_end+(60*60*24*10))."')
+				OR
+			  	(dateo BETWEEN '".$db->idate($t_start-(60*60*24*7))."' AND '".$db->idate($t_end+(60*60*24*10))."') 
+			  	AND entity IN (".getEntity('project').")";
+        $resql = $db->query($sql);
+
+        if(! empty($resql) && $db->num_rows($resql) > 0) {
+            while($obj = $db->fetch_object($resql)) {
+                $res = $task->fetch($obj->rowid);
+                if($res > 0) {
+                    $dateEnd = $task->date_end;
+                    if(empty($task->date_end) && !empty($task->planned_workload)) $dateEnd = $task->date_start + ceil($task->planned_workload);
+
+                    $tmpEvent = [
+                        'id' => $task->id,
+                        'title' =>/* $task->date_start.' - '.$task->date_end.'\n'.*/$task->label,
+                        'allDay' => false,
+                        'start' => (empty($task->date_start) ? '' : dol_print_date($task->date_start, '%Y-%m-%d %H:%M:%S')),
+                        'end' => (empty($dateEnd) ? '' : dol_print_date($dateEnd, '%Y-%m-%d %H:%M:%S')),
+                        'url_title' => dol_buildpath('/projet/tasks/task.php?id='.$task->id, 1),
+                        'editable' => $user->rights->projet->creer ? 1 : 0,
+                        'color' => $color,
+                        'borderColor' => 'black',
+                        'isDarkColor' => isDarkColor($color),
+
+//                        'fulldayevent' => $event->fulldayevent,
+                        'more' => '',
+                        'object' => $task
+                    ];
+                    $TEvent[] = $tmpEvent;
+                }
+            }
+        }
+
+        return $TEvent;
+    }
 
 function _events($date_start, $date_end) {
 	global $db,$conf,$langs,$user,$hookmanager;
