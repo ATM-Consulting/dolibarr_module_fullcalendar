@@ -13,7 +13,7 @@ $help_url = '';
 list($langjs, $dummy) = explode('_', $langs->defaultlang);
 
 if($langjs == 'en') $langjs = 'en-gb';
-if(empty($conf->global->FULLCALENDAR_ENABLE_TASKS) || empty($user->rights->projet->lire)) accessforbidden();
+if(empty($conf->global->FULLCALENDAR_ENABLE_TASKS) || empty($user->rights->fullcalendar->task->read)) accessforbidden();
 
 if(! is_file(dol_buildpath('/fullcalendar/lib/fullcalendar/dist/lang/'.$langjs.'.js'))) $langjs = 'en-gb';
 
