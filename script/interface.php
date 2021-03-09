@@ -16,6 +16,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 
 	$get=GETPOST('get', 'none');
 	$put=GETPOST('put', 'none');
+    $hookmanager->initHooks(array('fullcalendarinterface'));
 
 
 	if(empty($get) && empty($put)) $get = 'events';
@@ -189,7 +190,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
                 }
                 $res = $task->update($user);
             }
-            
+
 			break;
 
 		case 'event':
@@ -299,54 +300,93 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
      * @param string date $date_end
      * @return array Task
      */
-	function _tasks($date_start, $date_end) {
-	    global $db, $user, $conf;
-	    $TEvent = array();
-	    $task = new Task($db);
-	    $t_start = strtotime($date_start);
-	    $t_end = strtotime($date_end);
+function _tasks($date_start, $date_end) {
+    global $db, $user, $conf, $hookmanager;
+    $TEvent = array();
+    $task = new Task($db);
+    $t_start = strtotime($date_start);
+    $t_end = strtotime($date_end);
 
-        //TODO get color by entity
-	    $color = explode(',', $conf->global->THEME_ELDY_TOPMENU_BACK1);
-        $color = sprintf("#%02x%02x%02x", $color[0], $color[1], $color[2]); //Conversion de la couleur en hexa
+    //TODO get color by entity
+    $color = explode(',', $conf->global->THEME_ELDY_TOPMENU_BACK1);
+    $color = sprintf("#%02x%02x%02x", $color[0], $color[1], $color[2]); //Conversion de la couleur en hexa
 
-	    $sql = "SELECT rowid FROM ".MAIN_DB_PREFIX.$task->table_element;
-	    $sql .= " WHERE 	(datee>='".$db->idate($t_start-(60*60*24*7))."' AND dateo<='".$db->idate($t_end+(60*60*24*10))."')
+    $sql = "SELECT t.rowid";
+    $parameters = array();
+    $reshook = $hookmanager->executeHooks('printFieldListSelect', $parameters); // Note that $action and $object may have been modified by hook
+    $sql .= $hookmanager->resPrint;
+    $sql .= " FROM ".MAIN_DB_PREFIX.$task->table_element ." as t";
+    $parameters = array();
+    $reshook = $hookmanager->executeHooks('printFieldListJoin', $parameters); // Note that $action and $object may have been modified by hook
+    $sql .= $hookmanager->resPrint;
+
+    $sql .= " WHERE (t.datee>='".$db->idate($t_start - (60 * 60 * 24 * 7))."' AND t.dateo<='".$db->idate($t_end + (60 * 60 * 24 * 10))."')
 				OR
-			  	(dateo BETWEEN '".$db->idate($t_start-(60*60*24*7))."' AND '".$db->idate($t_end+(60*60*24*10))."') 
-			  	AND entity IN (".getEntity('project').")";
-        $resql = $db->query($sql);
+			  	(t.dateo BETWEEN '".$db->idate($t_start - (60 * 60 * 24 * 7))."' AND '".$db->idate($t_end + (60 * 60 * 24 * 10))."') 
+			  	AND t.entity IN (".getEntity('project').")";
+    $parameters = array();
+    $reshook = $hookmanager->executeHooks('printFieldListWhere', $parameters); // Note that $action and $object may have been modified by hook
+    $sql .= $hookmanager->resPrint;
 
-        if(! empty($resql) && $db->num_rows($resql) > 0) {
-            while($obj = $db->fetch_object($resql)) {
-                $res = $task->fetch($obj->rowid);
-                if($res > 0) {
-                    $dateEnd = $task->date_end;
-                    if(empty($task->date_end) && !empty($task->planned_workload)) $dateEnd = $task->date_start + ceil($task->planned_workload);
+    $resql = $db->query($sql);
 
-                    $tmpEvent = [
-                        'id' => $task->id,
-                        'title' =>/* $task->date_start.' - '.$task->date_end.'\n'.*/$task->label,
-                        'allDay' => false,
-                        'start' => (empty($task->date_start) ? '' : dol_print_date($task->date_start, '%Y-%m-%d %H:%M:%S')),
-                        'end' => (empty($dateEnd) ? '' : dol_print_date($dateEnd, '%Y-%m-%d %H:%M:%S')),
-                        'url_title' => dol_buildpath('/projet/tasks/task.php?id='.$task->id, 1),
-                        'editable' => $user->rights->projet->creer ? 1 : 0,
-                        'color' => $color,
-                        'borderColor' => 'black',
-                        'isDarkColor' => isDarkColor($color),
+    if(! empty($resql) && $db->num_rows($resql) > 0) {
+        while($obj = $db->fetch_object($resql)) {
+            $res = $task->fetch($obj->rowid);
+            if($res > 0) {
+                $dateEnd = $task->date_end;
+                if(empty($task->date_end) && ! empty($task->planned_workload)) $dateEnd = $task->date_start + ceil($task->planned_workload);
+                $desc = makeTaskDesc($task, $dateEnd);
+                $allDay = false;
+                //si c'est sur plusieurs jours on passe en vue "all day"
+                if(dol_print_date($task->date_start, '%Y-%m-%d') != dol_print_date($dateEnd, '%Y-%m-%d')) $allDay = true;
+                $tmpEvent = [
+                    'id' => $task->id,
+                    'title' => $task->ref.' - '.$task->label,
+                    'allDay' => $allDay,
+                    'start' => (empty($task->date_start) ? '' : dol_print_date($task->date_start, '%Y-%m-%d %H:%M:%S')),
+                    'end' => (empty($dateEnd) ? '' : dol_print_date($dateEnd, '%Y-%m-%d %H:%M:%S')),
+                    'url_title' => dol_buildpath('/projet/tasks/task.php?id='.$task->id, 1),
+                    'editable' => $user->rights->projet->creer ? 1 : 0,
+                    'color' => $color,
+                    'borderColor' => 'black',
+                    'isDarkColor' => isDarkColor($color),
+                    'description' => $desc,
+                    //                        'fulldayevent' => $event->fulldayevent,
+                    'more' => '',
+                    'object' => $task
+                ];
 
-//                        'fulldayevent' => $event->fulldayevent,
-                        'more' => '',
-                        'object' => $task
-                    ];
-                    $TEvent[] = $tmpEvent;
-                }
+                $parameters = array('sql' => $sql, 'task' => $task);
+                $reshook = $hookmanager->executeHooks('setFullcalendarOrdoTask', $parameters, $tmpEvent, $action);    // Note that $action and $object may have been modified by hook
+                if($reshook > 0) $tmpEvent = $hookmanager->resArray;
+
+                $TEvent[] = $tmpEvent;
             }
         }
-
-        return $TEvent;
     }
+
+    return $TEvent;
+}
+
+function makeTaskDesc($task, $dateEnd) {
+    global $langs;
+    $desc = '<strong>'.$langs->trans('StartDate').' : </strong>'.dol_print_date($task->date_start, 'dayhourtext').'<br/>';
+    $desc .= '<strong>'.$langs->trans('EndDate').' : </strong>'.dol_print_date($dateEnd, 'dayhourtext').'<br/>';
+    if(! empty($task->planned_workload)) {
+        $hours = sprintf('%02d:%02d', ($task->planned_workload / 3600), ($task->planned_workload / 60 % 60));
+        $desc .= '<strong>'.$langs->trans('PlannedWorkload').' : </strong>'.$hours.'<br/>';
+    }
+    if(! empty($task->progress)) $desc .= '<strong>'.$langs->trans('Progress').' : </strong>'.$task->progress.'%<br/>';
+    if(! empty($task->duration_effective)) {
+        $hours = sprintf('%02d:%02d', ($task->duration_effective / 3600), ($task->duration_effective / 60 % 60));
+        $desc .= '<strong>'.$langs->trans('DurationEffective').' : </strong>'.$hours.'<br/>';
+    }
+    if(empty($task->project)) $task->fetch_projet();
+    if(! empty($task->project)) $desc .= '<strong>'.$langs->trans('Project').' : </strong>'.$task->project->ref.' - '.$task->project->title.'<br/>';
+    $desc .= '<strong>'.$langs->trans('Description').' : </strong>'.$task->description.'<br/>';
+    return $desc;
+}
 
 function _events($date_start, $date_end) {
 	global $db,$conf,$langs,$user,$hookmanager;
