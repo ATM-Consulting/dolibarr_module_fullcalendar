@@ -340,7 +340,7 @@ function _tasks($date_start, $date_end) {
                 $allDay = false;
                 //si c'est sur plusieurs jours on passe en vue "all day"
                 if(dol_print_date($task->date_start, '%Y-%m-%d') != dol_print_date($dateEnd, '%Y-%m-%d')) $allDay = true;
-                $tmpEvent = [
+                $tmpEvent = array(
                     'id' => $task->id,
                     'title' => $task->ref.' - '.$task->label,
                     'allDay' => $allDay,
@@ -355,7 +355,7 @@ function _tasks($date_start, $date_end) {
                     //                        'fulldayevent' => $event->fulldayevent,
                     'more' => '',
                     'object' => $task
-                ];
+                );
 
                 $parameters = array('sql' => $sql, 'task' => $task);
                 $reshook = $hookmanager->executeHooks('setFullcalendarOrdoTask', $parameters, $tmpEvent, $action);    // Note that $action and $object may have been modified by hook

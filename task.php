@@ -47,7 +47,16 @@ llxHeader('', $title, $help_url, '', 0, 0, $TIncludeJS, $TIncludeCSS);
                     center: 'agendaDay,agendaWeek,month',
                     right: 'prev,next today'
                 }
-                // , slotDuration : '00:01:00'
+                <?php
+                if(!empty($conf->global->FULLCALENDAR_TASK_SHOW_THIS_HOURS)) {
+						list($hourShowStart, $hourShowEnd) = explode('-', $conf->global->FULLCALENDAR_TASK_SHOW_THIS_HOURS);
+						if(!empty($hourShowStart) && !empty($hourShowEnd)) {
+		        			?>,minTime:'<?php echo $hourShowStart.':00:00'; ?>'
+		        			,maxTime:'<?php echo $hourShowEnd.':00:00'; ?>'<?php
+						}
+				}
+                if(!empty($conf->global->FULLCALENDAR_TASK_DURATION_SLOT)) echo ',slotDuration:"'.$conf->global->FULLCALENDAR_TASK_DURATION_SLOT.'"';
+                ?>
                 , defaultDate: getDate()
                 , height: getFullCalendarHeight()
                 , eventSources: [currentsource]

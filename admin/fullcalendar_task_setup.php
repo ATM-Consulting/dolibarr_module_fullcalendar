@@ -40,9 +40,13 @@ if (! $user->admin) {
     accessforbidden();
 }
 
+$action = GETPOST('action', 'alpha');
+
+
 /*
  * Actions
  */
+
 if (preg_match('/set_(.*)/',$action,$reg))
 {
 	$code=$reg[1];
@@ -53,7 +57,6 @@ if (preg_match('/set_(.*)/',$action,$reg))
 	{
 		$value = dol_mktime(GETPOST($code . 'hour', 'none'), GETPOST($code . 'min', 'none'), 0, 1, 1, 1970);
 	}
-
 	if (dolibarr_set_const($db, $code, $value, 'chaine', 0, '', $conf->entity) > 0)
 	{
 		header("Location: ".$_SERVER["PHP_SELF"]);
@@ -122,6 +125,43 @@ print '<input type="hidden" name="action" value="set_FULLCALENDAR_ENABLE_TASKS">
 echo ajax_constantonoff('FULLCALENDAR_ENABLE_TASKS');
 print '</form>';
 print '</td></tr>';
+
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("FULLCALENDAR_TASK_SHOW_THIS_HOURS").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="action" value="set_FULLCALENDAR_TASK_SHOW_THIS_HOURS">';
+print '<input type="text" name="FULLCALENDAR_TASK_SHOW_THIS_HOURS" value="'.$conf->global->FULLCALENDAR_TASK_SHOW_THIS_HOURS.'" />';
+print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+print '</form>';
+print '</td></tr>';
+
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("FULLCALENDAR_TASK_DURATION_SLOT").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="action" value="set_FULLCALENDAR_TASK_DURATION_SLOT">';
+
+$TOption=array(
+	'00:30:00'=>'30 '.$langs->trans('minutes')
+	,'00:15:00'=>'15 '.$langs->trans('minutes')
+	,'00:05:00'=>'5 '.$langs->trans('minutes')
+	,'01:00:00'=>'1 '.$langs->trans('hour')
+);
+
+echo $form->selectarray('FULLCALENDAR_TASK_DURATION_SLOT', $TOption, $conf->global->FULLCALENDAR_TASK_DURATION_SLOT);
+
+print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+
+print '</form>';
+print '</td></tr>';
+
 print '</table>';
 dol_fiche_end();
 
