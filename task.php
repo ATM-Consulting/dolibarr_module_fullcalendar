@@ -174,7 +174,6 @@ llxHeader('', $title, $help_url, '', 0, 0, $TIncludeJS, $TIncludeCSS);
     </script>
 <?php
 print '<div id="calendar"></div>';
-print '<div id="dialog-add-event" title="'.$langs->trans('CreateNewORAction').'"></div>';
 
 llxFooter();
 
