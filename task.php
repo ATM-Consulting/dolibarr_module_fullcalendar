@@ -65,6 +65,7 @@ llxHeader('', $title, $help_url, '', 0, 0, $TIncludeJS, $TIncludeCSS);
                 , defaultView: 'agendaWeek'
                 , nowIndicator: true
                 , eventLimit: true
+                , nextDayThreshold: '00:00:00'
                 , eventAfterRender: function (event, element, view) {
 
                     if (event.color != '') {
@@ -117,6 +118,12 @@ llxHeader('', $title, $help_url, '', 0, 0, $TIncludeJS, $TIncludeCSS);
                             }
                         });
                     }
+                }
+                , eventDataTransform: function(event) {
+                  if(event.allDay && moment(event.end).isAfter(event.start, 'day')) {
+                    event.end = moment(event.end).add(1, 'days');
+                  }
+                  return event;
                 }
                 , eventResize: function (event, delta, revertFunc, jsEvent, ui, view) {
 
