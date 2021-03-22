@@ -149,6 +149,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
                     }
                 }
                 if(! empty($fk_task)) {
+                    $TDateStart = $TDateEnd = $TPlannedWorload = array();
                     $task = new Task($db);
                     if($task->fetch($fk_task) > 0) {
                         foreach($TData as $data) {
@@ -161,6 +162,9 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
                             $parameters = array('name' => $data['name'], 'value' => $data['value']);
                             $reshook = $hookmanager->executeHooks('taskUpdate', $parameters, $task); // Note that $action and $object may have been modified by hook
                         }
+                        if(!empty($TDateStart)) $task->date_start = dol_mktime($TDateStart['date_starthour'], $TDateStart['date_startmin'], 0, $TDateStart['date_startmonth'], $TDateStart['date_startday'], $TDateStart['date_startyear']);
+                        if(!empty($TDateEnd)) $task->date_end = dol_mktime($TDateEnd['date_endhour'], $TDateEnd['date_endmin'], 0, $TDateEnd['date_endmonth'], $TDateEnd['date_endday'], $TDateEnd['date_endyear']);
+                        if(!empty($TPlannedWorload)) $task->planned_workload = intval($TPlannedWorload['planned_workloadhour']) * 3600 + intval($TPlannedWorload['planned_workloadmin']) * 60;
                         $task->update($user);
                     }
 
