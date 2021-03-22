@@ -291,7 +291,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 			$TParam = array();
 			foreach ($moreParams as $param)
 			{
-                $a->_{$param} = GETPOST($param, 'none');
+                $a->{'_'.$param} = GETPOST($param, 'none');
 			}
 			//var_dump($conf->global->FULLCALENDAR_SHOW_THIS_HOURS,GETPOST('date', 'none'),$a);exit;
 
