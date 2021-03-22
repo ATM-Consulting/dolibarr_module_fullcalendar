@@ -40,6 +40,17 @@ llxHeader('', $title, $help_url, '', 0, 0, $TIncludeJS, $TIncludeCSS);
     <script>
 
         document.addEventListener('DOMContentLoaded', function () {
+            //Définition de la boite de dialog
+            var taskediteventmodal = $('#dialog-edit-event');
+
+			taskediteventmodal.dialog({
+                autoOpen: false,
+				autoResize:true,
+                close: function( event, ui ) {
+                   $('#calendar').fullCalendar('refetchEvents');
+                }
+            });
+            //fullcalendar
             var currentsource = '<?php echo dol_buildpath('/fullcalendar/script/interface.php', 1) ?>'+'?get=tasks';
             $('#calendar').fullCalendar({
                 header: {
@@ -138,6 +149,32 @@ llxHeader('', $title, $help_url, '', 0, 0, $TIncludeJS, $TIncludeCSS);
                         $('#calendar').fullCalendar('refetchEvents');
                     });
                 }
+                ,
+				eventClick: function(info) {
+					$.ajax({
+                        url: '<?php echo dol_buildpath('/fullcalendar/script/interface.php', 1) ?>'
+                        , data: {
+                            get: 'task-popin'
+                            , fk_task: info.id
+                        }
+                    }).done(function (data) {
+                        $('#dialog-edit-event').html(data);
+                        taskediteventmodal.dialog('open');
+                        taskediteventmodal.dialog({
+                            height: 'auto', width: 'auto'
+                            , buttons: {
+                                '<?php echo $langs->trans('Update'); ?>': function () {
+                                    updateTask();
+                                    $(this).dialog('close');
+                                },
+                               '<?php echo $langs->trans('Cancel'); ?>': function () {
+                                    $(this).dialog('close');
+                                }
+                            }
+                        }); // resize to content
+                        taskediteventmodal.parent().css({'top': '20%'});
+                    });
+				}
                 , eventDrop: function (event, delta, revertFunc, jsEvent, ui, view) {
 
                     $.ajax({
@@ -152,7 +189,26 @@ llxHeader('', $title, $help_url, '', 0, 0, $TIncludeJS, $TIncludeCSS);
                     });
                 }
             });
+
         });
+
+        // refresh event on modal close
+        $("#dialog-edit-event").on("hide.bs.modal", function (e) {
+             $('#calendar').fullCalendar('refetchEvents');
+        });
+
+        function updateTask() {
+            let data = $('#editableViewForm').serializeArray();
+            $.ajax({
+                url: '<?php echo dol_buildpath('/fullcalendar/script/interface.php', 1) ?>'
+                , data: {
+                    put: 'task-edit'
+                    , data: data
+                }
+            }).done(function () {
+                $('#calendar').fullCalendar('refetchEvents');
+            });
+        }
 
         function getFullCalendarHeight() {
             return $(window).height()-$('#id-right').offset().top-30;
@@ -174,6 +230,8 @@ llxHeader('', $title, $help_url, '', 0, 0, $TIncludeJS, $TIncludeCSS);
     </script>
 <?php
 print '<div id="calendar"></div>';
+print '<div id="dialog-edit-event" title="'.$langs->trans('EditTask').'"></div>';
+
 
 llxFooter();
 

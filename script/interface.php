@@ -8,11 +8,16 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
     require_once DOL_DOCUMENT_ROOT.'/projet/class/project.class.php';
     require_once DOL_DOCUMENT_ROOT.'/projet/class/task.class.php';
 	require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
+	require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
+	require_once DOL_DOCUMENT_ROOT.'/core/class/html.formother.class.php';
 
 	$langs->load("agenda");
 	$langs->load("other");
 	$langs->load("commercial");
 	$langs->load("companies");
+
+	$form = new Form($db);
+	$formother = new FormOther($db);
 
 	$get=GETPOST('get', 'none');
 	$put=GETPOST('put', 'none');
@@ -55,6 +60,11 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
             $TEvent = _tasks($start, $end);
             foreach ($TEvent as &$event) unset($event['object']->db);
             __out($TEvent, 'json');
+            break;
+        case 'task-popin':
+            $fk_task = GETPOST('fk_task','int');
+            $popinContent = _taskEditableView($fk_task);
+            print $popinContent;
             break;
 		default:
 
@@ -128,7 +138,35 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
             }
 
 			break;
+		case 'task-edit':
+            $TData = GETPOST('data', 'array');
+            if(!empty($TData)) {
+                $fk_task = 0;
+                foreach($TData as $data) {
+                    if($data['name'] == 'fk_task') {
+                        $fk_task = $data['value'];
+                        break;
+                    }
+                }
+                if(! empty($fk_task)) {
+                    $task = new Task($db);
+                    if($task->fetch($fk_task) > 0) {
+                        foreach($TData as $data) {
+                            if($data['name'] == 'fk_task') continue;
+                            else if(strpos($data['name'], 'options') !== false) $task->array_options[$data['name']] = $data['value'];
+                            else if(strpos($data['name'], 'date_start') !== false) $TDateStart[$data['name']] = $data['value'];
+                            else if(strpos($data['name'], 'date_end') !== false) $TDateEnd[$data['name']] = $data['value'];
+                            else if(strpos($data['name'], 'planned_workload') !== false) $TPlannedWorload[$data['name']] = $data['value'];
+                            else $task->{$data['name']} = $data['value'];
+                            $parameters = array('name' => $data['name'], 'value' => $data['value']);
+                            $reshook = $hookmanager->executeHooks('taskUpdate', $parameters, $task); // Note that $action and $object may have been modified by hook
+                        }
+                        $task->update($user);
+                    }
 
+                }
+            }
+			break;
 		case 'event-resize':
 			$a=new ActionComm($db);
 			if($a->fetch(GETPOST('id', 'int'))>0) {
@@ -294,6 +332,41 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 
 			break;
 	}
+
+function _taskEditableView($fk_task) {
+    global $langs, $db, $form, $formother, $hookmanager;
+    $task = new Task($db);
+    $view = '';
+    if($task->fetch($fk_task) > 0) {
+        $view .= '<form id="editableViewForm"  style="" >';
+        $view .= '<input type="hidden" name="fk_task" value="'.$fk_task.'">';
+        $view .= '<table id="editableView" class="table" style="" >';
+        if(empty($task->fields)) {
+            $task->fields = array(
+                'label' => array('type' => 'varchar', 'label' => 'Label', 'enabled' => 1, 'visible' => 1),
+                'date_start' => array('type' => 'datetime', 'enabled' => 1, 'visible' => 1, 'position' => 30),
+                'date_end' => array('type' => 'datetime',  'enabled' => 1, 'visible' => 1, 'position' => 35),
+                'description' => array('type' => 'text', 'label' => 'Description', 'enabled' => 1, 'visible' => 1, 'position' => 55),
+            );
+        }
+
+        $view .= '<tr><td>'.$langs->trans('Label').'</td><td>'.$task->showInputField(array(), 'label', $task->label).'</td></tr>';
+        $view .= '<tr><td>'.$langs->trans('StartDate').'</td><td>'.$task->showInputField(array(), 'date_start', $task->date_start).'</td></tr>';
+        $view .= '<tr><td>'.$langs->trans('EndDate').'</td><td>'.$task->showInputField(array(), 'date_end', $task->date_end).'</td></tr>';
+        $view .= '<tr><td>'.$langs->trans('PlannedWorkload').'</td><td>'.$form->select_duration('planned_workload', $task->planned_workload, 0, 'text',0,1).'</td></tr>';
+        $view .= '<tr><td>'.$langs->trans('Description').'</td><td>'.$task->showInputField(array(), 'description', $task->description).'</td></tr>';
+        $view .= '<tr><td>'.$langs->trans("ProgressDeclared").'</td><td>'.$formother->select_percent($task->progress, 'progress', 0, 5, 0, 100, 1).'</td></tr>';
+        $parameters = array('task' => $task);
+        $reshook = $hookmanager->executeHooks('addMoreTaskEditableView', $parameters, $view); // Note that $action and $object may have been modified by hook
+        $view .= $hookmanager->resPrint;
+        $view .= '</table></form>';
+    } else {
+        $view = '<strong>'.$langs->trans('CantFetchTask').'</strong>';
+    }
+    return $view;
+}
+
+
 
     /**
      * @param string date $date_start
