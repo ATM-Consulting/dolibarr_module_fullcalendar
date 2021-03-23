@@ -360,7 +360,7 @@ function _taskEditableView($fk_task) {
         $view .= '<tr><td>'.$langs->trans('StartDate').'</td><td>'.$task->showInputField(array(), 'date_start', $task->date_start).'</td></tr>';
         $view .= '<tr><td>'.$langs->trans('EndDate').'</td><td>'.$task->showInputField(array(), 'date_end', $task->date_end).'</td></tr>';
         $view .= '<tr><td>'.$langs->trans('PlannedWorkload').'</td><td>'.$form->select_duration('planned_workload', $task->planned_workload, 0, 'text',0,1).'</td></tr>';
-        $view .= '<tr><td>'.$langs->trans('Description').'</td><td>'.$task->showInputField(array(), 'description', $task->description).'</td></tr>';
+        $view .= '<tr><td>'.$langs->trans('Description').'</td><td>'.$task->showInputField(array(), 'description', html_entity_decode($task->description, ENT_QUOTES)).'</td></tr>';
         $view .= '<tr><td>'.$langs->trans("ProgressDeclared").'</td><td>'.$formother->select_percent($task->progress, 'progress', 0, 5, 0, 100, 1).'</td></tr>';
         $parameters = array('task' => $task);
         $reshook = $hookmanager->executeHooks('addMoreTaskEditableView', $parameters, $view); // Note that $action and $object may have been modified by hook
