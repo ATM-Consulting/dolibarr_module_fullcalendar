@@ -1,8 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## Version 2.1.0
-- ADD Editable field on task view
+## Not Released
+
+- NEW : Editable field on task view *2021-03-23* - 2.1.0
 
 ## Version 1.5.5 [ 2021-03-04 ]
 
