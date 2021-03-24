@@ -341,6 +341,7 @@ function _tasks($date_start, $date_end) {
                 //si c'est sur plusieurs jours on passe en vue "all day"
                 if(dol_print_date($task->date_start, '%Y-%m-%d') != dol_print_date($dateEnd, '%Y-%m-%d')) $allDay = true;
                 $tmpEvent = array(
+                	'headTask' => '',
                     'id' => $task->id,
                     'title' => $task->ref.' - '.$task->label,
                     'allDay' => $allDay,

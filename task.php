@@ -91,12 +91,13 @@ $reshook = $hookmanager->executeHooks('formObjectOptions', $parameters, $tmpEven
                 , eventRender: function (event, element, view) {
                     var title = element.find('.fc-title').html();
                     element.find('.fc-title').html('<a class="url_title" href="'+event.url_title+'" onclick="event.stopPropagation();">'+title+'</a>');
+					element.find('.fc-content').prepend(event.headTask);
 
                     if ($().tipTip) // ou $.fn.tipTip, mais $.tipTip ne fonctionne pas
                     {
                         element.tipTip({
                             maxWidth: '600px', edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50
-                            , content: '<strong>'+event.title+'</strong><br />'+event.description
+                            , content: event.headTask+'<strong>'+event.title+'</strong><br />'+event.description
                         });
 
                         element.find('.classfortooltip').tipTip({maxWidth: '600px', edgeOffset: 10, delay: 50, fadeIn: 50, fadeOut: 50});
@@ -107,7 +108,7 @@ $reshook = $hookmanager->executeHooks('formObjectOptions', $parameters, $tmpEven
                             , show: {collision: 'flipfit', effect: 'toggle', delay: 50}
                             , hide: {delay: 50}
                             , position: {my: 'left+10 center', at: 'right center'}
-                            , content: '<strong>'+event.title+'</strong><br />'+event.description
+                            , content: event.headTask+'<strong>'+event.title+'</strong><br />'+event.description
                         });
 
                         // On remet les tooltips des liens désactivés par l'appel ci-dessus
