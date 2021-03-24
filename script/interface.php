@@ -399,9 +399,9 @@ function _tasks($date_start, $date_end) {
     $reshook = $hookmanager->executeHooks('printFieldListJoin', $parameters); // Note that $action and $object may have been modified by hook
     $sql .= $hookmanager->resPrint;
 
-    $sql .= " WHERE (t.datee>='".$db->idate($t_start - (60 * 60 * 24 * 7))."' AND t.dateo<='".$db->idate($t_end + (60 * 60 * 24 * 10))."')
+    $sql .= " WHERE ((t.datee>='".$db->idate($t_start - (60 * 60 * 24 * 7))."' AND t.dateo<='".$db->idate($t_end + (60 * 60 * 24 * 10))."')
 				OR
-			  	(t.dateo BETWEEN '".$db->idate($t_start - (60 * 60 * 24 * 7))."' AND '".$db->idate($t_end + (60 * 60 * 24 * 10))."') 
+			  	(t.dateo BETWEEN '".$db->idate($t_start - (60 * 60 * 24 * 7))."' AND '".$db->idate($t_end + (60 * 60 * 24 * 10))."'))
 			  	AND t.entity IN (".getEntity('project').")";
     $parameters = array();
     $reshook = $hookmanager->executeHooks('printFieldListWhere', $parameters); // Note that $action and $object may have been modified by hook
@@ -420,6 +420,7 @@ function _tasks($date_start, $date_end) {
                 //si c'est sur plusieurs jours on passe en vue "all day"
                 if(dol_print_date($task->date_start, '%Y-%m-%d') != dol_print_date($dateEnd, '%Y-%m-%d')) $allDay = true;
                 $tmpEvent = array(
+                	'headTask' => '',
                     'id' => $task->id,
                     'title' => $task->ref.' - '.$task->label,
                     'allDay' => $allDay,
