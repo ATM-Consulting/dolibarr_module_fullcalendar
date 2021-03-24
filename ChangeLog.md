@@ -1,9 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## Version 2.1.0 [ 2021-03-24 ]
+## Not Released
 
-- Add "headTask" param to add something in fullcalendar project task view
+- NEW : "headTask" param to add something in fullcalendar project task view *24/03/2021* - 2.1.0
 
 ## Version 1.5.5 [ 2021-03-04 ]
 
