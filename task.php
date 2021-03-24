@@ -35,6 +35,8 @@ $title = $langs->trans("TaskOrdo");
 $help_url = '';
 llxHeader('', $title, $help_url, '', 0, 0, $TIncludeJS, $TIncludeCSS);
 
+$reshook = $hookmanager->executeHooks('formObjectOptions', $parameters, $tmpEvent, $action);    // Note that $action and $object may have been modified by hook
+
 ?>
 
     <script>
