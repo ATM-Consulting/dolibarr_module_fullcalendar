@@ -626,14 +626,14 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			 */
 			if ($conf->global->AGENDA_REMINDER_EMAIL || $conf->global->AGENDA_REMINDER_BROWSER)
 			{
-				$select_typereminder = $form->select_type_duration('offsetunit');
+				$select_typereminder = $form->selectTypeDuration('offsetunit');
 
 				$TRemindTypes = array();
 				if (!empty($conf->global->AGENDA_REMINDER_EMAIL)) $TRemindTypes['email'] = $langs->trans('EMail');
 				if (!empty($conf->global->AGENDA_REMINDER_BROWSER)) $TRemindTypes['browser'] = $langs->trans('BrowserPush');
 				$select_remindertype =  str_replace("\n", '', $form->selectarray('selectremindertype', $TRemindTypes));
 
-				$select_mailtemplate = str_replace("\n", '', $form->select_model_mail('actioncommsend', 'actioncomm_send', 1));
+				$select_mailtemplate = str_replace("\n", '', $form->selectModelMail('actioncommsend', 'actioncomm_send', 1));
 
 				$script = '<script type="text/javascript">$(document).ready(function () {
 	            		$("#addreminder").click(function(){
