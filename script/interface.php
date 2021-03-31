@@ -466,9 +466,9 @@ function makeTaskDesc($task, $dateEnd) {
     if(! empty($task->project)) {
         $desc .= '<strong>'.$langs->trans('Project').' : </strong>'.$task->project->ref.' - '.$task->project->title.'<br/>';
         if(!empty($task->project->socid)) {
-            $langs->load('societe');
+            $langs->load('companies');
             $task->project->fetch_thirdparty();
-            $desc .= '<strong>'.$langs->trans('Thirdparty').' : '.$task->project->thirdparty->getNomUrl().'<br/>';
+            $desc .= '<strong>'.$langs->trans('ThirdParty').' : '.$task->project->thirdparty->getNomUrl().'<br/>';
         }
 
     }
