@@ -463,7 +463,15 @@ function makeTaskDesc($task, $dateEnd) {
         $desc .= '<strong>'.$langs->trans('DurationEffective').' : </strong>'.$hours.'<br/>';
     }
     if(empty($task->project)) $task->fetch_projet();
-    if(! empty($task->project)) $desc .= '<strong>'.$langs->trans('Project').' : </strong>'.$task->project->ref.' - '.$task->project->title.'<br/>';
+    if(! empty($task->project)) {
+        $desc .= '<strong>'.$langs->trans('Project').' : </strong>'.$task->project->ref.' - '.$task->project->title.'<br/>';
+        if(!empty($task->project->socid)) {
+            $langs->load('societe');
+            $task->project->fetch_thirdparty();
+            $desc .= '<strong>'.$langs->trans('Thirdparty').' : '.$task->project->thirdparty->getNomUrl().'<br/>';
+        }
+
+    }
     $desc .= '<strong>'.$langs->trans('Description').' : </strong>'.$task->description.'<br/>';
     return $desc;
 }

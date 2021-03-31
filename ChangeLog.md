@@ -23,5 +23,6 @@ All notable changes to this project will be documented in this file.
 
 ### Fix
 - remove unused boxe folder  
+- add thirdparty in tooltip *31/03/2021*- 2.2.1
 
 
