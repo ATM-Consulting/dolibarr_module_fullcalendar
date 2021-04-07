@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ## Version 2.2.0
 
+- FIX : forgotten </strong> + need to fetch task on each iteration *07/04/2021* 2.2.2
 - NEW : Editable field on task view T2700 *24/03/2021* - 2.2.0
 - NEW : "headTask" param to add something in fullcalendar project task view T2699 *24/03/2021* - 2.1.0
 

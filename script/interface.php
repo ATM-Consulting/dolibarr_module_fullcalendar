@@ -411,6 +411,7 @@ function _tasks($date_start, $date_end) {
 
     if(! empty($resql) && $db->num_rows($resql) > 0) {
         while($obj = $db->fetch_object($resql)) {
+			$task = new Task($db);
             $res = $task->fetch($obj->rowid);
             if($res > 0) {
                 $dateEnd = $task->date_end;
