@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 ## Not Released
 
 
+## Version 2.3.0 [ 2021-04-08 ]
+
+- NEW : Filter slot duration and min max hour on task view T2700 *08/04/2021* - 2.3.0
+
 ## Version 2.2.0
 
 - NEW : Editable field on task view T2700 *24/03/2021* - 2.2.0
