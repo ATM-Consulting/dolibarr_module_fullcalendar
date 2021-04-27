@@ -460,7 +460,6 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 		var $btnprev = $('[aria-label="prev"]');
 		var $btnnext = $('[aria-label="next"]');
 		var $btntoday = $('button.fc-today-button');
-		console.log($btntoday);
 
 		var $currentYear = $('input[name="year"]');
 		var $currentMonth = $('input[name="month"]');
