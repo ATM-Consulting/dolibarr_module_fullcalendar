@@ -3,8 +3,11 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 
 	require '../config.php';
     require_once DOL_DOCUMENT_ROOT.'/comm/action/class/actioncomm.class.php';
+    require_once DOL_DOCUMENT_ROOT.'/comm/action/class/actioncommreminder.class.php';
     require_once DOL_DOCUMENT_ROOT.'/contact/class/contact.class.php';
     require_once DOL_DOCUMENT_ROOT.'/projet/class/project.class.php';
+    require_once DOL_DOCUMENT_ROOT.'/projet/class/task.class.php';
+	require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
 
 	$langs->load("agenda");
 	$langs->load("other");
@@ -13,6 +16,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 
 	$get=GETPOST('get', 'none');
 	$put=GETPOST('put', 'none');
+    $hookmanager->initHooks(array('fullcalendarinterface'));
 
 
 	if(empty($get) && empty($put)) $get = 'events';
@@ -45,6 +49,13 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 
 
 			break;
+        case 'tasks':
+            $start = GETPOST('start', 'none');
+			$end = GETPOST('end', 'none');
+            $TEvent = _tasks($start, $end);
+            foreach ($TEvent as &$event) unset($event['object']->db);
+            __out($TEvent, 'json');
+            break;
 		default:
 
 			break;
@@ -87,10 +98,34 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 
 
 				$res = $a->update($user);
-
+				addReminders($a, 'drop');
 
 			}
 
+
+			break;
+        case 'task-move':
+
+			$task=new Task($db);
+			if($task->fetch(GETPOST('id', 'int'))>0) {
+                $TData = $_REQUEST['data'];
+
+                if(! empty($TData['minutes'])) {
+                    $task->date_start = strtotime($TData['minutes'].' minute', $task->date_start);
+                    if(! empty($task->date_end)) $task->date_end = strtotime($TData['minutes'].' minute', $task->date_end);
+                }
+
+                if(! empty($TData['hours'])) {
+                    $task->date_start = strtotime($TData['hours'].' hour', $task->date_start);
+                    if(! empty($task->date_end)) $task->date_end = strtotime($TData['hours'].' hour', $task->date_end);
+                }
+                if(! empty($TData['days'])) {
+                    $task->date_start = strtotime($TData['days'].' day', $task->date_start);
+                    if(! empty($task->date_end)) $task->date_end = strtotime($TData['days'].' day', $task->date_end);
+                }
+
+                $res = $task->update($user);
+            }
 
 			break;
 
@@ -135,9 +170,36 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 
 
 			break;
+        case 'task-resize':
+            $task = new Task($db);
+            if($task->fetch(GETPOST('id', 'int')) > 0) {
+                $TData = $_REQUEST['data'];
+                if(! empty($TData['minutes'])) {
+                    if(empty($task->date_end)) $task->date_end = $task->date_start;
+                    $task->date_end = strtotime($TData['minutes'].' minute', $task->date_end);
+                }
+
+                if(! empty($TData['hours'])) {
+                    if(empty($task->date_end)) $task->date_end = $task->date_start + 3600 * 2; // décalage de 2H
+                    $task->date_end = strtotime($TData['hours'].' hour', $task->date_end);
+                }
+
+                if(! empty($TData['days'])) {
+                    if(empty($task->date_end)) $task->date_end = $task->date_start;
+                    $task->date_end = strtotime($TData['days'].' day', $task->date_end);
+                }
+                $res = $task->update($user);
+            }
+
+			break;
 
 		case 'event':
 			$a=new ActionComm($db);
+            // Gestion changements v13
+            // Gestion de la rétrocompatibilité
+            $contactId = $a->contact_id;
+            if (empty ($contactId)) $contactId = $a->contactid;
+
 			$id = GETPOST('id', 'int');
 			if (!empty($id)) $a->fetch($id);
 
@@ -174,7 +236,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 			$a->type_id = $a->fk_action; // type_id used instead of fk_action in ActionComm::update() since Dolibarr 7.0, used in ::add()/::create() since the beginning
 
 			$a->socid = GETPOST('fk_soc', 'int');
-			$a->contactid = GETPOST('fk_contact', 'int');
+			$contactId = GETPOST('fk_contact', 'int');
 
 			$a->fk_project = GETPOST('fk_project','int');
 
@@ -187,7 +249,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 			$TParam = array();
 			foreach ($moreParams as $param)
 			{
-				$a->_{$param} = GETPOST($param, 'none');
+                $a->_{$param} = GETPOST($param, 'none');
 			}
 			//var_dump($conf->global->FULLCALENDAR_SHOW_THIS_HOURS,GETPOST('date', 'none'),$a);exit;
 
@@ -209,16 +271,22 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 			if (empty($a->id)) {
 				if(method_exists($a, 'create')) {
 					$res = $a->create($user);
+					addReminders($a);
 				} else {
 					$res = $a->add($user);
+					addReminders($a);
 				}
 			}
 			else
 			{
-				if (empty($a->contactid)) $a->contact = null;
+				if (empty($contactId)) $a->contact = null;
 
 				$res = $a->update($user);
-				if ($res > 0) $res = $a->id;
+				if ($res > 0)
+				{
+					$res = $a->id;
+					addReminders($a, 'update');
+				}
 			}
 
 
@@ -227,6 +295,98 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 			break;
 	}
 
+    /**
+     * @param string date $date_start
+     * @param string date $date_end
+     * @return array Task
+     */
+function _tasks($date_start, $date_end) {
+    global $db, $user, $conf, $hookmanager;
+    $TEvent = array();
+    $task = new Task($db);
+    $t_start = strtotime($date_start);
+    $t_end = strtotime($date_end);
+
+    //TODO get color by entity
+    $color = explode(',', $conf->global->THEME_ELDY_TOPMENU_BACK1);
+    $color = sprintf("#%02x%02x%02x", $color[0], $color[1], $color[2]); //Conversion de la couleur en hexa
+
+    $sql = "SELECT t.rowid";
+    $parameters = array();
+    $reshook = $hookmanager->executeHooks('printFieldListSelect', $parameters); // Note that $action and $object may have been modified by hook
+    $sql .= $hookmanager->resPrint;
+    $sql .= " FROM ".MAIN_DB_PREFIX.$task->table_element ." as t";
+    $parameters = array();
+    $reshook = $hookmanager->executeHooks('printFieldListJoin', $parameters); // Note that $action and $object may have been modified by hook
+    $sql .= $hookmanager->resPrint;
+
+    $sql .= " WHERE ((t.datee>='".$db->idate($t_start - (60 * 60 * 24 * 7))."' AND t.dateo<='".$db->idate($t_end + (60 * 60 * 24 * 10))."')
+				OR
+			  	(t.dateo BETWEEN '".$db->idate($t_start - (60 * 60 * 24 * 7))."' AND '".$db->idate($t_end + (60 * 60 * 24 * 10))."'))
+			  	AND t.entity IN (".getEntity('project').")";
+    $parameters = array();
+    $reshook = $hookmanager->executeHooks('printFieldListWhere', $parameters); // Note that $action and $object may have been modified by hook
+    $sql .= $hookmanager->resPrint;
+
+    $resql = $db->query($sql);
+
+    if(! empty($resql) && $db->num_rows($resql) > 0) {
+        while($obj = $db->fetch_object($resql)) {
+            $res = $task->fetch($obj->rowid);
+            if($res > 0) {
+                $dateEnd = $task->date_end;
+                if(empty($task->date_end) && ! empty($task->planned_workload)) $dateEnd = $task->date_start + ceil($task->planned_workload);
+                $desc = makeTaskDesc($task, $dateEnd);
+                $allDay = false;
+                //si c'est sur plusieurs jours on passe en vue "all day"
+                if(dol_print_date($task->date_start, '%Y-%m-%d') != dol_print_date($dateEnd, '%Y-%m-%d')) $allDay = true;
+                $tmpEvent = array(
+                    'id' => $task->id,
+                    'title' => $task->ref.' - '.$task->label,
+                    'allDay' => $allDay,
+                    'start' => (empty($task->date_start) ? '' : dol_print_date($task->date_start, '%Y-%m-%d %H:%M:%S')),
+                    'end' => (empty($dateEnd) ? '' : dol_print_date($dateEnd, '%Y-%m-%d %H:%M:%S')),
+                    'url_title' => dol_buildpath('/projet/tasks/task.php?id='.$task->id, 1),
+                    'editable' => $user->rights->fullcalendar->task->write ? 1 : 0,
+                    'color' => $color,
+                    'borderColor' => 'black',
+                    'isDarkColor' => isDarkColor($color),
+                    'description' => $desc,
+                    //                        'fulldayevent' => $event->fulldayevent,
+                    'more' => '',
+                    'object' => $task
+                );
+
+                $parameters = array('sql' => $sql, 'task' => $task);
+                $reshook = $hookmanager->executeHooks('setFullcalendarOrdoTask', $parameters, $tmpEvent, $action);    // Note that $action and $object may have been modified by hook
+                if($reshook > 0) $tmpEvent = $hookmanager->resArray;
+
+                $TEvent[] = $tmpEvent;
+            }
+        }
+    }
+
+    return $TEvent;
+}
+
+function makeTaskDesc($task, $dateEnd) {
+    global $langs;
+    $desc = '<strong>'.$langs->trans('StartDate').' : </strong>'.dol_print_date($task->date_start, 'dayhourtext').'<br/>';
+    $desc .= '<strong>'.$langs->trans('EndDate').' : </strong>'.dol_print_date($dateEnd, 'dayhourtext').'<br/>';
+    if(! empty($task->planned_workload)) {
+        $hours = sprintf('%02d:%02d', ($task->planned_workload / 3600), ($task->planned_workload / 60 % 60));
+        $desc .= '<strong>'.$langs->trans('PlannedWorkload').' : </strong>'.$hours.'<br/>';
+    }
+    if(! empty($task->progress)) $desc .= '<strong>'.$langs->trans('Progress').' : </strong>'.$task->progress.'%<br/>';
+    if(! empty($task->duration_effective)) {
+        $hours = sprintf('%02d:%02d', ($task->duration_effective / 3600), ($task->duration_effective / 60 % 60));
+        $desc .= '<strong>'.$langs->trans('DurationEffective').' : </strong>'.$hours.'<br/>';
+    }
+    if(empty($task->project)) $task->fetch_projet();
+    if(! empty($task->project)) $desc .= '<strong>'.$langs->trans('Project').' : </strong>'.$task->project->ref.' - '.$task->project->title.'<br/>';
+    $desc .= '<strong>'.$langs->trans('Description').' : </strong>'.$task->description.'<br/>';
+    return $desc;
+}
 
 function _events($date_start, $date_end) {
 	global $db,$conf,$langs,$user,$hookmanager;
@@ -373,6 +533,11 @@ function _events($date_start, $date_end) {
 	$TEventObject=array();
 	while($obj=$db->fetch_object($res)) {
 		$event = new ActionComm($db);
+        // Gestion changements v13
+        // Gestion de la rétrocompatibilité
+        $eventContactId = $event->contact_id;
+        if (empty ($eventContactId)) $eventContactId = $event->contactid;
+
 		$event->fetch($obj->id);
 		if (method_exists($event, 'fetch_thirdparty')) $event->fetch_thirdparty();
 		if (method_exists($event, 'fetchObjectLinked')) $event->fetchObjectLinked();
@@ -424,10 +589,10 @@ function _events($date_start, $date_end) {
 			$TSociete[$event->socid]  = $societe->getNomUrl(1);
 
 		}
-		if($event->contactid>0 && !isset($TContact[$event->contactid])) {
+		if($eventContactId>0 && !isset($TContact[$eventContactId])) {
             $contact = new Contact($db);
-            $contact->fetch($event->contactid);
-            $TContact[$event->contactid]  = $contact->getNomUrl(1);
+            $contact->fetch($eventContactId);
+            $TContact[$eventContactId]  = $contact->getNomUrl(1);
 
         }
 
@@ -544,38 +709,64 @@ function _events($date_start, $date_end) {
 			}
 
 		}
-
-		$TEvent[]=array(
+		$tmpEvent=array(
 			'id'=>$event->id
-			,'title'=>$event->label
-			,'allDay'=>(bool)($event->fulldayevent)
-			,'start'=>(empty($event->datep) ? '' : dol_print_date($event->datep, '%Y-%m-%d %H:%M:%S'))
-			,'end'=>(empty($event->datef) ? '' : dol_print_date($event->datef, '%Y-%m-%d %H:%M:%S'))
-			,'url_title'=>dol_buildpath('/comm/action/card.php?id='.$event->id,1)
-			,'editable'=>$editable
-			,'color'=>$color
-			,'isDarkColor'=>isDarkColor($color)
-			,'colors'=>$colors
-			,'note'=>$event->note
-			,'statut'=>$event->getLibStatut(3)
-			,'fk_soc'=>$event->socid
-			,'fk_contact'=>$event->contactid
-			,'fk_user'=>$event->userownerid
-			,'TFk_user'=>array_keys($event->userassigned)
-			,'fk_project'=>$event->fk_project
-			,'societe'=>(!empty($TSociete[$event->socid]) ? $TSociete[$event->socid] : '')
-			,'contact'=>(!empty($TContact[$event->contactid]) ? $TContact[$event->contactid] : '')
-			,'user'=>(!empty($TUserassigned) ? implode(', ',$TUserassigned) : '')
-			,'project'=>(!empty($TProject[$event->fk_project]) ? $TProject[$event->fk_project] : '')
+		,'title'=>$event->label
+		,'allDay'=>(bool)($event->fulldayevent)
+		,'start'=>(empty($event->datep) ? '' : dol_print_date($event->datep, '%Y-%m-%d %H:%M:%S'))
+		,'end'=>(empty($event->datef) ? '' : dol_print_date($event->datef, '%Y-%m-%d %H:%M:%S'))
+		,'url_title'=>dol_buildpath('/comm/action/card.php?id='.$event->id,1)
+		,'editable'=>$editable
+		,'color'=>$color
+		,'isDarkColor'=>isDarkColor($color)
+		,'colors'=>$colors
+		,'note'=>$event->note
+		,'statut'=>$event->getLibStatut(3)
+		,'fk_soc'=>$event->socid
+		,'fk_contact'=>$eventContactId
+		,'fk_user'=>$event->userownerid
+		,'TFk_user'=>array_keys($event->userassigned)
+		,'fk_project'=>$event->fk_project
+		,'societe'=>(!empty($TSociete[$event->socid]) ? $TSociete[$event->socid] : '')
+		,'contact'=>(!empty($TContact[$eventContactId]) ? $TContact[$eventContactId] : '')
+		,'user'=>(!empty($TUserassigned) ? implode(', ',$TUserassigned) : '')
+		,'project'=>(!empty($TProject[$event->fk_project]) ? $TProject[$event->fk_project] : '')
 
-		    ,'project_order'=>(!empty( $event->project_order ) ? $event->project_order : '')
-		    ,'fk_project_order'=>(!empty( $event->fk_project_order ) ? $event->fk_project_order : '0')
+		,'project_order'=>(!empty( $event->project_order ) ? $event->project_order : '')
+		,'fk_project_order'=>(!empty( $event->fk_project_order ) ? $event->fk_project_order : '0')
 
-			,'splitedfulldayevent'=> $event->splitedfulldayevent
-			,'fulldayevent'=> $event->fulldayevent
-		    ,'more'=>''
-			,'object'=>$event
+		,'splitedfulldayevent'=> $event->splitedfulldayevent
+		,'fulldayevent'=> $event->fulldayevent
+		,'more'=>''
+		,'object'=>$event
 		);
+
+		/**
+		 * $conf dispo en 13.0 permettant de gérer les notification push et mail
+		 * si activées, on tente de récupérer les infos notifs
+		 * sachant que s'il y en a plusieurs, ce qui change c'est juste le fk_user
+		 */
+		if ($conf->global->AGENDA_REMINDER_EMAIL || $conf->global->AGENDA_REMINDER_BROWSER)
+		{
+			$sqlremind = "SELECT acr.rowid FROM ".MAIN_DB_PREFIX."actioncomm_reminder acr WHERE acr.fk_actioncomm = ".$event->id;
+			$resql = $db->query($sqlremind);
+			if ($resql && $db->num_rows($resql))
+			{
+				$obj = $db->fetch_object($resql);
+
+				$actionCommReminder = new ActionCommReminder($db);
+				$res = $actionCommReminder->fetch($obj->rowid);
+				if ($res > 0)
+				{
+					$tmpEvent['reminder_offsetvalue'] = $actionCommReminder->offsetvalue;
+					$tmpEvent['reminder_offsetunit'] = $actionCommReminder->offsetunit;
+					$tmpEvent['reminder_typeremind'] = $actionCommReminder->typeremind;
+					$tmpEvent['reminder_fk_email_template'] = $actionCommReminder->fk_email_template;
+				}
+			}
+		}
+
+		$TEvent[] = $tmpEvent;
 
 	}
 
@@ -929,6 +1120,11 @@ function completeWithExtEvent(&$TEvent, &$TSociete, &$TContact, &$TProject)
 
 				// Create a new object action
 				$event=new ActionComm($db);
+				// Gestion changements v13
+                // Gestion de la rétrocompatibilité
+                $eventContactId = $event->contact_id;
+                if (empty ($eventContactId)) $eventContactId = $event->contactid;
+
 				$addevent = false;
 				if (isset($icalevent['DTSTART;VALUE=DATE'])) // fullday event
 				{
@@ -1056,11 +1252,11 @@ function completeWithExtEvent(&$TEvent, &$TSociete, &$TContact, &$TProject)
 								,'note'=>$event->note
 								,'statut'=>$event->getLibStatut(3)
 								,'fk_soc'=>$event->socid
-								,'fk_contact'=>$event->contactid
+								,'fk_contact'=>$eventContactId
 								,'fk_user'=>$event->userownerid
 								,'fk_project'=>$event->fk_project
 								,'societe'=>(!empty($TSociete[$event->socid]) ? $TSociete[$event->socid] : '')
-								,'contact'=>(!empty($TContact[$event->contactid]) ? $TContact[$event->contactid] : '')
+								,'contact'=>(!empty($TContact[$eventContactId]) ? $TContact[$eventContactId] : '')
 								,'user'=>''
 								,'project'=>(!empty($TProject[$event->fk_project]) ? $TProject[$event->fk_project] : '')
 								,'more'=>''
@@ -1086,4 +1282,88 @@ function _convertTimestampLocalToNoLocalSecond($timestamp)
 	global $db;
 	$date = dol_print_date($timestamp, '%Y-%m-%d %H:%M:%S');
 	return $db->jdate($date, true);
+}
+
+/**
+ * function qui ajoute les notif agenda pour chaque user assigné à l'event
+ * @param ActionComm $a
+ * @param string $mode
+ */
+function addReminders($a, $mode = 'create')
+{
+	global $db, $conf, $user;
+
+	if ($conf->global->AGENDA_REMINDER_EMAIL || $conf->global->AGENDA_REMINDER_BROWSER)
+	{
+		$setReminder = GETPOST('setReminder');
+		$reminderValue = GETPOST('reminderValue');
+		$reminderUnit = GETPOST('reminderUnit');
+		$reminderType = GETPOST('reminderType');
+		$reminderTemplate = GETPOST('reminderTemplate');
+
+		if ($mode == 'drop')
+		{
+			// aller rechercher les infos de reminder attaché
+			$sqlremind = "SELECT acr.rowid FROM ".MAIN_DB_PREFIX."actioncomm_reminder acr WHERE acr.fk_actioncomm = ".$a->id;
+			$resql = $db->query($sqlremind);
+			if ($resql && $db->num_rows($resql))
+			{
+				$setReminder = true;
+
+				$obj = $db->fetch_object($resql);
+
+				$actionCommReminder = new ActionCommReminder($db);
+				$res = $actionCommReminder->fetch($obj->rowid);
+				if ($res > 0)
+				{
+					$reminderValue = $actionCommReminder->offsetvalue;
+					$reminderUnit = $actionCommReminder->offsetunit;
+					$reminderType = $actionCommReminder->typeremind;
+					$reminderTemplate = $actionCommReminder->fk_email_template;
+				}
+			}
+
+
+		}
+
+		if ($mode == 'update' || $mode == 'drop')
+		{
+			// delete reminders to recreate them
+			$sql = "DELETE FROM ".MAIN_DB_PREFIX."actioncomm_reminder WHERE fk_actioncomm = ".$a->id;
+			$resql = $db->query($sql);
+		}
+
+		if ($setReminder)
+		{
+			$actionCommReminder = new ActionCommReminder($db);
+
+			if ($reminderUnit == 'minute'){
+				$dateremind = dol_time_plus_duree($a->datep, -$reminderValue, 'i');
+			} elseif ($reminderUnit == 'hour'){
+				$dateremind = dol_time_plus_duree($a->datep, -$reminderValue, 'h');
+			} elseif ($reminderUnit == 'day') {
+				$dateremind = dol_time_plus_duree($a->datep, -$reminderValue, 'd');
+			} elseif ($reminderUnit == 'week') {
+				$dateremind = dol_time_plus_duree($a->datep, -$reminderValue, 'w');
+			} elseif ($reminderUnit == 'month') {
+				$dateremind = dol_time_plus_duree($a->datep, -$reminderValue, 'm');
+			} elseif ($reminderUnit == 'year') {
+				$dateremind = dol_time_plus_duree($a->datep, -$reminderValue, 'y');
+			}
+
+			$actionCommReminder->dateremind = $dateremind;
+			$actionCommReminder->typeremind = $reminderType;
+			$actionCommReminder->offsetunit = $reminderUnit;
+			$actionCommReminder->offsetvalue = $reminderValue;
+			$actionCommReminder->status = $actionCommReminder::STATUS_TODO;
+			$actionCommReminder->fk_actioncomm = $a->id;
+			if ($reminderType == 'email') $actionCommReminder->fk_email_template = $reminderTemplate;
+
+			foreach ($a->userassigned as $userassigned)
+			{
+				$actionCommReminder->fk_user = $userassigned['id'];
+				$res = $actionCommReminder->create($user);
+			}
+		}
+	}
 }
