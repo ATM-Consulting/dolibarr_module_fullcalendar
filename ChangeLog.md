@@ -3,27 +3,15 @@ All notable changes to this project will be documented in this file.
 
 ## Not Released
 
-
 ## Version 2.2.0
 
 - FIX : forgotten </strong> + need to fetch task on each iteration *07/04/2021* 2.2.2
+- NEW : add thirdparty in tooltip *31/03/2021*- 2.2.1
 - NEW : Editable field on task view T2700 *24/03/2021* - 2.2.0
 - NEW : "headTask" param to add something in fullcalendar project task view T2699 *24/03/2021* - 2.1.0
 
-## Version 1.5.5 [ 2021-03-04 ]
+## Version 1.5
 
-### Fix
-- V13 compatibility after renaming contactid properties into contact_id
-
-
-## Version 1.5.5 [ 2020-12-16 ]
-
-### Added
-
-### Changed
-
-### Fix
-- remove unused boxe folder  
-- add thirdparty in tooltip *31/03/2021*- 2.2.1
-
-
+- FIX : External calendars display *27-04-2021* - 1.5.5
+- V13 compatibility after renaming contactid properties into contact_id *2021-03-04*
+- remove unused box folder
