@@ -37,3 +37,5 @@ FullDayEventSplited=évènement sur la journée convertie pour l'affichage
 TaskOrdo = Ordonnancement des tâches
 fullcalendarSetupTask=Paramètres Fullcalendar Tâches
 FULLCALENDAR_ENABLE_TASKS=Activer l'affichage des tâches
+EditTask=Mettre à jour une tâche
+CantFetchTask=Impossible de charger la tâche

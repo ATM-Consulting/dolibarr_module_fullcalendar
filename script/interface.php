@@ -8,11 +8,16 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
     require_once DOL_DOCUMENT_ROOT.'/projet/class/project.class.php';
     require_once DOL_DOCUMENT_ROOT.'/projet/class/task.class.php';
 	require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
+	require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
+	require_once DOL_DOCUMENT_ROOT.'/core/class/html.formother.class.php';
 
 	$langs->load("agenda");
 	$langs->load("other");
 	$langs->load("commercial");
 	$langs->load("companies");
+
+	$form = new Form($db);
+	$formother = new FormOther($db);
 
 	$get=GETPOST('get', 'none');
 	$put=GETPOST('put', 'none');
@@ -55,6 +60,11 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
             $TEvent = _tasks($start, $end);
             foreach ($TEvent as &$event) unset($event['object']->db);
             __out($TEvent, 'json');
+            break;
+        case 'task-popin':
+            $fk_task = GETPOST('fk_task','int');
+            $popinContent = _taskEditableView($fk_task);
+            print $popinContent;
             break;
 		default:
 
@@ -128,7 +138,41 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
             }
 
 			break;
+		case 'task-edit':
+            $TData = GETPOST('data', 'array');
+            if(!empty($TData)) {
+                $fk_task = 0;
+                foreach($TData as $data) {
+                    if($data['name'] == 'fk_task') {
+                        $fk_task = $data['value'];
+                        break;
+                    }
+                }
+                if(! empty($fk_task)) {
+                    $TDateStart = $TDateEnd = $TPlannedWorload = array();
+                    $task = new Task($db);
+                    if($task->fetch($fk_task) > 0) {
+                        foreach($TData as $data) {
+                            if($data['name'] == 'fk_task') continue;
+                            else if(strpos($data['name'], 'options') !== false) $task->array_options[$data['name']] = $data['value'];
+                            else if(strpos($data['name'], 'date_start') !== false) $TDateStart[$data['name']] = $data['value'];
+                            else if(strpos($data['name'], 'date_end') !== false) $TDateEnd[$data['name']] = $data['value'];
+                            else if(strpos($data['name'], 'planned_workload') !== false) $TPlannedWorload[$data['name']] = $data['value'];
+                            else $task->{$data['name']} = $data['value'];
+                            $parameters = array('name' => $data['name'], 'value' => $data['value']);
+                            $reshook = $hookmanager->executeHooks('fullcalendarDataTaskUpdate', $parameters, $task); // Note that $action and $object may have been modified by hook
+                        }
+                        if(!empty($TDateStart)) $task->date_start = dol_mktime($TDateStart['date_starthour'], $TDateStart['date_startmin'], 0, $TDateStart['date_startmonth'], $TDateStart['date_startday'], $TDateStart['date_startyear']);
+                        if(!empty($TDateEnd)) $task->date_end = dol_mktime($TDateEnd['date_endhour'], $TDateEnd['date_endmin'], 0, $TDateEnd['date_endmonth'], $TDateEnd['date_endday'], $TDateEnd['date_endyear']);
+                        if(!empty($TPlannedWorload)) $task->planned_workload = intval($TPlannedWorload['planned_workloadhour']) * 3600 + intval($TPlannedWorload['planned_workloadmin']) * 60;
+                        $parameters = array('TData' => $TData);
+                        $reshook = $hookmanager->executeHooks('beforeTaskUpdate', $parameters, $task); // Note that $action and $object may have been modified by hook
+                        $task->update($user);
+                    }
 
+                }
+            }
+			break;
 		case 'event-resize':
 			$a=new ActionComm($db);
 			if($a->fetch(GETPOST('id', 'int'))>0) {
@@ -249,7 +293,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 			$TParam = array();
 			foreach ($moreParams as $param)
 			{
-                $a->_{$param} = GETPOST($param, 'none');
+                $a->{'_'.$param} = GETPOST($param, 'none');
 			}
 			//var_dump($conf->global->FULLCALENDAR_SHOW_THIS_HOURS,GETPOST('date', 'none'),$a);exit;
 
@@ -295,6 +339,41 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 			break;
 	}
 
+function _taskEditableView($fk_task) {
+    global $langs, $db, $form, $formother, $hookmanager;
+    $task = new Task($db);
+    $view = '';
+    if($task->fetch($fk_task) > 0) {
+        $view .= '<form id="editableViewForm"  style="" >';
+        $view .= '<input type="hidden" name="fk_task" value="'.$fk_task.'">';
+        $view .= '<table id="editableView" class="table" style="" >';
+        if(empty($task->fields)) {
+            $task->fields = array(
+                'label' => array('type' => 'varchar', 'label' => 'Label', 'enabled' => 1, 'visible' => 1),
+                'date_start' => array('type' => 'datetime', 'enabled' => 1, 'visible' => 1, 'position' => 30),
+                'date_end' => array('type' => 'datetime',  'enabled' => 1, 'visible' => 1, 'position' => 35),
+                'description' => array('type' => 'text', 'label' => 'Description', 'enabled' => 1, 'visible' => 1, 'position' => 55),
+            );
+        }
+
+        $view .= '<tr><td>'.$langs->trans('Label').'</td><td>'.$task->showInputField(array(), 'label', $task->label).'</td></tr>';
+        $view .= '<tr><td>'.$langs->trans('StartDate').'</td><td>'.$task->showInputField(array(), 'date_start', $task->date_start).'</td></tr>';
+        $view .= '<tr><td>'.$langs->trans('EndDate').'</td><td>'.$task->showInputField(array(), 'date_end', $task->date_end).'</td></tr>';
+        $view .= '<tr><td>'.$langs->trans('PlannedWorkload').'</td><td>'.$form->select_duration('planned_workload', $task->planned_workload, 0, 'text',0,1).'</td></tr>';
+        $view .= '<tr><td>'.$langs->trans('Description').'</td><td>'.$task->showInputField(array(), 'description', html_entity_decode($task->description, ENT_QUOTES)).'</td></tr>';
+        $view .= '<tr><td>'.$langs->trans("ProgressDeclared").'</td><td>'.$formother->select_percent($task->progress, 'progress', 0, 5, 0, 100, 1).'</td></tr>';
+        $parameters = array('task' => $task);
+        $reshook = $hookmanager->executeHooks('addMoreTaskEditableView', $parameters, $view); // Note that $action and $object may have been modified by hook
+        $view .= $hookmanager->resPrint;
+        $view .= '</table></form>';
+    } else {
+        $view = '<strong>'.$langs->trans('CantFetchTask').'</strong>';
+    }
+    return $view;
+}
+
+
+
     /**
      * @param string date $date_start
      * @param string date $date_end
@@ -332,6 +411,7 @@ function _tasks($date_start, $date_end) {
 
     if(! empty($resql) && $db->num_rows($resql) > 0) {
         while($obj = $db->fetch_object($resql)) {
+			$task = new Task($db);
             $res = $task->fetch($obj->rowid);
             if($res > 0) {
                 $dateEnd = $task->date_end;
@@ -341,6 +421,7 @@ function _tasks($date_start, $date_end) {
                 //si c'est sur plusieurs jours on passe en vue "all day"
                 if(dol_print_date($task->date_start, '%Y-%m-%d') != dol_print_date($dateEnd, '%Y-%m-%d')) $allDay = true;
                 $tmpEvent = array(
+                	'headTask' => '',
                     'id' => $task->id,
                     'title' => $task->ref.' - '.$task->label,
                     'allDay' => $allDay,
@@ -383,7 +464,15 @@ function makeTaskDesc($task, $dateEnd) {
         $desc .= '<strong>'.$langs->trans('DurationEffective').' : </strong>'.$hours.'<br/>';
     }
     if(empty($task->project)) $task->fetch_projet();
-    if(! empty($task->project)) $desc .= '<strong>'.$langs->trans('Project').' : </strong>'.$task->project->ref.' - '.$task->project->title.'<br/>';
+    if(! empty($task->project)) {
+        $desc .= '<strong>'.$langs->trans('Project').' : </strong>'.$task->project->ref.' - '.$task->project->title.'<br/>';
+        if(!empty($task->project->socid)) {
+            $langs->load('companies');
+            $task->project->fetch_thirdparty();
+            $desc .= '<strong>'.$langs->trans('ThirdParty').' : </strong>'.$task->project->thirdparty->getNomUrl().'<br/>';
+        }
+
+    }
     $desc .= '<strong>'.$langs->trans('Description').' : </strong>'.$task->description.'<br/>';
     return $desc;
 }
