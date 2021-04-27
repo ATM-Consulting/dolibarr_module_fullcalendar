@@ -456,6 +456,120 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				$('#fullcalendar').fullCalendar( 'option' , 'aspectRatio', 1.35);
 			}
 	    });
+
+		var $btnprev = $('[aria-label="prev"]');
+		var $btnnext = $('[aria-label="next"]');
+		var $btntoday = $('button.fc-today-button');
+		console.log($btntoday);
+
+		var $currentYear = $('input[name="year"]');
+		var $currentMonth = $('input[name="month"]');
+		var $currentDay = $('input[name="day"]');
+
+		$btntoday.on('click', function(e){
+			var $date = new Date();
+			$currentYear.val($date.getFullYear());
+			$currentMonth.val($date.getMonth()+1);
+			$currentDay.val($date.getDate());
+
+			var newsource = '<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'+'?'+$form_selector.serialize();
+			$('#fullcalendar').fullCalendar('removeEvents');
+			$('#fullcalendar').fullCalendar('removeEventSource', currentsource);
+			$('#fullcalendar').fullCalendar( 'addEventSource', newsource);
+			currentsource = newsource;
+		});
+
+		$btnprev.on('click', function(e){
+			var activeView = 'month';
+			var activeBtn = $('button.fc-state-active');
+			if (activeBtn.hasClass("fc-agendaDay-button")) activeView = 'day';
+			else if (activeBtn.hasClass("fc-agendaWeek-button")) activeView = 'week';
+
+			var $date = new Date($currentYear.val(), $currentMonth.val()-1, $currentDay.val());
+
+			if (activeView == "day") {
+				var newDate = new Date($date.getTime());
+
+				if (newDate.getDate() == 1)
+				{
+					newDate.setMonth(newDate.getMonth());
+				}
+				newDate.setDate(newDate.getDate()-1);
+
+				console.log('prevDay', newDate.toDateString())
+
+			}
+			else if (activeView == "month")
+			{
+
+				var newDate = new Date(
+					$date.getMonth() == 0 ? $date.getFullYear()-1 : $date.getFullYear()
+					, $date.getMonth() == 0 ? 11 : $date.getMonth()-1
+					, $date.getDate()
+				);
+				console.log('prevMonth', newDate.toDateString())
+			}
+			else
+			{
+				var newDate = new Date($date.getTime());
+
+				if (newDate.getDate() <= 7)
+				{
+					newDate.setMonth(newDate.getMonth());
+				}
+				newDate.setDate(newDate.getDate()-7);
+				console.log('prevWeek', newDate.toDateString())
+			}
+
+			$currentYear.val(newDate.getFullYear());
+			$currentMonth.val(newDate.getMonth()+1);
+			$currentDay.val(newDate.getDate());
+
+			var newsource = '<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'+'?'+$form_selector.serialize();
+			$('#fullcalendar').fullCalendar('removeEvents');
+			$('#fullcalendar').fullCalendar('removeEventSource', currentsource);
+			$('#fullcalendar').fullCalendar( 'addEventSource', newsource);
+			currentsource = newsource;
+		});
+
+		$btnnext.on('click', function(e){
+			var activeView = 'month';
+			var activeBtn = $('button.fc-state-active');
+			if (activeBtn.hasClass("fc-agendaDay-button")) activeView = 'day';
+			else if (activeBtn.hasClass("fc-agendaWeek-button")) activeView = 'week';
+
+			var $date = new Date($currentYear.val(), $currentMonth.val()-1, $currentDay.val());
+
+			if (activeView == "day") {
+				var newDate = new Date($date.getTime() + (86400 *1000)); // le nombre de millièmes de secondes d'une journée à ajouter
+				console.log('nextDay', newDate.toDateString())
+			}
+			else if (activeView == "month")
+			{
+				var newDate = new Date(
+					$date.getMonth() == 11 ? $date.getFullYear()+1 : $date.getFullYear()
+					, $date.getMonth() == 11 ? 0 : $date.getMonth()+1
+					, $date.getDate()
+				);
+				console.log('nextMonth', newDate.toDateString())
+			}
+			else
+			{
+				var newDate = new Date($date.getTime() + (86400 * 7 *1000)); // 7 * le nombre de millièmes de secondes d'une journée à ajouter
+				console.log('nextWeek', newDate.toDateString())
+			}
+
+			$currentYear.val(newDate.getFullYear());
+			$currentMonth.val(newDate.getMonth()+1);
+			$currentDay.val(newDate.getDate());
+
+			var newsource = '<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'+'?'+$form_selector.serialize();
+			$('#fullcalendar').fullCalendar('removeEvents');
+			$('#fullcalendar').fullCalendar('removeEventSource', currentsource);
+			$('#fullcalendar').fullCalendar( 'addEventSource', newsource);
+			currentsource = newsource;
+		});
+
 		function formatDateUTC(date,format)
 		{
 			// alert('formatDate date='+date+' format='+format);
