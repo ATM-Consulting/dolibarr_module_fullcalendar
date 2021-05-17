@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 
 ## Version 2.3
 
+- FIX : Compatibility V13 - $user->societe_id became $user->socid *17/05/2021* - 2.3.1
 - NEW : Filter slot duration and min max hour on task view T2700 *08/04/2021* - 2.3.0
 
 ## Version 2.2

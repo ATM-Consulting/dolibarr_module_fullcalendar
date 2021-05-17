@@ -79,7 +79,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 		}
 	}
 
-	if (! empty($user->societe_id)) $sql.= " AND u.fk_soc = ".$user->societe_id;
+	if (! empty($user->socid)) $sql.= " AND u.fk_soc = ".$user->socid;
 	if (! empty($conf->global->USER_HIDE_INACTIVE_IN_COMBOBOX) || $noactive) $sql.= " AND u.statut <> 0";
 
 	if(empty($conf->global->MAIN_FIRSTNAME_NAME_POSITION)){
