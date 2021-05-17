@@ -1,4 +1,7 @@
 <?php
+
+if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', '1'); // Disable token renewal
+
 header('Content-Type: text/javascript');
 $refer = '';
 if(isset($_SERVER['HTTP_REFERER'])) $refer = $_SERVER['HTTP_REFERER'];
