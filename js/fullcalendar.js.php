@@ -624,16 +624,22 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			 * conf utilisées en 13.0 pour activer les notifications
 			 * si l'une d'elle est activée, on rajoute ce qu'il faut au formulaire
 			 */
-			if ($conf->global->AGENDA_REMINDER_EMAIL || $conf->global->AGENDA_REMINDER_BROWSER)
-			{
-				$select_typereminder = $form->selectTypeDuration('offsetunit');
-
+			if (!empty($conf->global->AGENDA_REMINDER_EMAIL) || !empty($conf->global->AGENDA_REMINDER_BROWSER)) {
+				if (is_callable(array($this, 'selectTypeDuration'), true)) {
+					$select_typereminder = $form->selectTypeDuration('offsetunit');
+				} else {
+					$select_typereminder = $form->select_type_duration('offsetunit');
+				}
 				$TRemindTypes = array();
 				if (!empty($conf->global->AGENDA_REMINDER_EMAIL)) $TRemindTypes['email'] = $langs->trans('EMail');
 				if (!empty($conf->global->AGENDA_REMINDER_BROWSER)) $TRemindTypes['browser'] = $langs->trans('BrowserPush');
 				$select_remindertype =  str_replace("\n", '', $form->selectarray('selectremindertype', $TRemindTypes));
 
-				$select_mailtemplate = str_replace("\n", '', $form->selectModelMail('actioncommsend', 'actioncomm_send', 1));
+				if (is_callable(array($this, 'selectModelMail'), true)) {
+					$select_mailtemplate = str_replace("\n", '', $form->selectModelMail('actioncommsend', 'actioncomm_send', 1));
+				} else {
+					$select_mailtemplate = str_replace("\n", '', $form->select_model_mail('actioncommsend', 'actioncomm_send', 1));
+				}
 
 				$script = '<script type="text/javascript">$(document).ready(function () {
 	            		$("#addreminder").click(function(){
