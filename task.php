@@ -1,15 +1,14 @@
 <?php
 
 require 'config.php';
-
+require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
 $langs->loadLangs(array('fullcalendar@fullcalendar'));
-
 $hookmanager->initHooks(array('fullcalendartasks'));
 
 $title = $langs->trans("TaskOrdo");
 //if (! empty($conf->global->MAIN_HTML_TITLE) && preg_match('/thirdpartynameonly/',$conf->global->MAIN_HTML_TITLE) && $object->name) $title=$object->name." - ".$title;
 $help_url = '';
-
+$form = new Form($db);
 list($langjs, $dummy) = explode('_', $langs->defaultlang);
 
 if($langjs == 'en') $langjs = 'en-gb';
@@ -36,7 +35,34 @@ $help_url = '';
 llxHeader('', $title, $help_url, '', 0, 0, $TIncludeJS, $TIncludeCSS);
 
 $reshook = $hookmanager->executeHooks('formObjectOptions', $parameters, $tmpEvent, $action);    // Note that $action and $object may have been modified by hook
+print '<div id="filter">';
+print '<table>';
+print '<tr >';
+print '<td>'.$langs->trans("FULLCALENDAR_TASK_SHOW_THIS_HOURS").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+print '<input type="text" name="FULLCALENDAR_TASK_SHOW_THIS_HOURS" value="'.$conf->global->FULLCALENDAR_TASK_SHOW_THIS_HOURS.'" />';
 
+print '</td></tr>';
+print '<tr>';
+print '<td>'.$langs->trans("FULLCALENDAR_TASK_DURATION_SLOT").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300" nowrap="nowrap">';
+
+$TOption=array(
+	'00:30:00'=>'30 '.$langs->trans('minutes')
+	,'00:15:00'=>'15 '.$langs->trans('minutes')
+	,'00:05:00'=>'5 '.$langs->trans('minutes')
+	,'00:01:00'=>'1 '.$langs->trans('minute')
+	,'01:00:00'=>'1 '.$langs->trans('hour')
+);
+
+echo $form->selectarray('FULLCALENDAR_TASK_DURATION_SLOT', $TOption, $conf->global->FULLCALENDAR_TASK_DURATION_SLOT);
+print '</td></tr>';
+print '<tr><td colspan="3" align="right"><input id="filterBt" type="submit" class="button" value="'.$langs->trans("Modify").'"></td></tr>';
+print '</table>';
+print '<hr/>';
+print '</div>';
 ?>
 
     <script>
@@ -230,6 +256,17 @@ $reshook = $hookmanager->executeHooks('formObjectOptions', $parameters, $tmpEven
 
             return [year, month, day].join('-');
         }
+        $('#filterBt').click(function() {
+            if($('input[name="FULLCALENDAR_TASK_SHOW_THIS_HOURS"]').val() != '') {
+                let TMinMaxTime = $('input[name="FULLCALENDAR_TASK_SHOW_THIS_HOURS"]').val().split('-');
+
+                $('#calendar').fullCalendar('option', 'minTime', TMinMaxTime[0]+':00:00');
+                $('#calendar').fullCalendar('option', 'maxTime', TMinMaxTime[1]+':00:00');
+            }
+            $('#calendar').fullCalendar('option', 'slotDuration',$('#FULLCALENDAR_TASK_DURATION_SLOT').val());
+            $('#calendar').fullCalendar('refetchEvents');
+
+        });
     </script>
 <?php
 print '<div id="calendar"></div>';

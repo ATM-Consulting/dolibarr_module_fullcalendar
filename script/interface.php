@@ -411,6 +411,7 @@ function _tasks($date_start, $date_end) {
 
     if(! empty($resql) && $db->num_rows($resql) > 0) {
         while($obj = $db->fetch_object($resql)) {
+			$task = new Task($db);
             $res = $task->fetch($obj->rowid);
             if($res > 0) {
                 $dateEnd = $task->date_end;
@@ -463,7 +464,15 @@ function makeTaskDesc($task, $dateEnd) {
         $desc .= '<strong>'.$langs->trans('DurationEffective').' : </strong>'.$hours.'<br/>';
     }
     if(empty($task->project)) $task->fetch_projet();
-    if(! empty($task->project)) $desc .= '<strong>'.$langs->trans('Project').' : </strong>'.$task->project->ref.' - '.$task->project->title.'<br/>';
+    if(! empty($task->project)) {
+        $desc .= '<strong>'.$langs->trans('Project').' : </strong>'.$task->project->ref.' - '.$task->project->title.'<br/>';
+        if(!empty($task->project->socid)) {
+            $langs->load('companies');
+            $task->project->fetch_thirdparty();
+            $desc .= '<strong>'.$langs->trans('ThirdParty').' : </strong>'.$task->project->thirdparty->getNomUrl().'<br/>';
+        }
+
+    }
     $desc .= '<strong>'.$langs->trans('Description').' : </strong>'.$task->description.'<br/>';
     return $desc;
 }
