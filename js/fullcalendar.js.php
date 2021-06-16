@@ -79,13 +79,10 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 		}
 	}
 
-	if((float)DOL_VERSION <= 3.8)
-	{
-		if (! empty($user->societe_id)) $sql.= " AND u.fk_soc = ".$user->societe_id;
-	}
-	else
-	{
-		if (! empty($user->socid)) $sql.= " AND u.fk_soc = ".$user->socid;
+	if (!empty($user->socid)) {
+		$sql.= " AND u.fk_soc = ".$user->socid;
+	} elseif (!empty($user->societe_id)) { // DOL_VERSION <= 3.8
+		$sql.= " AND u.fk_soc = ".$user->societe_id;
 	}
 	if (! empty($conf->global->USER_HIDE_INACTIVE_IN_COMBOBOX) || $noactive) $sql.= " AND u.statut <> 0";
 
