@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 
 ## Version 2.3
 
-
+- FIX : Compatibility V13 - $user->societe_id became $user->socid *17/05/2021* - 2.3.1
 - FIX : Compatibility V13 : add token renowal *17/05/2021* - 2.3.1
 - FIX - Compatibility V14 : Edit the descriptor: editor_url and family - *2021-06-10* - 2.3.1
 
