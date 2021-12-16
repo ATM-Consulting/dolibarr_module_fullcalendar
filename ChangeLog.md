@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 
 ## Not Released
 
+- NEW : Upgrade de la lib fullcalendar de la 3.9 vers la 3.10 *16/12/2021* - 3.0.0
+
 ## Version 2.3
 
 - FIX : Compatibility V13 - $user->societe_id became $user->socid *17/05/2021* - 2.3.1
