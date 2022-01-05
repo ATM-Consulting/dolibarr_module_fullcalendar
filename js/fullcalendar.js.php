@@ -173,8 +173,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 		var year = $form_selector.find('input[name=year]').val();
 		var month = $form_selector.find('input[name=month]').val();
+        if(month.length < 2) month = '0'+month; // S'il n'y a qu'un caractère on ajoute un 0 devant (bug firefox)
 		var defaultDate = year+'-'+month+'-<?php echo $defaultDay/*.' '.$hourStart.':00'*/ ?>';
-
 
 		var defaultView='month';
 		if($('form.listactionsfilter input[name=action]').val() == 'show_week') defaultView = 'agendaWeek';
