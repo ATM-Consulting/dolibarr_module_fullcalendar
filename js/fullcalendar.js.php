@@ -778,8 +778,22 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
                    });</script>';
 
+                $dataForJS = array(
+                    'selectTypeReminder' => $select_typereminder,
+                    'selectReminderType' => $select_remindertype,
+                    'selectMailTemplate' => $select_mailtemplate,
+                    'langs' => array(
+                        'ReminderTime' => $langs->trans("ReminderTime"),
+                        'TimeType' => $langs->trans("TimeType"),
+                        'ReminderType' => $langs->trans("ReminderType"),
+                        'EMailTemplates' => $langs->trans("EMailTemplates"),
+                        'AddReminder' => $langs->trans('AddReminder')
+                    )
+                );
+
 				?>
-				$form.append('<br /><br /><?php echo $langs->trans('AddReminder'); ?> : ');
+                let dataForJS = <?php print json_encode($dataForJS); ?>;
+				$form.append('<br /><br />' + dataForJS.langs.AddReminder + ' : ');
 				$form.append('<input type="checkbox" id="addreminder" name="addreminder" >');
 
 				$form.append('<hr>');
@@ -787,18 +801,18 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				$reminderparameters = $('<table class="reminderparameters" style="width: 100%;display: none"></table>'); //style="display: none;"
 
 				// temps
-				$reminderparameters.append('<tr><td width="30%"><?php echo $db->escape($langs->trans("ReminderTime")); ?> : </td><td><input type="number" name="offsetvalue" value="10" size="5"></td></tr>');
+				$reminderparameters.append('<tr><td width="30%">' + dataForJS.langs.ReminderTime + ' : </td><td><input type="number" name="offsetvalue" value="10" size="5"></td></tr>');
 
 				// unité de temps
-				$reminderparameters.append('<tr><td width="30%"><?php echo $db->escape($langs->trans("TimeType")); ?> : </td><td><?php echo $select_typereminder; ?></td></tr>');
+				$reminderparameters.append('<tr><td width="30%">' + dataForJS.langs.TimeType + ' : </td><td>' + dataForJS.selectTypeReminder + '</td></tr>');
 
 				// type de rappel
-				$reminderparameters.append('<tr><td width="30%"><?php echo $db->escape($langs->trans("ReminderType")); ?> : </td><td><?php echo $select_remindertype; ?></td></tr>');
+				$reminderparameters.append('<tr><td width="30%">' + dataForJS.langs.ReminderType + ' : </td><td>' + dataForJS.selectReminderType + '</td></tr>');
 
 				// template mail
-				$reminderparameters.append('<tr><td width="30%"><?php echo $db->escape($langs->trans("EMailTemplates")); ?> : </td><td><?php echo $select_mailtemplate; ?></td></tr>');
-				$reminderparameters.append(<?php echo json_encode($script); ?>)
-				$form.append($reminderparameters)
+				$reminderparameters.append('<tr><td width="30%">' + dataForJS.langs.EMailTemplates + ' : </td><td>' + dataForJS.selectMailTemplate + '</td></tr>');
+				$reminderparameters.append(<?php echo json_encode($script); ?>);
+				$form.append($reminderparameters);
 				<?php
 
 			}
