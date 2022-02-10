@@ -3,13 +3,13 @@ All notable changes to this project will be documented in this file.
 
 ## Not Released
 
-## Version 3
+## Version 2.4
 
-- FIX : Bug affichage fullcalendar après activation conf reminders module agenda *11/01/2022* - 3.0.1
-- NEW : Upgrade de la lib fullcalendar de la 3.9 vers la 3.10 *16/12/2021* - 3.0.0  
+- FIX : Bug affichage fullcalendar après activation conf reminders module agenda *11/01/2022* - 2.4.1
+- NEW : Upgrade de la lib fullcalendar de la 3.9 vers la 3.10 *16/12/2021* - 2.4.0  
    *Changement nécessaire pour des problèmes de compatibilité avec la lib Jquery de Dolibarr*  
    **Attention** : Ce changement de lib peut avoir un impact important sur les modules qui surchage fullcalendar  
-   par conséquent le module passe en V3
+   par conséquent le module passe en V2.4
 
 ## Version 2.3
 
