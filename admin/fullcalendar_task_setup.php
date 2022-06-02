@@ -35,6 +35,8 @@ require_once '../lib/fullcalendar.lib.php';
 // Translations
 $langs->load("fullcalendar@fullcalendar");
 
+$newToken = function_exists('newToken') ? newToken() : $_SESSION['newtoken'];
+
 // Access control
 if (! $user->admin) {
     accessforbidden();
@@ -120,7 +122,7 @@ print '<td>'.$langs->trans("FULLCALENDAR_ENABLE_TASKS").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="token" value="'.$newToken.'">';
 print '<input type="hidden" name="action" value="set_FULLCALENDAR_ENABLE_TASKS">';
 echo ajax_constantonoff('FULLCALENDAR_ENABLE_TASKS');
 print '</form>';
@@ -132,7 +134,7 @@ print '<td>'.$langs->trans("FULLCALENDAR_TASK_SHOW_THIS_HOURS").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="token" value="'.$newToken.'">';
 print '<input type="hidden" name="action" value="set_FULLCALENDAR_TASK_SHOW_THIS_HOURS">';
 print '<input type="text" name="FULLCALENDAR_TASK_SHOW_THIS_HOURS" value="'.$conf->global->FULLCALENDAR_TASK_SHOW_THIS_HOURS.'" />';
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
@@ -145,7 +147,7 @@ print '<td>'.$langs->trans("FULLCALENDAR_TASK_DURATION_SLOT").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="token" value="'.$newToken.'">';
 print '<input type="hidden" name="action" value="set_FULLCALENDAR_TASK_DURATION_SLOT">';
 
 $TOption=array(
