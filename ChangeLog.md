@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 
 ## Version 2.4
 
-- FIX : Bug affichage de la couleur du texte (horaires, description, liens) en fonction de la couleur de fond des évènements (couleur clair ou foncée) *27/06/2022* - 2.4.2
+- FIX : Bug affichage de la couleur du texte (horaires, description, liens) en fonction de la couleur de fond des évènements (couleur claire ou foncée) *27/06/2022* - 2.4.2
 - FIX : Bug affichage fullcalendar après activation conf reminders module agenda *11/01/2022* - 2.4.1
 - NEW : Upgrade de la lib fullcalendar de la 3.9 vers la 3.10 *16/12/2021* - 2.4.0  
    *Changement nécessaire pour des problèmes de compatibilité avec la lib Jquery de Dolibarr*  
