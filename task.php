@@ -115,22 +115,9 @@ print '</div>';
                         });
                     }
 
-
-                    if (event.isDarkColor == 0) {
-                        element.css({color: '#000'});
-
-                        element.find('a').find('span').each(function() {
-                            $(this).css({
-                                color: '#000'
-                            });
-                        });
-                    } else {
-                        element.find('a').find('span').each(function() {
-                            $(this).css({
-                                color: '#fff'
-                            });
-                        });
-                    }
+                    let textColor = event.isDarkColor == 0 ? 'black' : 'white';
+                    element.css({color: textColor});
+                    element.find('a').css({color: textColor});
 
                 }
                 , eventRender: function (event, element, view) {
