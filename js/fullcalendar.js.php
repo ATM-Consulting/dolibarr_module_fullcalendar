@@ -268,14 +268,9 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 				}
 
-
-				if(event.isDarkColor == 1) {
-					element.css({ color : "#fff" });
-
-					element.find('a').css({
-						color:"#fff"
-					});
-				}
+                let textColor = event.isDarkColor == 0 ? 'black' : 'white';
+                element.css({color: textColor});
+                element.find('a').css({color: textColor});
 
 			}
 			,eventRender:function( event, element, view ) {
