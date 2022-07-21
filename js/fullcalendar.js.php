@@ -48,6 +48,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	$formactions->select_type_actions($selected, "type_code","systemauto");
 	$select_type_action = ob_get_clean();
 
+    $newToken = function_exists('newToken') ? newToken() : $_SESSION['newtoken'];
+
 	$form=new Form($db);
 	//$select_company = $form->select_thirdparty('','fk_soc','',1,1,0);
 	$select_company = $form->select_company('', 'fk_soc', '', 1);
@@ -140,10 +142,9 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	}
 
 ?>
+    var token = '<?php echo $newToken; ?>';
 
-	$(document).ready(function() {
-
-
+    $(document).ready(function () {
 
         <?php if (!empty($conf->global->FULLCALENDAR_AUTO_FILL_TITLE)) { ?>
         $(document).on("change", "#pop-new-event #type_code", function() {
@@ -408,6 +409,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 						,data:delta._data
 						,fulldayevent: event.allDay
 						,splitedfulldayevent: event.splitedfulldayevent
+                        ,token: token
 	        		}
 	        	}).done(function() {
                     $('#fullcalendar').fullCalendar('refetchEvents');
@@ -428,6 +430,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 						,id:event.id
 						,data:delta._data
                         ,splitedfulldayevent: event.splitedfulldayevent
+                        ,token: token
 	        		}
 	        	}).done(function() {
                     $('#fullcalendar').fullCalendar('refetchEvents');
@@ -754,6 +757,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				}
 
 				$script = '<script type="text/javascript">$(document).ready(function () {
+
 	            		$("#addreminder").click(function(){
 	            		    if (this.checked) {
 	            		      $(".reminderparameters").show();
@@ -831,6 +835,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				$.ajax({
 					url: "<?php echo dol_buildpath('/core/ajax/contacts.php?action=getContacts&htmlname=contactid&showempty=1',1) ?>&id="+fk_soc
 					,dataType:'json'
+                    ,token: token
 				}).done(function(data) {
 					<?php if((float)DOL_VERSION > 7) { ?> $('#pop-new-event span[rel=contact]').html('<select class="flat" id="contactid" name="contactid">'+data.value+'</select>');
 					<?php } else { ?> $('#pop-new-event span[rel=contact]').html(data.value); <?php } ?>
@@ -995,7 +1000,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 										,type_code:$('#pop-new-event select[name=type_code]').val()
 										,date_start:$('#pop-new-event #apyear').val()+'-'+$('#pop-new-event #apmonth').val()+'-'+$('#pop-new-event #apday').val()+' '+$('#pop-new-event #aphour').val()+':'+$('#pop-new-event #apmin').val()+':00'
 										,date_end:$('#pop-new-event #p2year').val()+'-'+$('#pop-new-event #p2month').val()+'-'+$('#pop-new-event #p2day').val()+' '+$('#pop-new-event #p2hour').val()+':'+$('#pop-new-event #p2min').val()+':00'
-										<?php if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) { ?>
+                                        ,token: token
+                                        <?php if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) { ?>
 										,complete:$('#pop-new-event select[name=complete]').val()
 										,percentage:$('#pop-new-event input[name=percentage]').val()
 										<?php } ?>
@@ -1072,7 +1078,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 										,type_code:$('#pop-new-event select[name=type_code]').val()
 										,date_start:$('#pop-new-event #apyear').val()+'-'+$('#pop-new-event #apmonth').val()+'-'+$('#pop-new-event #apday').val()+' '+$('#pop-new-event #aphour').val()+':'+$('#pop-new-event #apmin').val()+':00'
 										,date_end:$('#pop-new-event #p2year').val()+'-'+$('#pop-new-event #p2month').val()+'-'+$('#pop-new-event #p2day').val()+' '+$('#pop-new-event #p2hour').val()+':'+$('#pop-new-event #p2min').val()+':00'
-										<?php if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) { ?>
+                                        ,token: token
+                                        <?php if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) { ?>
 										,complete:$('#pop-new-event select[name=complete]').val()
 										,percentage:$('#pop-new-event input[name=percentage]').val()
 										<?php } ?>
@@ -1092,11 +1099,13 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 										url:"<?php echo dol_buildpath('/comm/action/card.php', 1) ?>"
 										,data:{
 											action:'confirm_clone'
+                                            ,token: token
 											,confirm:'yes'
 											,object:'action'
 											,id:$('#pop-new-event input[name=id]').val()
 											,fk_userowner:TUserId[0]
 											,socid:$('#pop-new-event [name=fk_soc]').val()
+
 										}
 									}).done(function() {
 

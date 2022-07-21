@@ -6,6 +6,7 @@ $langs->loadLangs(array('fullcalendar@fullcalendar'));
 $hookmanager->initHooks(array('fullcalendartasks'));
 
 $title = $langs->trans("TaskOrdo");
+$newToken = function_exists('newToken') ? newToken() : $_SESSION['newtoken'];
 //if (! empty($conf->global->MAIN_HTML_TITLE) && preg_match('/thirdpartynameonly/',$conf->global->MAIN_HTML_TITLE) && $object->name) $title=$object->name." - ".$title;
 $help_url = '';
 $form = new Form($db);
@@ -67,6 +68,8 @@ print '</div>';
 
     <script>
 
+        var token = '<?php echo $newToken; ?>';
+
         document.addEventListener('DOMContentLoaded', function () {
             //Définition de la boite de dialog
             var taskediteventmodal = $('#dialog-edit-event');
@@ -79,7 +82,7 @@ print '</div>';
                 }
             });
             //fullcalendar
-            var currentsource = '<?php echo dol_buildpath('/fullcalendar/script/interface.php', 1) ?>'+'?get=tasks';
+            var currentsource = '<?php echo dol_buildpath('/fullcalendar/script/interface.php', 1) ?>'+'?get=tasks&token='+token;
             $('#calendar').fullCalendar({
                 header: {
                     left: 'title',
@@ -97,6 +100,7 @@ print '</div>';
                 if(!empty($conf->global->FULLCALENDAR_TASK_DURATION_SLOT)) echo ',slotDuration:"'.$conf->global->FULLCALENDAR_TASK_DURATION_SLOT.'"';
                 ?>
                 , defaultDate: getDate()
+                , token : token
                 , height: getFullCalendarHeight()
                 , eventSources: [currentsource]
                 , weekNumbers: true
@@ -168,6 +172,7 @@ print '</div>';
                             put: 'task-resize'
                             , id: event.id
                             , data: delta._data
+                            , token: token
                         }
                     }).done(function () {
                         $('#calendar').fullCalendar('refetchEvents');
@@ -180,6 +185,7 @@ print '</div>';
                         , data: {
                             get: 'task-popin'
                             , fk_task: info.id
+                            , token: token
                         }
                     }).done(function (data) {
                         $('#dialog-edit-event').html(data);
@@ -207,6 +213,7 @@ print '</div>';
                             put: 'task-move'
                             , id: event.id
                             , data: delta._data
+                            , token: token
                         }
                     }).done(function () {
                         $('#calendar').fullCalendar('refetchEvents');
@@ -228,6 +235,7 @@ print '</div>';
                 , data: {
                     put: 'task-edit'
                     , data: data
+                    , token: token
                 }
             }).done(function () {
                 $('#calendar').fullCalendar('refetchEvents');
