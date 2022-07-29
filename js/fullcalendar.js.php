@@ -48,7 +48,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	$formactions->select_type_actions($selected, "type_code","systemauto");
 	$select_type_action = ob_get_clean();
 
-    $newToken = function_exists('newToken') ? newToken() : $_SESSION['newtoken'];
+	$newToken = function_exists('newToken') ? newToken() : $_SESSION['newtoken'];
 
 	$form=new Form($db);
 	//$select_company = $form->select_thirdparty('','fk_soc','',1,1,0);
@@ -142,20 +142,20 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	}
 
 ?>
-    var token = '<?php echo $newToken; ?>';
+	var token = '<?php echo $newToken; ?>';
 
-    $(document).ready(function () {
+	$(document).ready(function () {
 
-        <?php if (!empty($conf->global->FULLCALENDAR_AUTO_FILL_TITLE)) { ?>
-        $(document).on("change", "#pop-new-event #type_code", function() {
-            var typeCodeTitle = $( "#type_code option:selected" ).text();
+<?php if (!empty($conf->global->FULLCALENDAR_AUTO_FILL_TITLE)) { ?>
+		$(document).on("change", "#pop-new-event #type_code", function() {
+			var typeCodeTitle = $( "#type_code option:selected" ).text();
 
-            var labelContent =$( "#pop-new-event input[name='label']" ).val();
-            if(!labelContent.length){
-                $( "#pop-new-event input[name='label']" ).val(typeCodeTitle);
-            }
-        });
-        <?php } ?>
+			var labelContent =$( "#pop-new-event input[name='label']" ).val();
+			if(!labelContent.length){
+				$( "#pop-new-event input[name='label']" ).val(typeCodeTitle);
+			}
+		});
+<?php } ?>
 
 
 
@@ -174,7 +174,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 		var year = $form_selector.find('input[name=year]').val();
 		var month = $form_selector.find('input[name=month]').val();
-        if(month.length < 2) month = '0'+month; // S'il n'y a qu'un caractère on ajoute un 0 devant (bug firefox)
+		if(month.length < 2) month = '0'+month; // S'il n'y a qu'un caractère on ajoute un 0 devant (bug firefox)
 		var defaultDate = year+'-'+month+'-<?php echo $defaultDay/*.' '.$hourStart.':00'*/ ?>';
 
 		var defaultView='month';
@@ -191,23 +191,23 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 
 		$('#fullcalendar').fullCalendar({
-	        header:{
-	        	left:   'title',
-			    center: 'agendaDay,agendaWeek,month',
-			    right:  'prev,next today'
-	        }
-	        ,defaultDate:defaultDate
-	        ,businessHours: {
-	        	start:'<?php echo $hourStart.':00'; ?>'
-	        	,end:'<?php echo $hourEnd.':00'; ?>'
-	        	,dow:[1,2,3,4,5]
-	        }
-	        <?php
+			header:{
+				left:   'title',
+				center: 'agendaDay,agendaWeek,month',
+				right:  'prev,next today'
+			}
+			,defaultDate:defaultDate
+			,businessHours: {
+				start:'<?php echo $hourStart.':00'; ?>'
+				,end:'<?php echo $hourEnd.':00'; ?>'
+				,dow:[1,2,3,4,5]
+			}
+			<?php
 				if(!empty($conf->global->FULLCALENDAR_SHOW_THIS_HOURS)) {
 						list($hourShowStart, $hourShowEnd) = explode('-', $conf->global->FULLCALENDAR_SHOW_THIS_HOURS);
 						if(!empty($hourShowStart) && !empty($hourShowEnd)) {
-		        			?>,minTime:'<?php echo $hourShowStart.':00:00'; ?>'
-		        			,maxTime:'<?php echo $hourShowEnd.':00:00'; ?>'<?php
+							?>,minTime:'<?php echo $hourShowStart.':00:00'; ?>'
+							,maxTime:'<?php echo $hourShowEnd.':00:00'; ?>'<?php
 						}
 				}
 
@@ -222,7 +222,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 		    	<?php
 		    }*/
 
-		    if(!empty($conf->global->FULLCALENDAR_DURATION_SLOT)) {
+			if(!empty($conf->global->FULLCALENDAR_DURATION_SLOT)) {
 
 				echo ',slotDuration:"'.$conf->global->FULLCALENDAR_DURATION_SLOT.'"';
 			}
@@ -230,9 +230,9 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 			?>
 
-	        ,lang: 'fr'
-	        ,aspectRatio:1.36
-	        ,weekNumbers:true
+			,lang: 'fr'
+			,aspectRatio:1.36
+			,weekNumbers:true
 			,defaultView:defaultView
 			,eventSources : [currentsource]
 			,eventLimit : <?php echo !empty($conf->global->AGENDA_MAX_EVENTS_DAY_VIEW) ? $conf->global->AGENDA_MAX_EVENTS_DAY_VIEW : 3; ?>
@@ -269,9 +269,9 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 				}
 
-                let textColor = event.isDarkColor == 0 ? 'black' : 'white';
-                element.css({color: textColor});
-                element.find('a').css({color: textColor});
+				let textColor = event.isDarkColor == 0 ? 'black' : 'white';
+				element.css({color: textColor});
+				element.find('a').css({color: textColor});
 
 			}
 			,eventRender:function( event, element, view ) {
@@ -335,7 +335,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 				if(!empty($conf->global->FULLCALENDAR_SHOW_ORDER)) {
 
-				    ?>
+					?>
 					if(event.fk_project>0 && event.fk_project_order>0){
 						 element.append('<div style="z-index:3;position:relative;">'+event.project_order+'</div>');
 						 note = '<div style="z-index:3;position:relative;">'+event.project_order+'</div>'+note;
@@ -351,9 +351,9 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 					 note = note+'<div style="z-index:3;position:relative;">'+event.more+'</div>';
 				}
 
-                if(event.splitedfulldayevent)  {
-                    note = note+'<div style="z-index:3;position:relative;"><span class="badge badge-info"><?php print addslashes($langs->transnoentities('FullDayEventSplited')); ?></span></div>';
-                }
+				if(event.splitedfulldayevent)  {
+					note = note+'<div style="z-index:3;position:relative;"><span class="badge badge-info"><?php print addslashes($langs->transnoentities('FullDayEventSplited')); ?></span></div>';
+				}
 
 				element.prepend('<div style="float:right;">'+event.statut+'</div>');
 
@@ -393,71 +393,71 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 
 			}
-	        ,eventDrop:function( event, delta, revertFunc, jsEvent, ui, view ) {
-	        	console.log(delta);
-                // disable for fullday events
-                if(event.splitedfulldayevent)  {
-                    //revertFunc();
-                    //return false;
-                }
+			,eventDrop:function( event, delta, revertFunc, jsEvent, ui, view ) {
+				console.log(delta);
+				// disable for fullday events
+				if(event.splitedfulldayevent)  {
+					//revertFunc();
+					//return false;
+				}
 
-	        	$.ajax({
-	        		url:'<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'
-	        		,data:{
+				$.ajax({
+					url:'<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'
+					,data:{
 						put:'event-move'
 						,id:event.id
 						,data:delta._data
 						,fulldayevent: event.allDay
 						,splitedfulldayevent: event.splitedfulldayevent
-                        ,token: token
-	        		}
-	        	}).done(function() {
-                    $('#fullcalendar').fullCalendar('refetchEvents');
-                });
-	        }
-	        ,eventResize:function( event, delta, revertFunc, jsEvent, ui, view ) {
-	        	console.log(delta);
-	        	// disable resizing for fullday events
-                if(event.splitedfulldayevent)  {
-                    revertFunc();
-                    return false;
-                }
+						,token: token
+					}
+				}).done(function() {
+					$('#fullcalendar').fullCalendar('refetchEvents');
+				});
+			}
+			,eventResize:function( event, delta, revertFunc, jsEvent, ui, view ) {
+				console.log(delta);
+				// disable resizing for fullday events
+				if(event.splitedfulldayevent)  {
+					revertFunc();
+					return false;
+				}
 
-	        	$.ajax({
-	        		url:'<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'
-	        		,data:{
+				$.ajax({
+					url:'<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'
+					,data:{
 						put:'event-resize'
 						,id:event.id
 						,data:delta._data
-                        ,splitedfulldayevent: event.splitedfulldayevent
-                        ,token: token
-	        		}
-	        	}).done(function() {
-                    $('#fullcalendar').fullCalendar('refetchEvents');
-                });
-	        }
-	        ,dayClick:function( date, jsEvent, view ) {
-	        	console.log(date.format());
-	        	//document.location.href = "<?php echo dol_buildpath('/comm/action/card.php?action=create',1); ?>"
+						,splitedfulldayevent: event.splitedfulldayevent
+						,token: token
+					}
+				}).done(function() {
+					$('#fullcalendar').fullCalendar('refetchEvents');
+				});
+			}
+			,dayClick:function( date, jsEvent, view ) {
+				console.log(date.format());
+				//document.location.href = "<?php echo dol_buildpath('/comm/action/card.php?action=create',1); ?>"
 
 				showPopIn(date);
 
-	        }
+			}
 			,eventClick:function(calEvent, jsEvent, view) {
 				if(! $(jsEvent.target).is('a[href]')) { // Si la cible du click est un lien avec un adresse, on ne montre pas la popin et on suit le lien
 
-                    // disable editing for splited fullday events
-                    if(calEvent.splitedfulldayevent)  {
-                        return false;
-                    }
+					// disable editing for splited fullday events
+					if(calEvent.splitedfulldayevent)  {
+						return false;
+					}
 
-				    showPopIn(calEvent.start, calEvent);
+					showPopIn(calEvent.start, calEvent);
 				}
 			}
 			,eventAfterAllRender:function (view) {
 				$('#fullcalendar').fullCalendar( 'option' , 'aspectRatio', 1.35);
 			}
-	    });
+		});
 
 		var $btnprev = $('[aria-label="prev"]');
 		var $btnnext = $('[aria-label="next"]');
@@ -758,40 +758,40 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 				$script = '<script type="text/javascript">$(document).ready(function () {
 
-	            		$("#addreminder").click(function(){
-	            		    if (this.checked) {
-	            		      $(".reminderparameters").show();
-                            } else {
-                            $(".reminderparameters").hide();
-                            }
-	            		 });
+						$("#addreminder").click(function(){
+							if (this.checked) {
+							  $(".reminderparameters").show();
+							} else {
+							$(".reminderparameters").hide();
+							}
+						 });
 
-	            		$("#selectremindertype").change(function(){
-	            	        var selected_option = $("#selectremindertype option:selected").val();
-	            		    if(selected_option == "email") {
-	            		        $("#select_actioncommsendmodel_mail").closest("tr").show();
-	            		    } else {
-	            			    $("#select_actioncommsendmodel_mail").closest("tr").hide();
-	            		    };
-	            		});
+						$("#selectremindertype").change(function(){
+							var selected_option = $("#selectremindertype option:selected").val();
+							if(selected_option == "email") {
+								$("#select_actioncommsendmodel_mail").closest("tr").show();
+							} else {
+								$("#select_actioncommsendmodel_mail").closest("tr").hide();
+							};
+						});
 
-                   });</script>';
+				   });</script>';
 
-                $dataForJS = array(
-                    'selectTypeReminder' => $select_typereminder,
-                    'selectReminderType' => $select_remindertype,
-                    'selectMailTemplate' => $select_mailtemplate,
-                    'langs' => array(
-                        'ReminderTime' => $langs->trans("ReminderTime"),
-                        'TimeType' => $langs->trans("TimeType"),
-                        'ReminderType' => $langs->trans("ReminderType"),
-                        'EMailTemplates' => $langs->trans("EMailTemplates"),
-                        'AddReminder' => $langs->trans('AddReminder')
-                    )
-                );
+				$dataForJS = array(
+					'selectTypeReminder' => $select_typereminder,
+					'selectReminderType' => $select_remindertype,
+					'selectMailTemplate' => $select_mailtemplate,
+					'langs' => array(
+						'ReminderTime' => $langs->trans("ReminderTime"),
+						'TimeType' => $langs->trans("TimeType"),
+						'ReminderType' => $langs->trans("ReminderType"),
+						'EMailTemplates' => $langs->trans("EMailTemplates"),
+						'AddReminder' => $langs->trans('AddReminder')
+					)
+				);
 
 				?>
-                let dataForJS = <?php print json_encode($dataForJS); ?>;
+				let dataForJS = <?php print json_encode($dataForJS); ?>;
 				$form.append('<br /><br />' + dataForJS.langs.AddReminder + ' : ');
 				$form.append('<input type="checkbox" id="addreminder" name="addreminder" >');
 
@@ -835,7 +835,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				$.ajax({
 					url: "<?php echo dol_buildpath('/core/ajax/contacts.php?action=getContacts&htmlname=contactid&showempty=1',1) ?>&id="+fk_soc
 					,dataType:'json'
-                    ,token: token
+					,token: token
 				}).done(function(data) {
 					<?php if((float)DOL_VERSION > 7) { ?> $('#pop-new-event span[rel=contact]').html('<select class="flat" id="contactid" name="contactid">'+data.value+'</select>');
 					<?php } else { ?> $('#pop-new-event span[rel=contact]').html(data.value); <?php } ?>
@@ -1078,8 +1078,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 										,type_code:$('#pop-new-event select[name=type_code]').val()
 										,date_start:$('#pop-new-event #apyear').val()+'-'+$('#pop-new-event #apmonth').val()+'-'+$('#pop-new-event #apday').val()+' '+$('#pop-new-event #aphour').val()+':'+$('#pop-new-event #apmin').val()+':00'
 										,date_end:$('#pop-new-event #p2year').val()+'-'+$('#pop-new-event #p2month').val()+'-'+$('#pop-new-event #p2day').val()+' '+$('#pop-new-event #p2hour').val()+':'+$('#pop-new-event #p2min').val()+':00'
-                                        ,token: token
-                                        <?php if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) { ?>
+										,token: token
+										<?php if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) { ?>
 										,complete:$('#pop-new-event select[name=complete]').val()
 										,percentage:$('#pop-new-event input[name=percentage]').val()
 										<?php } ?>
@@ -1099,7 +1099,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 										url:"<?php echo dol_buildpath('/comm/action/card.php', 1) ?>"
 										,data:{
 											action:'confirm_clone'
-                                            ,token: token
+											,token: token
 											,confirm:'yes'
 											,object:'action'
 											,id:$('#pop-new-event input[name=id]').val()
@@ -1139,12 +1139,12 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			}
 
 			$('#pop-new-event #fk_user').select2({
-    				dir: 'ltr',
+					dir: 'ltr',
 					formatResult: formatResult,
-    				templateResult: formatResult,
+					templateResult: formatResult,
 					formatSelection: formatSelection,
-    				templateResult: formatSelection
-    		});
+					templateResult: formatSelection
+			});
 
 			/*
 				Qu'est-ce qui faut pas faire pour récupérer les users dans le bon order et conserver ainsi le owner
