@@ -89,7 +89,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	} elseif (!empty($user->societe_id)) { // DOL_VERSION <= 3.8
 		$sql.= " AND u.fk_soc = ".$user->societe_id;
 	}
-	if (! empty($conf->global->USER_HIDE_INACTIVE_IN_COMBOBOX) || $noactive) $sql.= " AND u.statut <> 0";
+	if (! empty($conf->global->USER_HIDE_INACTIVE_IN_COMBOBOX)) $sql.= " AND u.statut <> 0";
 
 	if(empty($conf->global->MAIN_FIRSTNAME_NAME_POSITION)){
 		$sql.= " ORDER BY u.firstname ASC";
@@ -1017,7 +1017,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 										 * conf disponible en 13.0
 										 * envoie des données servant à créer les notifs
 										 */
-										if ($conf->global->AGENDA_REMINDER_EMAIL || $conf->global->AGENDA_REMINDER_BROWSER)
+										if (!empty($conf->global->AGENDA_REMINDER_EMAIL) || !empty($conf->global->AGENDA_REMINDER_BROWSER))
 										{
 											?>
 												,setReminder: $('#pop-new-event input[name=addreminder]').prop('checked') == false ? 0 : 1

@@ -488,7 +488,7 @@ function _events($date_start, $date_end) {
 	$type=GETPOST("type", 'none');
 	$state_id = GETPOST('state_id', 'int');
 
-	$maxprint=(GETPOST("maxprint", 'none')?GETPOST("maxprint", 'none'):$conf->global->AGENDA_MAX_EVENTS_DAY_VIEW);
+	$maxprint=(GETPOST("maxprint", 'none')?GETPOST("maxprint", 'none'):(!empty($conf->global->AGENDA_MAX_EVENTS_DAY_VIEW) ? $conf->global->AGENDA_MAX_EVENTS_DAY_VIEW : ''));
 
 	//First try with GETPOST(array, 'none') (I don't know when it can be an array but why not)
 	$actioncode=GETPOST("actioncode", "array", 3)?GETPOST("actioncode", "array", 3):(GETPOST("actioncode", 'none')=='0'?'0':'');
@@ -575,7 +575,7 @@ function _events($date_start, $date_end) {
         $sql.=" )";
     }
 
-    if ($conf->global->DONT_SHOW_AUTO_EVENT && strpos(implode(',', $actioncode),'AC_OTH_AUTO') == false) $sql.=" AND ca.code != 'AC_OTH_AUTO'";
+    if (!empty($conf->global->DONT_SHOW_AUTO_EVENT) && strpos(implode(',', $actioncode),'AC_OTH_AUTO') == false) $sql.=" AND ca.code != 'AC_OTH_AUTO'";
 	if ($pid) $sql.=" AND a.fk_project=".$db->escape($pid);
 	if (! $user->rights->societe->client->voir && ! $socid) $sql.= " AND (a.fk_soc IS NULL OR sc.fk_user = " .$user->id . ")";
 	if ($socid > 0) $sql.= ' AND a.fk_soc = '.$socid;
@@ -624,8 +624,11 @@ function _events($date_start, $date_end) {
 		$event = new ActionComm($db);
         // Gestion changements v13
         // Gestion de la rétrocompatibilité
-        $eventContactId = $event->contact_id;
-        if (empty ($eventContactId)) $eventContactId = $event->contactid;
+        if (version_compare(DOL_VERSION, '14.0.0') > 0)
+        {
+            $eventContactId = $event->contact_id;
+        }
+        else $eventContactId = $event->contactid;
 
 		$event->fetch($obj->id);
 		if (method_exists($event, 'fetch_thirdparty')) $event->fetch_thirdparty();
@@ -835,7 +838,7 @@ function _events($date_start, $date_end) {
 		 * si activées, on tente de récupérer les infos notifs
 		 * sachant que s'il y en a plusieurs, ce qui change c'est juste le fk_user
 		 */
-		if ($conf->global->AGENDA_REMINDER_EMAIL || $conf->global->AGENDA_REMINDER_BROWSER)
+		if (!empty($conf->global->AGENDA_REMINDER_EMAIL) || !empty($conf->global->AGENDA_REMINDER_BROWSER))
 		{
 			$sqlremind = "SELECT acr.rowid FROM ".MAIN_DB_PREFIX."actioncomm_reminder acr WHERE acr.fk_actioncomm = ".$event->id;
 			$resql = $db->query($sqlremind);
@@ -884,17 +887,18 @@ function isDarkColor($color) {
 
 function HTMLToRGB($htmlCode)
   {
-    if($htmlCode[0] == '#')
+    if(strpos($htmlCode, '#') === 0)
       $htmlCode = substr($htmlCode, 1);
 
     if (strlen($htmlCode) == 3)
     {
-      $htmlCode = $htmlCode[0] . $htmlCode[0] . $htmlCode[1] . $htmlCode[1] . $htmlCode[2] . $htmlCode[2];
+        $newhtmlCode = substr($htmlCode, 0, 1).substr($htmlCode, 0, 1).substr($htmlCode, 1, 1).substr($htmlCode, 1, 1).substr($htmlCode, 2, 1).substr($htmlCode, 2, 1);
+      $htmlCode = $newhtmlCode;
     }
 
-    $r = hexdec($htmlCode[0] . $htmlCode[1]);
-    $g = hexdec($htmlCode[2] . $htmlCode[3]);
-    $b = hexdec($htmlCode[4] . $htmlCode[5]);
+    $r = hexdec(substr($htmlCode, 0, 2));
+    $g = hexdec(substr($htmlCode, 2, 2));
+    $b = hexdec(substr($htmlCode, 4, 2));
 
     return $b + ($g << 0x8) + ($r << 0x10);
   }
