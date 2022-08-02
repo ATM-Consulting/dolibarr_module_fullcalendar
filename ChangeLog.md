@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## Not Released
 
 ## Version 2.4
+- FIX : fullcalendar reacting to standard viewmode *02/08/2022* - 2.4.7
 - FIX : Ajout de token là où il en manquait *21/07/2022* - 2.4.5
 - FIX : change family name - *02/06/2022* - 2.4.4
 - FIX : Compatibility V16 : newToken - *02/06/2022* - 2.4.3

@@ -180,6 +180,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 		var defaultView='month';
 		if($('form.listactionsfilter input[name=action]').val() == 'show_week') defaultView = 'agendaWeek';
 		if($('form.listactionsfilter input[name=action]').val() == 'show_day') defaultView = 'agendaDay';
+		if($('form.listactionsfilter input[name=mode]').val() == 'show_week') defaultView = 'agendaWeek';
+		if($('form.listactionsfilter input[name=mode]').val() == 'show_day') defaultView = 'agendaDay';
 
 		$('head').append('<link rel="stylesheet" href="<?php echo dol_buildpath('/fullcalendar/lib/fullcalendar/dist/fullcalendar.min.css',1) ?>" type="text/css" />');
 		$('head').append('<link rel="stylesheet" href="<?php echo dol_buildpath('/fullcalendar/css/fullcalendar.css',1) ?>" type="text/css" />');
