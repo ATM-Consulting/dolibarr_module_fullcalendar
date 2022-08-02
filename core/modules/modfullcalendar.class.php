@@ -61,7 +61,7 @@ class modfullcalendar extends DolibarrModules
 		$this->description = "Description of module fullcalendar";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
 
-		$this->version = '2.4.7';
+		$this->version = '2.4.8';
 
 		// Key used in llx_const table to save module status enabled/disabled (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
