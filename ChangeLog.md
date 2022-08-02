@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 
 ## Version 2.4
 
+- FIX : php8.1 warnings *02/08/2022* - 2.4.8
 - FIX : fullcalendar reacting to standard viewmode *02/08/2022* - 2.4.7
 - FIX : position du premier menu pour eviter l'erreur bloquante menu déjà existant *02/08/2022* - 2.4.6
 - FIX : Ajout de token là où il en manquait *21/07/2022* - 2.4.5
