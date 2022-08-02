@@ -248,7 +248,7 @@ class modfullcalendar extends DolibarrModules
 								'leftmenu'=>'fullcalendar_ordo',
 								'url'=>'',
 								'langs'=>'fullcalendar@fullcalendar',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-								'position'=>100,
+								'position'=>90,
 								'perms'=>'$conf->global->FULLCALENDAR_ENABLE_TASKS',			                // Use 'perms'=>'$user->rights->report->level1->level2' if you want your menu with a permission rules
 								'target'=>'',
 								'enabled' => '1',
