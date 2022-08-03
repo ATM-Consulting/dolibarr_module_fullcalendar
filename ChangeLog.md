@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 
 ## Not Released
+
+
+
+## Version 2.5
+
+- FIX : Remove deprecated function call *03/08/2022* 2.5.2
+- FIX : Icon for v16 compatibility *03/08/2022* 2.5.1
 - NEW : Ajout de la class TechATM pour l'affichage de la page "A propos" *11/05/2022* 2.5.0
 
 ## Version 2.4
