@@ -592,7 +592,7 @@ function _events($date_start, $date_end) {
 
 	if ($type) $sql.= " AND ca.id = ".$type;
 	if ($status == '0') { $sql.= " AND a.percent = 0"; }
-	if (DOL_VERSION > 12 && $status == 'na' || DOL_VERSION > 13 && $status == '-1') { $sql.= " AND a.percent = -1"; }	// Not applicable
+	if (DOL_VERSION > 12 && $status == 'na' || DOL_VERSION < 13 && $status == '-1') { $sql.= " AND a.percent = -1"; }	// Not applicable
 	if ($status == '50') { $sql.= " AND (a.percent > 0 AND a.percent < 100)"; }	// Running already started
 	if ($status == 'done' || $status == '100') { $sql.= " AND (a.percent = 100 OR (a.percent = -1 AND a.datep2 <= '".$db->idate($now)."'))"; }
 	if ($status == 'todo') { $sql.= " AND ((a.percent >= 0 AND a.percent < 100) OR (a.percent = -1 AND a.datep2 > '".$db->idate($now)."'))"; }
