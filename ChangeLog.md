@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 
 ## Version 2.5
-
+- FIX : DA023055 - Gestion de la recherche sur le statut "Non applicable" *07/03/2023* 2.5.3
 - FIX : Remove deprecated function call *03/08/2022* 2.5.2
 - FIX : Icon for v16 compatibility *03/08/2022* 2.5.1
 - NEW : Ajout de la class TechATM pour l'affichage de la page "A propos" *11/05/2022* 2.5.0
