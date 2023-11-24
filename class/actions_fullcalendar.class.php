@@ -26,7 +26,8 @@
 /**
  * Class Actionsfullcalendar
  */
-class Actionsfullcalendar
+require_once __DIR__.'/../backport/v19/core/class/commonhookactions.class.php';
+class Actionsfullcalendar extends \fullcalendar\RetroCompatCommonHookActions
 {
 	/**
 	 * @var array Hook results. Propagated to $hookmanager->resArray for later reuse
@@ -50,7 +51,7 @@ class Actionsfullcalendar
 	{
 	}
 
-	
+
 	function addCalendarChoice($parameters,&$object,&$action, $hookmanager)
 	{
 		global $conf;
@@ -72,7 +73,7 @@ class Actionsfullcalendar
 
 		$TContexts = explode(':', $parameters['context']);
 
-		if(in_array('agendalist', $TContexts) && ! empty($conf->global->FULLCALENDAR_ENABLE_EVENT_LIST_MULTIDATE_FILTER))
+		if(in_array('agendalist', $TContexts) && getDolGlobalString('FULLCALENDAR_ENABLE_EVENT_LIST_MULTIDATE_FILTER'))
 		{
 			global $db;
 
@@ -116,7 +117,7 @@ class Actionsfullcalendar
 
 		$TContexts = explode(':', $parameters['context']);
 
-		if(in_array('agendalist', $TContexts) && ! empty($conf->global->FULLCALENDAR_ENABLE_EVENT_LIST_MULTIDATE_FILTER))
+		if(in_array('agendalist', $TContexts) && getDolGlobalString('FULLCALENDAR_ENABLE_EVENT_LIST_MULTIDATE_FILTER'))
 		{
 			global $form;
 

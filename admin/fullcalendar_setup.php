@@ -193,7 +193,7 @@ print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$newToken.'">';
 print '<input type="hidden" name="action" value="set_FULLCALENDAR_HIDE_DAYS">';
-print '<input type="text" name="FULLCALENDAR_HIDE_DAYS" value="'.(!empty($conf->global->FULLCALENDAR_HIDE_DAYS) ? $conf->global->FULLCALENDAR_HIDE_DAYS : '').'" />';
+print '<input type="text" name="FULLCALENDAR_HIDE_DAYS" value="'.(getDolGlobalString('FULLCALENDAR_HIDE_DAYS') ?  getDolGlobalString('FULLCALENDAR_HIDE_DAYS') : '').'" />';
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';
@@ -206,7 +206,7 @@ print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$newToken.'">';
 print '<input type="hidden" name="action" value="set_FULLCALENDAR_SHOW_THIS_HOURS">';
-print '<input type="text" name="FULLCALENDAR_SHOW_THIS_HOURS" value="'.(!empty($conf->global->FULLCALENDAR_SHOW_THIS_HOURS) ? $conf->global->FULLCALENDAR_SHOW_THIS_HOURS : '').'" />';
+print '<input type="text" name="FULLCALENDAR_SHOW_THIS_HOURS" value="'.(getDolGlobalString('FULLCALENDAR_SHOW_THIS_HOURS') ? getDolGlobalString('FULLCALENDAR_SHOW_THIS_HOURS') : '').'" />';
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';
@@ -228,7 +228,7 @@ $TOption=array(
 	,'01:00:00'=>'1 '.$langs->trans('hour')
 );
 
-echo $form->selectarray('FULLCALENDAR_DURATION_SLOT', $TOption, $conf->global->FULLCALENDAR_DURATION_SLOT);
+echo $form->selectarray('FULLCALENDAR_DURATION_SLOT', $TOption, getDolGlobalString('FULLCALENDAR_DURATION_SLOT'));
 
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 
@@ -253,7 +253,7 @@ print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$newToken.'">';
 print '<input type="hidden" name="action" value="set_FULLCALENDAR_LIGTHNESS_SWAP">';
-print '<input type="text" name="FULLCALENDAR_LIGTHNESS_SWAP" value="'.( empty($conf->global->FULLCALENDAR_LIGTHNESS_SWAP) ? 150 : $conf->global->FULLCALENDAR_LIGTHNESS_SWAP).'" />';
+print '<input type="text" name="FULLCALENDAR_LIGTHNESS_SWAP" value="'.( !getDolGlobalString('FULLCALENDAR_LIGTHNESS_SWAP') ? 150 : getDolGlobalString('FULLCALENDAR_LIGTHNESS_SWAP')).'" />';
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';
@@ -344,7 +344,7 @@ print '<input type="hidden" name="action" value="set_FULLCALENDAR_PREFILL_DATETI
 print '<input type="hidden" name="token" value="'.$newToken.'">';
 print '<table id="BLBLBLBL" class="nobordernopadding" cellpadding="0" cellspacing="0">';
 print '<tr><td>';
-print $form->select_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_MORNING_START, 'FULLCALENDAR_PREFILL_DATETIME_MORNING_START', 1, 1, 0,'formFULLCALENDAR_PREFILL_DATETIME_MORNING_START',0, 0, 0, empty($conf->global->FULLCALENDAR_PREFILL_DATETIMES));
+print $form->select_date(getDolGlobalString('FULLCALENDAR_PREFILL_DATETIME_MORNING_START'), 'FULLCALENDAR_PREFILL_DATETIME_MORNING_START', 1, 1, 0,'formFULLCALENDAR_PREFILL_DATETIME_MORNING_START',0, 0, 0, !getDolGlobalString('FULLCALENDAR_PREFILL_DATETIMES'));
 print '</td>';
 print '<td align="left"><input type="submit" class="button" value="'.$langs->trans("Modify").'"></td>';
 print '</tr></table></form>';
@@ -360,7 +360,7 @@ print '<input type="hidden" name="action" value="set_FULLCALENDAR_PREFILL_DATETI
 print '<input type="hidden" name="token" value="'.$newToken.'">';
 print '<table id="BLBLBLBL" class="nobordernopadding" cellpadding="0" cellspacing="0">';
 print '<tr><td>';
-print $form->select_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_MORNING_END, 'FULLCALENDAR_PREFILL_DATETIME_MORNING_END', 1, 1, 0,'formFULLCALENDAR_PREFILL_DATETIME_MORNING_END',0, 0, 0, empty($conf->global->FULLCALENDAR_PREFILL_DATETIMES));
+print $form->select_date(getDolGlobalString('FULLCALENDAR_PREFILL_DATETIME_MORNING_END'), 'FULLCALENDAR_PREFILL_DATETIME_MORNING_END', 1, 1, 0,'formFULLCALENDAR_PREFILL_DATETIME_MORNING_END',0, 0, 0, !getDolGlobalString('FULLCALENDAR_PREFILL_DATETIMES'));
 print '</td>';
 print '<td align="left"><input type="submit" class="button" value="'.$langs->trans("Modify").'"></td>';
 print '</tr></table></form>';
@@ -376,7 +376,7 @@ print '<input type="hidden" name="action" value="set_FULLCALENDAR_PREFILL_DATETI
 print '<input type="hidden" name="token" value="'.$newToken.'">';
 print '<table id="BLBLBLBL" class="nobordernopadding" cellpadding="0" cellspacing="0">';
 print '<tr><td>';
-print $form->select_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START, 'FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START', 1, 1, 0,'formFULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START',0, 0, 0, empty($conf->global->FULLCALENDAR_PREFILL_DATETIMES));
+print $form->select_date(getDolGlobalString('FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START'), 'FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START', 1, 1, 0,'formFULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START',0, 0, 0, !getDolGlobalString('FULLCALENDAR_PREFILL_DATETIMES'));
 print '</td>';
 print '<td align="left"><input type="submit" class="button" value="'.$langs->trans("Modify").'"></td>';
 print '</tr></table></form>';
@@ -392,7 +392,7 @@ print '<input type="hidden" name="action" value="set_FULLCALENDAR_PREFILL_DATETI
 print '<input type="hidden" name="token" value="'.$newToken.'">';
 print '<table id="BLBLBLBL" class="nobordernopadding" cellpadding="0" cellspacing="0">';
 print '<tr><td>';
-print $form->select_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END, 'FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END', 1, 1, 0,'formFULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END',0, 0, 0, empty($conf->global->FULLCALENDAR_PREFILL_DATETIMES));
+print $form->select_date(getDolBlobalString('FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END'), 'FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END', 1, 1, 0,'formFULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END',0, 0, 0, !getDolGlobalString('FULLCALENDAR_PREFILL_DATETIMES'));
 print '</td>';
 print '<td align="left"><input type="submit" class="button" value="'.$langs->trans("Modify").'"></td>';
 print '</tr></table></form>';
@@ -406,7 +406,7 @@ print '<tr '.$bc[$var].'>';
 print '<td>'.$langs->trans("FULLCALENDAR_SPLIT_DAYS").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
-if(!empty($conf->global->FULLCALENDAR_PREFILL_DATETIMES)){
+if(getDolGlobalString('FULLCALENDAR_PREFILL_DATETIMES')){
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$newToken.'">';
 print '<input type="hidden" name="action" value="set_FULLCALENDAR_SPIT_DAYS">';

@@ -14,13 +14,13 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 	$langs->load('fullcalendar@fullcalendar');
 
-	if(!empty($conf->global->MAIN_NOT_INC_FULLCALENDAR_HEAD) && empty($_REQUEST['force_use_js'])) exit;
+	if(getDolGlobalString('MAIN_NOT_INC_FULLCALENDAR_HEAD') && empty($_REQUEST['force_use_js'])) exit;
 
-	if(empty($user->rights->fullcalendar->useit)) exit;
+	if(!$user->hasRight('fullcalendar', 'useit')) exit;
 
 	dol_include_once('/core/class/html.formactions.class.php');
 	dol_include_once('/core/class/html.formprojet.class.php');
-	if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT))
+	if (getDolGlobalString('FULLCALENDAR_CAN_UPDATE_PERCENT'))
 	{
 		require_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';
 		$formactions = new FormActions($db);
@@ -43,7 +43,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	}
 
 	ob_start();
-	$selected = !empty($conf->global->AGENDA_USE_EVENT_TYPE_DEFAULT) ? $conf->global->AGENDA_USE_EVENT_TYPE_DEFAULT : -1;
+	$selected = getDolGlobalString('AGENDA_USE_EVENT_TYPE_DEFAULT') ? getDolGlobalString('AGENDA_USE_EVENT_TYPE_DEFAULT') : -1;
 	$formactions=new FormActions($db);
 	$formactions->select_type_actions($selected, "type_code","systemauto");
 	$select_type_action = ob_get_clean();
@@ -72,7 +72,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	}
 	else
 	{
-		if (! empty($conf->global->MULTICOMPANY_TRANSVERSE_MODE))
+		if (getDolGlobalString('MULTICOMPANY_TRANSVERSE_MODE'))
 		{
 			$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."usergroup_user as ug";
 			$sql.= " ON ug.fk_user = u.rowid";
@@ -89,9 +89,9 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	} elseif (!empty($user->societe_id)) { // DOL_VERSION <= 3.8
 		$sql.= " AND u.fk_soc = ".$user->societe_id;
 	}
-	if (! empty($conf->global->USER_HIDE_INACTIVE_IN_COMBOBOX)) $sql.= " AND u.statut <> 0";
+	if (getDolGlobalString('USER_HIDE_INACTIVE_IN_COMBOBOX')) $sql.= " AND u.statut <> 0";
 
-	if(empty($conf->global->MAIN_FIRSTNAME_NAME_POSITION)){
+	if(!getDolGlobalString('MAIN_FIRSTNAME_NAME_POSITION')){
 		$sql.= " ORDER BY u.firstname ASC";
 	}else{
 		$sql.= " ORDER BY u.lastname ASC";
@@ -123,8 +123,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 	$defaultDay = date('d');
 
-	if(!empty($conf->global->MAIN_DEFAULT_WORKING_HOURS)) {
-		list($hourStart, $hourEnd) = explode('-', $conf->global->MAIN_DEFAULT_WORKING_HOURS);
+	if(getDolGlobalString('MAIN_DEFAULT_WORKING_HOURS')) {
+		list($hourStart, $hourEnd) = explode('-', getDolGlobalString('MAIN_DEFAULT_WORKING_HOURS'));
 	}
 	if(empty($hourStart)) $hourStart = 8;
 	if(empty($hourEnd)) $hourEnd = 18;
@@ -135,7 +135,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	$reshook=$hookmanager->executeHooks('addOptionCalendarEvents',$parameters,$object,$action);
 	if (! empty($hookmanager->resPrint)) $moreOptions = json_decode($hookmanager->resPrint);
 
-	if (!empty($conf->global->FULLCALENDAR_FILTER_ON_STATE))
+	if (getDolGlobalString('FULLCALENDAR_FILTER_ON_STATE'))
 	{
 		dol_include_once('/core/class/html.formcompany.class.php');
 		$formcompany = new FormCompany($db);
@@ -146,7 +146,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 	$(document).ready(function () {
 
-<?php if (!empty($conf->global->FULLCALENDAR_AUTO_FILL_TITLE)) { ?>
+<?php if (getDolGlobalString('FULLCALENDAR_AUTO_FILL_TITLE')) { ?>
 		$(document).on("change", "#pop-new-event #type_code", function() {
 			var typeCodeTitle = $( "#type_code option:selected" ).text();
 
@@ -161,7 +161,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 		$('.wordbreak, .wordbreakimp').hide(); //hide std dolibarr btn to change date
 
-		<?php if (!empty($conf->global->FULLCALENDAR_FILTER_ON_STATE)) { ?>
+		<?php if (getDolGlobalString('FULLCALENDAR_FILTER_ON_STATE')) { ?>
 			var select_departement = <?php echo json_encode('<tr><td>'.fieldLabel('State','state_id').'</td><td>'.$formcompany->select_state(GETPOST('state_id', 'int'), 'FR').'</td></tr>'); ?>;
 			$("#selectstatus").closest("tr").after(select_departement);
 		<?php } ?>
@@ -205,8 +205,8 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				,dow:[1,2,3,4,5]
 			}
 			<?php
-				if(!empty($conf->global->FULLCALENDAR_SHOW_THIS_HOURS)) {
-						list($hourShowStart, $hourShowEnd) = explode('-', $conf->global->FULLCALENDAR_SHOW_THIS_HOURS);
+				if(getDolGlobalString('FULLCALENDAR_SHOW_THIS_HOURS')) {
+						list($hourShowStart, $hourShowEnd) = explode('-', getDolGlobalString('FULLCALENDAR_SHOW_THIS_HOURS'));
 						if(!empty($hourShowStart) && !empty($hourShowEnd)) {
 							?>,minTime:'<?php echo $hourShowStart.':00:00'; ?>'
 							,maxTime:'<?php echo $hourShowEnd.':00:00'; ?>'<?php
@@ -224,9 +224,9 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 		    	<?php
 		    }*/
 
-			if(!empty($conf->global->FULLCALENDAR_DURATION_SLOT)) {
+			if(getDolGlobalString('FULLCALENDAR_DURATION_SLOT')) {
 
-				echo ',slotDuration:"'.$conf->global->FULLCALENDAR_DURATION_SLOT.'"';
+				echo ',slotDuration:"' . getDolGlobalString('FULLCALENDAR_DURATION_SLOT').'"';
 			}
 
 
@@ -237,7 +237,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			,weekNumbers:true
 			,defaultView:defaultView
 			,eventSources : [currentsource]
-			,eventLimit : <?php echo !empty($conf->global->AGENDA_MAX_EVENTS_DAY_VIEW) ? $conf->global->AGENDA_MAX_EVENTS_DAY_VIEW : 3; ?>
+			,eventLimit : <?php echo getDolGlobalString('AGENDA_MAX_EVENTS_DAY_VIEW') ? getDolGlobalString('AGENDA_MAX_EVENTS_DAY_VIEW') : 3; ?>
 			,dayRender:function(date, cell) {
 
 				if(date.format('YYYYMMDD') == moment().format('YYYYMMDD')) {
@@ -251,10 +251,10 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				}
 			}
 			<?php
-				if(!empty($conf->global->FULLCALENDAR_HIDE_DAYS)) {
+				if(getDolGlobalString('FULLCALENDAR_HIDE_DAYS')) {
 
 					?>
-					,hiddenDays: [ <?php echo $conf->global->FULLCALENDAR_HIDE_DAYS ?> ]
+					,hiddenDays: [ <?php echo getDolGlobalString('FULLCALENDAR_HIDE_DAYS') ?> ]
 					<?php
 				}
 			?>
@@ -282,7 +282,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				var note = "";
 				<?php
 
-				if (!empty($conf->global->FULLCALENDAR_USE_HUGE_WHITE_BORDER)) {
+				if (getDolGlobalString('FULLCALENDAR_USE_HUGE_WHITE_BORDER')) {
 					echo 'element.css({
 						"border":""
 						,"border-radius":"0"
@@ -295,7 +295,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				if(event.note)
 				{
 					<?php
-					if(! empty($conf->global->FULLCALENDAR_SHOW_EVENT_DESCRIPTION))
+					if(getDolGlobalString('FULLCALENDAR_SHOW_EVENT_DESCRIPTION'))
 					{
 						?>
 						element.append('<div style="z-index:3;position:relative;">' + event.note + '</div>');
@@ -314,7 +314,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 					 note += '<div>'+event.contact+'</div>';
 				}
 				<?php
-				if(!empty($conf->global->FULLCALENDAR_SHOW_AFFECTED_USER)) {
+				if(getDolGlobalString('FULLCALENDAR_SHOW_AFFECTED_USER')) {
 
 					?>
 					if(event.fk_user>0){
@@ -325,7 +325,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 				}
 
-				if(!empty($conf->global->FULLCALENDAR_SHOW_PROJECT)) {
+				if(getDolGlobalString('FULLCALENDAR_SHOW_PROJECT')) {
 
 					?>
 					if(event.fk_project>0){
@@ -335,7 +335,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 					<?php
 				}
 
-				if(!empty($conf->global->FULLCALENDAR_SHOW_ORDER)) {
+				if(getDolGlobalString('FULLCALENDAR_SHOW_ORDER')) {
 
 					?>
 					if(event.fk_project>0 && event.fk_project_order>0){
@@ -639,7 +639,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			$form.append('<br /><?php echo $langs->trans("DateActionEnd") ?> : ');
 			$form.append(<?php echo json_encode($form->select_date(0,'p2',1,1,0,"action",1,0,1,0,'fulldayend')); ?>);
 
-			<?php if(! empty($conf->global->FULLCALENDAR_PREFILL_DATETIMES)) { ?>
+			<?php if(getDolGlobalString('FULLCALENDAR_PREFILL_DATETIMES')) { ?>
 
 			$form.append('<br />Pré-remplissage : <a href="javascript:;" class="prefillDate" id="prefillDateMorning">Matin</a> | ');
 			$form.append(' <a href class="prefillDate" id="prefillDateAfternoon">Après-midi</a> | ');
@@ -647,14 +647,14 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 			$form.on('click', 'a.prefillDate', function()
 			{
-				var morningStartHour = <?php echo dol_print_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_MORNING_START, '%H'); ?>;
-				var morningStartMin = <?php echo dol_print_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_MORNING_START, '%M'); ?>;
-				var morningEndHour = <?php echo dol_print_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_MORNING_END, '%H'); ?>;
-				var morningEndMin = <?php echo dol_print_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_MORNING_END, '%M'); ?>;
-				var afternoonStartHour = <?php echo dol_print_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START, '%H'); ?>;
-				var afternoonStartMin = <?php echo dol_print_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START, '%M'); ?>;
-				var afternoonEndHour = <?php echo dol_print_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END, '%H'); ?>;
-				var afternoonEndMin = <?php echo dol_print_date($conf->global->FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END, '%M'); ?>;
+				var morningStartHour = <?php echo dol_print_date(getDolGlobalString('FULLCALENDAR_PREFILL_DATETIME_MORNING_START'), '%H'); ?>;
+				var morningStartMin = <?php echo dol_print_date(getDolGlobalString('FULLCALENDAR_PREFILL_DATETIME_MORNING_START'), '%M'); ?>;
+				var morningEndHour = <?php echo dol_print_date(getDolGlobalString('FULLCALENDAR_PREFILL_DATETIME_MORNING_END'), '%H'); ?>;
+				var morningEndMin = <?php echo dol_print_date(getDolGlobalString('FULLCALENDAR_PREFILL_DATETIME_MORNING_END'), '%M'); ?>;
+				var afternoonStartHour = <?php echo dol_print_date(getDolGlobalString('FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START'), '%H'); ?>;
+				var afternoonStartMin = <?php echo dol_print_date(getDolGlobalString('FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START'), '%M'); ?>;
+				var afternoonEndHour = <?php echo dol_print_date(getDolGlobalString('FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END'), '%H'); ?>;
+				var afternoonEndMin = <?php echo dol_print_date(getDolGlobalString('FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END'), '%M'); ?>;
 
 				var dateEnd = $('#ap').val();
 				var dateEndDay = $('#apday').val();
@@ -716,7 +716,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			?>
 			$form.append('<br />'+<?php echo json_encode($fullcalendar_note); ?>);
 
-			<?php if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) { ?>
+			<?php if (getDolGlobalString('FULLCALENDAR_CAN_UPDATE_PERCENT')) { ?>
 			$form.append('<br /><?php echo $langs->trans('Status').' / '.$langs->trans('Percentage') ?> :');
 			$form.append(<?php ob_start(); $formactions->form_select_status_action('formaction','0',1); $html_percent = ob_get_clean(); echo json_encode($html_percent); ?>);
 			<?php } ?>
@@ -729,7 +729,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			$form.append(<?php echo json_encode($select_user); ?>);
 			<?php
 
-			if(!empty($conf->global->FULLCALENDAR_SHOW_PROJECT)) {
+			if(getDolGlobalString('FULLCALENDAR_SHOW_PROJECT')) {
 
 				?>
 				$form.append('<br /><?php echo $langs->trans('Project'); ?> : ');
@@ -741,15 +741,15 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			 * conf utilisées en 13.0 pour activer les notifications
 			 * si l'une d'elle est activée, on rajoute ce qu'il faut au formulaire
 			 */
-			if (!empty($conf->global->AGENDA_REMINDER_EMAIL) || !empty($conf->global->AGENDA_REMINDER_BROWSER)) {
+			if (getDolGlobalString('AGENDA_REMINDER_EMAIL') || getDolGlobalString('AGENDA_REMINDER_BROWSER')) {
 				if (is_callable(array($form, 'selectTypeDuration'), true)) {
 					$select_typereminder = $form->selectTypeDuration('offsetunit');
 				} else {
 					$select_typereminder = $form->select_type_duration('offsetunit');
 				}
 				$TRemindTypes = array();
-				if (!empty($conf->global->AGENDA_REMINDER_EMAIL)) $TRemindTypes['email'] = $langs->trans('EMail');
-				if (!empty($conf->global->AGENDA_REMINDER_BROWSER)) $TRemindTypes['browser'] = $langs->trans('BrowserPush');
+				if (getDolGlobalString('AGENDA_REMINDER_EMAIL')) $TRemindTypes['email'] = $langs->trans('EMail');
+				if (getDolGlobalString('AGENDA_REMINDER_BROWSER')) $TRemindTypes['browser'] = $langs->trans('BrowserPush');
 				$select_remindertype =  str_replace("\n", '', $form->selectarray('selectremindertype', $TRemindTypes));
 
 				if (is_callable(array($form, 'selectModelMail'), true)) {
@@ -878,7 +878,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 				}
 
-				<?php if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) { ?>
+				<?php if (getDolGlobalString('FULLCALENDAR_CAN_UPDATE_PERCENT')) { ?>
 				setTimeout(function() { // async needed
 					if (calEvent.object.percentage == -1) $div.find('select[name=complete]').val(-1).trigger('change');
 					else if (calEvent.object.percentage == 0) $div.find('select[name=complete]').val(0).trigger('change');
@@ -891,7 +891,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				if (calEvent.object.socid > 0) {
 					$div.find('#fk_soc').val(calEvent.object.socid).trigger('change'); // Si COMPANY_USE_SEARCH_TO_SELECT == 0, alors le trigger "change" fera l'affaire
 					setTimeout(function() { $div.find('#contactid').val(calEvent.object.contactid).trigger('change'); } ,250);
-					<?php if (!empty($conf->global->COMPANY_USE_SEARCH_TO_SELECT)) { ?>$div.find('#search_fk_soc').val(calEvent.object.thirdparty.name); <?php } ?>
+					<?php if (getDolGlobalString('COMPANY_USE_SEARCH_TO_SELECT')) { ?>$div.find('#search_fk_soc').val(calEvent.object.thirdparty.name); <?php } ?>
 				}
 				$div.find('#contactid').val(calEvent.object.contactid).trigger('change');
 				TUserId = calEvent.TFk_user;
@@ -998,12 +998,12 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 										,fk_soc:$('#pop-new-event [name=fk_soc]').val()
 										,fk_contact:$('#pop-new-event select[name=contactid]').val()
 										,fk_user:TUserId
-										,fk_project:<?php if (!empty($conf->global->FULLCALENDAR_SHOW_PROJECT)) { ?>$('#pop-new-event #fk_project').val()<?php } else { ?>fk_project<?php } ?>
+										,fk_project:<?php if (getDolGlobalString('FULLCALENDAR_SHOW_PROJECT')) { ?>$('#pop-new-event #fk_project').val()<?php } else { ?>fk_project<?php } ?>
 										,type_code:$('#pop-new-event select[name=type_code]').val()
 										,date_start:$('#pop-new-event #apyear').val()+'-'+$('#pop-new-event #apmonth').val()+'-'+$('#pop-new-event #apday').val()+' '+$('#pop-new-event #aphour').val()+':'+$('#pop-new-event #apmin').val()+':00'
 										,date_end:$('#pop-new-event #p2year').val()+'-'+$('#pop-new-event #p2month').val()+'-'+$('#pop-new-event #p2day').val()+' '+$('#pop-new-event #p2hour').val()+':'+$('#pop-new-event #p2min').val()+':00'
                                         ,token: token
-                                        <?php if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) { ?>
+                                        <?php if (getDolGlobalString('FULLCALENDAR_CAN_UPDATE_PERCENT')) { ?>
 										,complete:$('#pop-new-event select[name=complete]').val()
 										,percentage:$('#pop-new-event input[name=percentage]').val()
 										<?php } ?>
@@ -1019,7 +1019,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 										 * conf disponible en 13.0
 										 * envoie des données servant à créer les notifs
 										 */
-										if (!empty($conf->global->AGENDA_REMINDER_EMAIL) || !empty($conf->global->AGENDA_REMINDER_BROWSER))
+										if (getDolGlobalString('AGENDA_REMINDER_EMAIL') || getDolGlobalString('AGENDA_REMINDER_BROWSER'))
 										{
 											?>
 												,setReminder: $('#pop-new-event input[name=addreminder]').prop('checked') == false ? 0 : 1
@@ -1076,12 +1076,12 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 										,fk_soc:$('#pop-new-event [name=fk_soc]').val()
 										,fk_contact:$('#pop-new-event select[name=contactid]').val()
 										,fk_user:TUserId
-										,fk_project:<?php if (!empty($conf->global->FULLCALENDAR_SHOW_PROJECT)) { ?>$('#pop-new-event #fk_project').val()<?php } else { ?>fk_project<?php } ?>
+										,fk_project:<?php if (getDolGlobalString('FULLCALENDAR_SHOW_PROJECT')) { ?>$('#pop-new-event #fk_project').val()<?php } else { ?>fk_project<?php } ?>
 										,type_code:$('#pop-new-event select[name=type_code]').val()
 										,date_start:$('#pop-new-event #apyear').val()+'-'+$('#pop-new-event #apmonth').val()+'-'+$('#pop-new-event #apday').val()+' '+$('#pop-new-event #aphour').val()+':'+$('#pop-new-event #apmin').val()+':00'
 										,date_end:$('#pop-new-event #p2year').val()+'-'+$('#pop-new-event #p2month').val()+'-'+$('#pop-new-event #p2day').val()+' '+$('#pop-new-event #p2hour').val()+':'+$('#pop-new-event #p2min').val()+':00'
 										,token: token
-										<?php if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) { ?>
+										<?php if (getDolGlobalString('FULLCALENDAR_CAN_UPDATE_PERCENT')) { ?>
 										,complete:$('#pop-new-event select[name=complete]').val()
 										,percentage:$('#pop-new-event input[name=percentage]').val()
 										<?php } ?>
