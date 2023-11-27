@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## Not Released
 
-
+- NEW : COMPATV19 - *24/11/2023)* - 2.6.0  
 
 ## Version 2.5
 - FIX : DA023055 - Gestion de la recherche sur le statut "Non applicable" *07/03/2023* 2.5.3
