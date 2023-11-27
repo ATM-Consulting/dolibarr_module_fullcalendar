@@ -344,7 +344,7 @@ print '<input type="hidden" name="action" value="set_FULLCALENDAR_PREFILL_DATETI
 print '<input type="hidden" name="token" value="'.$newToken.'">';
 print '<table id="BLBLBLBL" class="nobordernopadding" cellpadding="0" cellspacing="0">';
 print '<tr><td>';
-print $form->select_date(getDolGlobalString('FULLCALENDAR_PREFILL_DATETIME_MORNING_START'), 'FULLCALENDAR_PREFILL_DATETIME_MORNING_START', 1, 1, 0,'formFULLCALENDAR_PREFILL_DATETIME_MORNING_START',0, 0, 0, !getDolGlobalString('FULLCALENDAR_PREFILL_DATETIMES'));
+print $form->select_date(getDolGlobalString('FULLCALENDAR_PREFILL_DATETIME_MORNING_START'), 'FULLCALENDAR_PREFILL_DATETIME_MORNING_START', 1, 1, 0,'formFULLCALENDAR_PREFILL_DATETIME_MORNING_START',0, 0, 0, !getDolGlobalInt('FULLCALENDAR_PREFILL_DATETIMES'));
 print '</td>';
 print '<td align="left"><input type="submit" class="button" value="'.$langs->trans("Modify").'"></td>';
 print '</tr></table></form>';
