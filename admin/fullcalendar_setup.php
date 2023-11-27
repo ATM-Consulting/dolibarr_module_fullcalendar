@@ -253,7 +253,7 @@ print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$newToken.'">';
 print '<input type="hidden" name="action" value="set_FULLCALENDAR_LIGTHNESS_SWAP">';
-print '<input type="text" name="FULLCALENDAR_LIGTHNESS_SWAP" value="'.( !getDolGlobalString('FULLCALENDAR_LIGTHNESS_SWAP') ? 150 : getDolGlobalString('FULLCALENDAR_LIGTHNESS_SWAP')).'" />';
+print '<input type="text" name="FULLCALENDAR_LIGTHNESS_SWAP" value="'.getDolGlobalString('FULLCALENDAR_LIGTHNESS_SWAP',150).'" />';
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';
