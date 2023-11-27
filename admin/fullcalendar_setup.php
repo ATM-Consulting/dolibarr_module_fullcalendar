@@ -401,12 +401,12 @@ print '</td></tr>';
 
 
 $var=!$var;
-
+if(getDolGlobalString('FULLCALENDAR_PREFILL_DATETIMES')){
 print '<tr '.$bc[$var].'>';
 print '<td>'.$langs->trans("FULLCALENDAR_SPLIT_DAYS").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
-if(getDolGlobalString('FULLCALENDAR_PREFILL_DATETIMES')){
+
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$newToken.'">';
 print '<input type="hidden" name="action" value="set_FULLCALENDAR_SPIT_DAYS">';
