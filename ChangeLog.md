@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## Not Released
-
+- FIX : min /dol/php version  - *30/11/2023* - 2.6.1  
 - NEW : COMPATV19 - *24/11/2023)* - 2.6.0  
 
 ## Version 2.5
