@@ -2,8 +2,10 @@
 All notable changes to this project will be documented in this file.
 
 ## Not Released
-- FIX : min /dol/php version  - *30/11/2023* - 2.6.1  
+
 - NEW : COMPATV19 - *24/11/2023)* - 2.6.0  
+  Changed Dolibarr compatibility range to 12 min - 19 max  
+  Change PHP compatibility range to 7.0 min - 8.2 max
 
 ## Version 2.5
 - FIX : DA023055 - Gestion de la recherche sur le statut "Non applicable" *07/03/2023* 2.5.3
