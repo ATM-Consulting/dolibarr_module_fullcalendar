@@ -299,13 +299,15 @@ print '<td align="right" width="300">';
 echo ajax_constantonoff('FULLCALENDAR_CAN_UPDATE_PERCENT');
 print '</td></tr>';
 
-$var=!$var;
-print '<tr '.$bc[$var].'>';
-print '<td>'.$langs->trans("FULLCALENDAR_ENABLE_EVENT_LIST_MULTIDATE_FILTER").'</td>';
-print '<td align="center" width="20">&nbsp;</td>';
-print '<td align="right" width="300">';
-echo ajax_constantonoff('FULLCALENDAR_ENABLE_EVENT_LIST_MULTIDATE_FILTER');
-print '</td></tr>';
+if(floatval(DOL_VERSION)<=17) {
+	$var = ! $var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("FULLCALENDAR_ENABLE_EVENT_LIST_MULTIDATE_FILTER").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	echo ajax_constantonoff('FULLCALENDAR_ENABLE_EVENT_LIST_MULTIDATE_FILTER');
+	print '</td></tr>';
+}
 
 $var=!$var;
 print '<tr '.$bc[$var].'>';
