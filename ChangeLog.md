@@ -6,8 +6,8 @@ All notable changes to this project will be documented in this file.
 
 
 ## Release 2.6
-
-- NEW : COMPATV19 - *24/11/2023)* - 2.6.0  
+- FIX : State configuration wasn't working - *22/01/2024* - 2.6.1
+- NEW : COMPATV19 - *24/11/2023* - 2.6.0  
   Changed Dolibarr compatibility range to 15 min - 19 max  
   Change PHP compatibility range to 7.0 min - 8.2 max
 
