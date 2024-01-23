@@ -25,7 +25,7 @@
 
 function fullcalendarAdminPrepareHead()
 {
-    global $langs, $conf;
+    global $langs, $conf, $object;
 
     $langs->load("fullcalendar@fullcalendar");
     $langs->load("projects");

@@ -162,8 +162,13 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 		$('.wordbreak, .wordbreakimp').hide(); //hide std dolibarr btn to change date
 
 		<?php if (getDolGlobalString('FULLCALENDAR_FILTER_ON_STATE')) { ?>
-			var select_departement = <?php echo json_encode('<tr><td>'.fieldLabel('State','state_id').'</td><td>'.$formcompany->select_state(GETPOST('state_id', 'int'), 'FR').'</td></tr>'); ?>;
-			$("#selectstatus").closest("tr").after(select_departement);
+            <?php if (floatval(DOL_VERSION) <= 17) { ?>
+                var select_departement = <?php echo json_encode('<tr><td>'.fieldLabel('State','state_id').'</td><td>'.$formcompany->select_state(GETPOST('state_id', 'int'), 'FR').'</td></tr>'); ?>;
+                $("#selectstatus").closest("tr").after(select_departement);
+            <?php } else { ?>
+                var select_departement = <?php echo json_encode('<div class="divsearchfield">'.fieldLabel('State','state_id').' '.$formcompany->select_state(GETPOST('state_id', 'int'), 'FR').'</div>'); ?>;
+                $('#selectsearch_status').closest('div').after(select_departement);
+            <?php } ?>
 		<?php } ?>
 
 		<?php if ((float) DOL_VERSION < 7.0) { ?>
