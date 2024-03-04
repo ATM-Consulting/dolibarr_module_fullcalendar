@@ -160,6 +160,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 
 		$('.wordbreak, .wordbreakimp').hide(); //hide std dolibarr btn to change date
+		$("li.paginationafterarrows").children().not("a.btnTitle").hide(); //hide std pagination actions
 
 		<?php if (!empty($conf->global->FULLCALENDAR_FILTER_ON_STATE)) { ?>
 			var select_departement = <?php echo json_encode('<tr><td>'.fieldLabel('State','state_id').'</td><td>'.$formcompany->select_state(GETPOST('state_id', 'int'), 'FR').'</td></tr>'); ?>;
