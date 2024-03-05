@@ -162,6 +162,22 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 		$('.wordbreak, .wordbreakimp').hide(); //hide std dolibarr btn to change date
 		$("li.paginationafterarrows").children().not("a.btnTitle").hide(); //hide std pagination actions
 
+		//Add search btn to filter events
+		var parentDiv = $(".liste_titre.liste_titre_bydiv.centpercent");
+		var divSearchField = parentDiv.children(".divsearchfield");
+
+		var buttonElement = $("<div>").addClass("divsearchfield").append($("<button>").attr({
+			type: "submit",
+			class: "liste_titre button_search valignmiddle",
+			name: "button_search_x",
+			value: "x"
+		}).html("<span class='fa fa-search'></span>"));
+
+
+		var clearDiv = parentDiv.find('div[style="clear:both"]');
+		buttonElement.insertBefore(clearDiv);
+
+
 		<?php if (!empty($conf->global->FULLCALENDAR_FILTER_ON_STATE)) { ?>
 			var select_departement = <?php echo json_encode('<tr><td>'.fieldLabel('State','state_id').'</td><td>'.$formcompany->select_state(GETPOST('state_id', 'int'), 'FR').'</td></tr>'); ?>;
 			$("#selectstatus").closest("tr").after(select_departement);
