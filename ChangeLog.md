@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
   Change PHP compatibility range to 7.0 min - 8.2 max
 
 ## Release 2.5
+- FIX : DA024569 - Suppression des boutons standard en double avec full calendar + déplacement du bouton de recherche a coté des filtres *05/03/2024* 2.5.4
 - FIX : DA023055 - Gestion de la recherche sur le statut "Non applicable" *07/03/2023* 2.5.3
 - FIX : Remove deprecated function call *03/08/2022* 2.5.2
 - FIX : Icon for v16 compatibility *03/08/2022* 2.5.1
