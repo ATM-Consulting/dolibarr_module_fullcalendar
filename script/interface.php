@@ -1353,6 +1353,7 @@ function completeWithExtEvent(&$TEvent, &$TSociete, &$TContact, &$TProject)
 								,'user'=>''
 								,'project'=>(!empty($TProject[$event->fk_project]) ? $TProject[$event->fk_project] : '')
 								,'more'=>''
+								,'moreclass' => 'family_ext'.md5($event->icalname)
 							);
 
 							$daykey+=60*60*24;  $daykeygmt+=60*60*24;   // Add one day

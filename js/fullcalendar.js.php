@@ -299,8 +299,23 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 			}
 			,eventRender:function( event, element, view ) {
+
+				// if checkbox not checked, block is hidden
+				jQuery(document).ready(function () {
+					jQuery("div input[name^=\"check_ext\"]").each(function(index, elem) {
+						var name = jQuery(elem).attr("name");
+						if (jQuery(elem).is(":checked")) {
+							jQuery(".family_ext" + name.replace("check_ext", "")).show();
+						} else {
+							jQuery(".family_ext" + name.replace("check_ext", "")).hide();
+						}
+					});
+				})
+
 				var title = element.find('.fc-title').html();
 				element.find('.fc-title').html('<a class="url_title" href="'+event.url_title+'" onclick="event.stopPropagation();">'+title+'</a>');
+				// add class with family_ext + company external calendar name in MD5
+				element.addClass(event.moreclass);
 				var note = "";
 				<?php
 
