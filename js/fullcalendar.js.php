@@ -164,7 +164,6 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 		//Add search btn to filter events
 		var parentDiv = $(".liste_titre.liste_titre_bydiv.centpercent");
-		var divSearchField = parentDiv.children(".divsearchfield");
 
 		var buttonElement = $("<div>").addClass("divsearchfield").append($("<button>").attr({
 			type: "submit",
@@ -174,7 +173,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 		}).html("<span class='fa fa-search'></span>"));
 
 
-		var clearDiv = parentDiv.find('div[style="clear:both"]');
+		var clearDiv = parentDiv.find('div[class="clearboth"]');
 		buttonElement.insertBefore(clearDiv);
 
 
