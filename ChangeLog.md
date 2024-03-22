@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 
 ## Release 2.6
+- FIX : Fuseau UTC php add event - *22/03/2024* - 2.6.4
 - FIX : Search button on other views (month, week, day) - *18/03/2024* - 2.6.3
 - FIX : Checkbox external calendar - *18/03/2024* - 2.6.2
 - FIX : State configuration wasn't working - *22/01/2024* - 2.6.1
