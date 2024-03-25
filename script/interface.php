@@ -265,8 +265,14 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 			}
 */
 
-			$a->datep= strtotime(GETPOST('date_start', 'none'));
-			$a->datef= strtotime(GETPOST('date_end', 'none'));
+			$datep = GETPOST('date_start', 'none');
+			$datef = GETPOST('date_end', 'none');
+
+			$timestamp_start = strtotime($datep);
+			$timestamp_end = strtotime($datef);
+
+			$a->datep = dol_mktime(gmdate("H", $timestamp_start), gmdate("i", $timestamp_start), gmdate("s", $timestamp_start), gmdate("n", $timestamp_start),  gmdate("j", $timestamp_start), gmdate("Y", $timestamp_start), 'tzuserrel');
+			$a->datef = dol_mktime(gmdate("H", $timestamp_end), gmdate("i", $timestamp_end), gmdate("s", $timestamp_end), gmdate("n", $timestamp_end),  gmdate("j", $timestamp_end), gmdate("Y", $timestamp_end), 'tzuserrel');
 
 
 			$TUser = GETPOST('fk_user', 'none');
