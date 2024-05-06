@@ -3,11 +3,6 @@
 if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', '1'); // Disable token renewal
 
 header('Content-Type: text/javascript');
-$refer = '';
-if(isset($_SERVER['HTTP_REFERER'])) $refer = $_SERVER['HTTP_REFERER'];
-
-if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
-{
 	require '../config.php';
 
 	require_once DOL_DOCUMENT_ROOT.'/core/class/doleditor.class.php';
@@ -1237,7 +1232,3 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 	}
 ?>
 	});
-
-<?php
-}
-?>
