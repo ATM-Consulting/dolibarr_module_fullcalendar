@@ -57,11 +57,14 @@ class Actionsfullcalendar extends \fullcalendar\RetroCompatCommonHookActions
 		global $conf;
 		if (in_array('agenda', explode(':', $parameters['context'])))
 		{
-			//if(!empty($conf->global->MAIN_NOT_INC_FULLCALENDAR_HEAD))
-			//{
+			if(isset($_SERVER['PHP_SELF'])) $refer = $_SERVER['PHP_SELF'];
+			if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
+			{
 				echo '<script type="text/javascript" src="'.dol_buildpath('/fullcalendar/js/fullcalendar.js.php?force_use_js=1', 1).'"></script>';
-			//}
-			return 1;
+				return 1;
+			} else {
+				return 0;
+			}
 		}
 		return 0;
 	}
