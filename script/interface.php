@@ -617,8 +617,13 @@ function _events($date_start, $date_end) {
 	$TEvent=array();
 	if(isset($_REQUEST['DEBUG'])) print $sql;
 //echo $sql;exit;
+	$startLevel1 = microtime(true);
+
 	$res= $db->query($sql);
 	//var_dump($db);
+	$endLevel1 = microtime(true);
+	$executionTimeLevel1 = $endLevel1 - $startLevel1;
+	dol_syslog("[TEST_FULLCALENDAR] Temps d'exécution du niveau 1 : " . $executionTimeLevel1 . " secondes [/TEST_FULLCALENDAR]", LOG_DEBUG);
 
 	$TSociete = array();
 	$TContact = array();
@@ -626,6 +631,7 @@ function _events($date_start, $date_end) {
 	$TProject = $TProjectObject = array();
 
 	$TEventObject=array();
+	$startLevel2 = microtime(true);
 	while($obj=$db->fetch_object($res)) {
 		$event = new ActionComm($db);
         // Gestion changements v13
@@ -678,7 +684,11 @@ function _events($date_start, $date_end) {
 		$event->splitedfulldayevent = 0;
 		$TEventObject[] = $event;
 	}
+	$endLevel2 = microtime(true);
+	$executionTimeLevel2 = $endLevel2 - $startLevel2;
+	dol_syslog("[TEST_FULLCALENDAR] Temps d'exécution du niveau 2 : " . $executionTimeLevel2 . " secondes [/TEST_FULLCALENDAR]", LOG_DEBUG);
 
+	$startLevel3 = microtime(true);
 	foreach($TEventObject as &$event) {
 
 		if($event->socid>0 && !isset($TSociete[$event->socid])) {
@@ -868,6 +878,7 @@ function _events($date_start, $date_end) {
 
 	}
 
+
 	//TODO getCalendarEvents compatbile standard
 	// Complete $eventarray with events coming from external module
 	$parameters=array('use_color_from'=>GETPOST('use_color_from', 'none'),'sql'=>$sql); $action = 'getEvents';
@@ -875,10 +886,13 @@ function _events($date_start, $date_end) {
 	if (! empty($hookmanager->resArray['eventarray'])) $TEvent=array_merge($TEvent, $hookmanager->resArray['eventarray']);
 
 	completeWithExtEvent($TEvent, $TSociete, $TContact, $TProject);
-
+	$endLevel3 = microtime(true);
+	$executionTimeLevel3 = $endLevel3 - $startLevel3;
+	dol_syslog("[TEST_FULLCALENDAR] Temps d'exécution du niveau 3 : " . $executionTimeLevel3 . " secondes [/TEST_FULLCALENDAR]", LOG_DEBUG );
 	return $TEvent;
-
 }
+
+
 
 function isDarkColor($color) {
 	global $conf;
