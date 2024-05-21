@@ -271,9 +271,8 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 			$timestamp_start = strtotime($datep);
 			$timestamp_end = strtotime($datef);
 
-			$a->datep = dol_mktime(gmdate("H", $timestamp_start), gmdate("i", $timestamp_start), gmdate("s", $timestamp_start), gmdate("n", $timestamp_start),  gmdate("j", $timestamp_start), gmdate("Y", $timestamp_start), 'tzuserrel');
-			$a->datef = dol_mktime(gmdate("H", $timestamp_end), gmdate("i", $timestamp_end), gmdate("s", $timestamp_end), gmdate("n", $timestamp_end),  gmdate("j", $timestamp_end), gmdate("Y", $timestamp_end), 'tzuserrel');
-
+			$a->datep = dol_mktime(date("H", $timestamp_start), date("i", $timestamp_start), date("s", $timestamp_start), date("n", $timestamp_start),  date("j", $timestamp_start), date("Y", $timestamp_start), 'tzuserrel');
+			$a->datef = dol_mktime(date("H", $timestamp_end), date("i", $timestamp_end), date("s", $timestamp_end), date("n", $timestamp_end),  date("j", $timestamp_end), date("Y", $timestamp_end), 'tzuserrel');
 
 			$TUser = GETPOST('fk_user', 'none');
 			if(empty($TUser))$TUser[] = $user->id;
