@@ -6,48 +6,57 @@ header('Content-Type: text/javascript');
 $refer = '';
 if(isset($_SERVER['HTTP_REFERER'])) $refer = $_SERVER['HTTP_REFERER'];
 
-if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
-{
+if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer)) {
 	require '../config.php';
 
-	require_once DOL_DOCUMENT_ROOT.'/core/class/doleditor.class.php';
+	require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
 
 	$langs->load('fullcalendar@fullcalendar');
 
-	if(!empty($conf->global->MAIN_NOT_INC_FULLCALENDAR_HEAD) && empty($_REQUEST['force_use_js'])) exit;
+	if (!empty($conf->global->MAIN_NOT_INC_FULLCALENDAR_HEAD) && empty($_REQUEST['force_use_js'])) exit;
 
-	if(empty($user->rights->fullcalendar->useit)) exit;
+	if (empty($user->rights->fullcalendar->useit)) exit;
 
 	dol_include_once('/core/class/html.formactions.class.php');
 	dol_include_once('/core/class/html.formprojet.class.php');
-	if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT))
-	{
-		require_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';
+	if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) {
+		require_once DOL_DOCUMENT_ROOT . '/core/class/html.formactions.class.php';
 		$formactions = new FormActions($db);
 	}
 
-	list($langjs,$dummy) =explode('_', $langs->defaultlang);
+	list($langjs, $dummy) = explode('_', $langs->defaultlang);
 
-	if($langjs=='en') $langjs = 'en-gb';
+	if ($langjs == 'en') $langjs = 'en-gb';
 
 	readfile(dol_buildpath('/fullcalendar/lib/moment/min/moment.min.js'));
 	readfile(dol_buildpath('/fullcalendar/lib/fullcalendar/dist/fullcalendar.min.js'));
 
-	if(!is_file(dol_buildpath('/fullcalendar/lib/fullcalendar/dist/lang/'.$langjs.'.js'))) $langjs = 'en-gb';
+	if (!is_file(dol_buildpath('/fullcalendar/lib/fullcalendar/dist/lang/' . $langjs . '.js'))) $langjs = 'en-gb';
 
-	readfile(dol_buildpath('/fullcalendar/lib/fullcalendar/dist/lang/'.$langjs.'.js'));
+	readfile(dol_buildpath('/fullcalendar/lib/fullcalendar/dist/lang/' . $langjs . '.js'));
 
-	if(!empty($user->array_options['options_googlecalendarapi'])) {
-	//	readfile(dol_buildpath('/fullcalendar/lib/fullcalendar/dist/fullcalendar/gcal.js'));
+	if (!empty($user->array_options['options_googlecalendarapi'])) {
+		//	readfile(dol_buildpath('/fullcalendar/lib/fullcalendar/dist/fullcalendar/gcal.js'));
 
 	}
 
 	ob_start();
 	$selected = !empty($conf->global->AGENDA_USE_EVENT_TYPE_DEFAULT) ? $conf->global->AGENDA_USE_EVENT_TYPE_DEFAULT : -1;
+	$selectedText = "";
+	// on veut afficher le txt de l'action par defaut si la conf est activée
+	if ($selected != -1 && getDolGlobalInt('FULLCALENDAR_AUTO_FILL_TITLE')) {
+		$sql = "SELECT id, code, libelle as label, module, type, color, picto";
+		$sql .= " FROM " . MAIN_DB_PREFIX . "c_actioncomm";
+		$sql .= " WHERE code=" . "'" . $selected . "'";
+		$resql = $db->query($sql);
+		if ($resql) {
+			$obj = $db->fetch_object($resql);
+		}
+		$selectedText = $obj->label;
+	}
 	$formactions=new FormActions($db);
 	$formactions->select_type_actions($selected, "type_code","systemauto");
 	$select_type_action = ob_get_clean();
-
 	$newToken = function_exists('newToken') ? newToken() : $_SESSION['newtoken'];
 
 	$form=new Form($db);
@@ -148,6 +157,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 
 <?php if (!empty($conf->global->FULLCALENDAR_AUTO_FILL_TITLE)) { ?>
 		$(document).on("change", "#pop-new-event #type_code", function() {
+			console.log('change type');
 			var typeCodeTitle = $( "#type_code option:selected" ).text();
 
 			var labelContent =$( "#pop-new-event input[name='label']" ).val();
@@ -648,7 +658,12 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 			$form = $('<form name="action"></form>');
 			/*TODO better display */
 			$form.append('<?php echo dol_escape_js($select_type_action); ?>');
-			$form.append('<br /><input type="text" name="label" value="" placeholder="<?php echo $langs->trans('Title') ?>" style="width:300px"><br />');
+			var selected = <?php echo '"' . $selected . '"'; ?>;
+
+
+			var selectedText ='<?php echo dol_escape_js($selectedText ); ?>';
+			var titlevalue = "";
+			$form.append('<br /><input type="text" name="label" value="' + selectedText + '" placeholder="<?php echo $langs->trans('Title') ?>" style="width:300px"><br />');
 
 			$form.append('<br /><?php echo $langs->trans("DateActionStart")?> : ');
 			$form.append(<?php echo json_encode($form->select_date(0,'ap',1,1,0,"action",1,0,1,0,'fulldayend')); ?>);
@@ -1189,7 +1204,6 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
 				,buttons:TButton
 			});
 		}
-
 		$form_selector.submit(function(event) {
 			console.log($form_selector.serialize() );
 			console.log($('#fullcalendar'));
