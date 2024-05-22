@@ -658,11 +658,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer)) {
 			$form = $('<form name="action"></form>');
 			/*TODO better display */
 			$form.append('<?php echo dol_escape_js($select_type_action); ?>');
-			var selected = <?php echo '"' . $selected . '"'; ?>;
-
-
 			var selectedText ='<?php echo dol_escape_js($selectedText ); ?>';
-			var titlevalue = "";
 			$form.append('<br /><input type="text" name="label" value="' + selectedText + '" placeholder="<?php echo $langs->trans('Title') ?>" style="width:300px"><br />');
 
 			$form.append('<br /><?php echo $langs->trans("DateActionStart")?> : ');
