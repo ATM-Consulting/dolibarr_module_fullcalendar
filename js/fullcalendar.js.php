@@ -659,7 +659,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer)) {
 			/*TODO better display */
 			$form.append('<?php echo dol_escape_js($select_type_action); ?>');
 			var selectedText ='<?php echo dol_escape_js($selectedText ); ?>';
-			$form.append('<br /><input type="text" name="label" value="' + selectedText + '" placeholder="<?php echo $langs->trans('Title') ?>" style="width:300px"><br />');
+			$form.append('<br /><input type="text" id="label_event" name="label" value="' + selectedText + '" placeholder="<?php echo $langs->trans('Title') ?>" style="width:300px"><br />');
 
 			$form.append('<br /><?php echo $langs->trans("DateActionStart")?> : ');
 			$form.append(<?php echo json_encode($form->select_date(0,'ap',1,1,0,"action",1,0,1,0,'fulldayend')); ?>);
@@ -1002,8 +1002,6 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer)) {
 						text: bt_add_lang
 						, click: function() {
 
-							if($('#pop-new-event input[name=label]').val() != '') {
-
 								var TUserId=[];
 								var dataSelectUser = $('#pop-new-event #fk_user').select2('data');
 								for(i in dataSelectUser) {
@@ -1034,6 +1032,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer)) {
                                         <?php if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) { ?>
 										,complete:$('#pop-new-event select[name=complete]').val()
 										,percentage:$('#pop-new-event input[name=percentage]').val()
+
 										<?php } ?>
 										<?php
 										if(!empty($moreOptions)) {
@@ -1059,13 +1058,24 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer)) {
 										}
 										?>
 									}
-								}).done(function() {
-									$('#fullcalendar').fullCalendar('removeEvents');
-									$('#fullcalendar').fullCalendar( 'refetchEvents' );
-									$('#pop-new-event').dialog( "close" );
+								}).done(function(data) {
+
+									// le retour est un id  donc je close
+									if (Number.isInteger(parseInt(data))){
+										$('#fullcalendar').fullCalendar('removeEvents');
+										$('#fullcalendar').fullCalendar( 'refetchEvents' );
+										$('#pop-new-event').dialog( "close" );
+									}else{
+										if ($(".error").length){
+											$(".error").html(data);
+										}else{
+											$("#label_event").after('<span class="error">' + data + '</span>')
+										}
+									}
+
 								});
 
-							}
+
 
 
 						}

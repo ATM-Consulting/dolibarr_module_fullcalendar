@@ -238,104 +238,111 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 			break;
 
 		case 'event':
-			$a=new ActionComm($db);
-            // Gestion changements v13
-            // Gestion de la rétrocompatibilité
-            $contactId = $a->contact_id;
-            if (empty ($contactId)) $contactId = $a->contactid;
+			$type = getDolGlobalInt('AGENDA_USE_EVENT_TYPE');
+			if (GETPOST('label', 'none') != ""  || $type ){
 
-			$id = GETPOST('id', 'int');
-			if (!empty($id)) $a->fetch($id);
 
-			$a->label = GETPOST('label', 'none');
-			$a->note=$a->note_private= GETPOST('note', 'none');
-/*
-			if (empty($a->id))
-			{
-				$datep = date('H',strtotime(GETPOST('date', 'none')));
-				if($datep == '00' && !empty($conf->global->FULLCALENDAR_SHOW_THIS_HOURS) ){
-					$a->datep = strtotime('+'.substr($conf->global->FULLCALENDAR_SHOW_THIS_HOURS,0,1).' hour',strtotime(GETPOST('date', 'none')));
+				$a=new ActionComm($db);
+				// Gestion changements v13
+				// Gestion de la rétrocompatibilité
+				$contactId = $a->contact_id;
+				if (empty ($contactId)) $contactId = $a->contactid;
+
+				$id = GETPOST('id', 'int');
+				if (!empty($id)) $a->fetch($id);
+
+				$a->label = GETPOST('label', 'none');
+				$a->note=$a->note_private= GETPOST('note', 'none');
+	/*
+				if (empty($a->id))
+				{
+					$datep = date('H',strtotime(GETPOST('date', 'none')));
+					if($datep == '00' && !empty($conf->global->FULLCALENDAR_SHOW_THIS_HOURS) ){
+						$a->datep = strtotime('+'.substr($conf->global->FULLCALENDAR_SHOW_THIS_HOURS,0,1).' hour',strtotime(GETPOST('date', 'none')));
+					}
+					else{
+						if($datep=='00') $a->fulldayevent = 1;
+
+						$a->datep = strtotime(GETPOST('date', 'none'));
+					}
+					$a->datef = strtotime('+2 hour',$a->datep);
 				}
-				else{
-					if($datep=='00') $a->fulldayevent = 1;
+	*/
 
-					$a->datep = strtotime(GETPOST('date', 'none'));
+				$a->datep= strtotime(GETPOST('date_start', 'none'));
+				$a->datef= strtotime(GETPOST('date_end', 'none'));
+
+
+				$TUser = GETPOST('fk_user', 'none');
+				if(empty($TUser))$TUser[] = $user->id;
+				if(!is_array($TUser))$TUser=array($TUser);
+
+				$a->userownerid = $TUser[0];
+				$a->type_code = GETPOST('type_code', 'none') ? GETPOST('type_code', 'none') : 'AC_OTH';
+				$a->code = $a->type_code; // Up to Dolibarr 3.4, code is used in ActionComm:add() instead of type_code. It's seems unused, but you never know for sure.
+				$a->fk_action = dol_getIdFromCode($db, $a->type_code, 'c_actioncomm'); // type_code is not saved in ActionComm::update(), fk_action is up to Dolibarr 6.0
+				$a->type_id = $a->fk_action; // type_id used instead of fk_action in ActionComm::update() since Dolibarr 7.0, used in ::add()/::create() since the beginning
+
+				$a->socid = GETPOST('fk_soc', 'int');
+				$contactId = GETPOST('fk_contact', 'int');
+
+				$a->fk_project = GETPOST('fk_project','int');
+
+				$percentage = -1; // Non applicable
+				if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) $percentage=in_array(GETPOST('status', 'none'),array(-1,100))?GETPOST('status', 'none'):(in_array(GETPOST('complete', 'none'),array(-1,100))?GETPOST('complete', 'none'):GETPOST("percentage", 'none'));	// [COPY FROM DOLIBARR] If status is -1 or 100, percentage is not defined and we must use status
+				$a->percentage = $percentage;
+
+				$moreParams = GETPOST('moreParams', 'none');
+				$moreParams = explode(',', $moreParams);
+				$TParam = array();
+				foreach ($moreParams as $param)
+				{
+					$a->{'_'.$param} = GETPOST($param, 'none');
 				}
-				$a->datef = strtotime('+2 hour',$a->datep);
-			}
-*/
+				//var_dump($conf->global->FULLCALENDAR_SHOW_THIS_HOURS,GETPOST('date', 'none'),$a);exit;
 
-			$a->datep= strtotime(GETPOST('date_start', 'none'));
-			$a->datef= strtotime(GETPOST('date_end', 'none'));
+				if($user->rights->agenda->allactions->create ||
+						(($a->authorid == $user->id || $a->userownerid == $user->id) && $user->rights->agenda->myactions->create)) {
 
+					$a->userassigned = array();
+					if(!empty($TUser)) {
+						foreach($TUser as $fk_user) {
+							$a->userassigned[$fk_user] = array('id'=>$fk_user);
+						}
+					}
 
-			$TUser = GETPOST('fk_user', 'none');
-			if(empty($TUser))$TUser[] = $user->id;
-			if(!is_array($TUser))$TUser=array($TUser);
+				}
+				elseif($a->id>0) {
+					$a->fetch_userassigned();
+				}
 
-			$a->userownerid = $TUser[0];
-			$a->type_code = GETPOST('type_code', 'none') ? GETPOST('type_code', 'none') : 'AC_OTH';
-			$a->code = $a->type_code; // Up to Dolibarr 3.4, code is used in ActionComm:add() instead of type_code. It's seems unused, but you never know for sure.
-			$a->fk_action = dol_getIdFromCode($db, $a->type_code, 'c_actioncomm'); // type_code is not saved in ActionComm::update(), fk_action is up to Dolibarr 6.0
-			$a->type_id = $a->fk_action; // type_id used instead of fk_action in ActionComm::update() since Dolibarr 7.0, used in ::add()/::create() since the beginning
+				if (empty($a->id)) {
+					if(method_exists($a, 'create')) {
+						$res = $a->create($user);
+						addReminders($a);
+					} else {
+						$res = $a->add($user);
+						addReminders($a);
+					}
+				}
+				else
+				{
+					if (empty($contactId)) $a->contact = null;
 
-			$a->socid = GETPOST('fk_soc', 'int');
-			$contactId = GETPOST('fk_contact', 'int');
-
-			$a->fk_project = GETPOST('fk_project','int');
-
-			$percentage = -1; // Non applicable
-			if (!empty($conf->global->FULLCALENDAR_CAN_UPDATE_PERCENT)) $percentage=in_array(GETPOST('status', 'none'),array(-1,100))?GETPOST('status', 'none'):(in_array(GETPOST('complete', 'none'),array(-1,100))?GETPOST('complete', 'none'):GETPOST("percentage", 'none'));	// [COPY FROM DOLIBARR] If status is -1 or 100, percentage is not defined and we must use status
-			$a->percentage = $percentage;
-
-			$moreParams = GETPOST('moreParams', 'none');
-			$moreParams = explode(',', $moreParams);
-			$TParam = array();
-			foreach ($moreParams as $param)
-			{
-                $a->{'_'.$param} = GETPOST($param, 'none');
-			}
-			//var_dump($conf->global->FULLCALENDAR_SHOW_THIS_HOURS,GETPOST('date', 'none'),$a);exit;
-
-			if($user->rights->agenda->allactions->create ||
-					(($a->authorid == $user->id || $a->userownerid == $user->id) && $user->rights->agenda->myactions->create)) {
-
-				$a->userassigned = array();
-				if(!empty($TUser)) {
-					foreach($TUser as $fk_user) {
-						$a->userassigned[$fk_user] = array('id'=>$fk_user);
+					$res = $a->update($user);
+					if ($res > 0)
+					{
+						$res = $a->id;
+						addReminders($a, 'update');
 					}
 				}
 
+
+				print $res;
+			}else{
+
+				print $langs->trans('labelRequired');
 			}
-			elseif($a->id>0) {
-				$a->fetch_userassigned();
-			}
-
-			if (empty($a->id)) {
-				if(method_exists($a, 'create')) {
-					$res = $a->create($user);
-					addReminders($a);
-				} else {
-					$res = $a->add($user);
-					addReminders($a);
-				}
-			}
-			else
-			{
-				if (empty($contactId)) $a->contact = null;
-
-				$res = $a->update($user);
-				if ($res > 0)
-				{
-					$res = $a->id;
-					addReminders($a, 'update');
-				}
-			}
-
-
-			print $res;
-
 			break;
 	}
 
