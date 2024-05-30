@@ -45,14 +45,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer)) {
 	$selectedText = "";
 	// on veut afficher le txt de l'action par defaut si la conf est activée
 	if ($selected != -1 && getDolGlobalInt('FULLCALENDAR_AUTO_FILL_TITLE')) {
-		$sql = "SELECT id, code, libelle as label, module, type, color, picto";
-		$sql .= " FROM " . MAIN_DB_PREFIX . "c_actioncomm";
-		$sql .= " WHERE code=" . "'" . $selected . "'";
-		$resql = $db->query($sql);
-		if ($resql) {
-			$obj = $db->fetch_object($resql);
-		}
-		$selectedText = $obj->label;
+		$selectedText = $langs->getLabelFromKey($db, 'code', 'c_actioncomm', 'code', 'libelle', $selected);
 	}
 	$formactions=new FormActions($db);
 	$formactions->select_type_actions($selected, "type_code","systemauto");
@@ -157,7 +150,7 @@ if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer)) {
 
 <?php if (!empty($conf->global->FULLCALENDAR_AUTO_FILL_TITLE)) { ?>
 		$(document).on("change", "#pop-new-event #type_code", function() {
-			console.log('change type');
+
 			var typeCodeTitle = $( "#type_code option:selected" ).text();
 
 			var labelContent =$( "#pop-new-event input[name='label']" ).val();
