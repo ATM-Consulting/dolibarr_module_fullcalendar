@@ -39,6 +39,11 @@ header('Content-Type: text/javascript');
 
 	ob_start();
 	$selected = getDolGlobalString('AGENDA_USE_EVENT_TYPE_DEFAULT') ? getDolGlobalString('AGENDA_USE_EVENT_TYPE_DEFAULT') : -1;
+	$selectedText = "";
+	// on veut afficher le txt de l'action par defaut si la conf est activée
+	if ($selected != -1 && getDolGlobalInt('FULLCALENDAR_AUTO_FILL_TITLE')) {
+		$selectedText = $langs->getLabelFromKey($db, 'code', 'c_actioncomm', 'code', 'libelle', $selected);
+	}
 	$formactions=new FormActions($db);
 	$formactions->select_type_actions($selected, "type_code","systemauto");
 	$select_type_action = ob_get_clean();
@@ -662,7 +667,8 @@ header('Content-Type: text/javascript');
 			$form = $('<form name="action"></form>');
 			/*TODO better display */
 			$form.append('<?php echo dol_escape_js($select_type_action); ?>');
-			$form.append('<br /><input type="text" name="label" value="" placeholder="<?php echo $langs->trans('Title') ?>" style="width:300px"><br />');
+			var selectedText ='<?php echo dol_escape_js($selectedText ); ?>';
+			$form.append('<br /><input type="text" id="label_event" name="label" value="' + selectedText + '" placeholder="<?php echo $langs->trans('Title') ?>" style="width:300px"><br />');
 
 			$form.append('<br /><?php echo $langs->trans("DateActionStart")?> : ');
 			$form.append(<?php echo json_encode($form->select_date(0,'ap',1,1,0,"action",1,0,1,0,'fulldayend')); ?>);
@@ -1062,10 +1068,21 @@ header('Content-Type: text/javascript');
 										}
 										?>
 									}
-								}).done(function() {
-									$('#fullcalendar').fullCalendar('removeEvents');
-									$('#fullcalendar').fullCalendar( 'refetchEvents' );
-									$('#pop-new-event').dialog( "close" );
+														}).done(function(data) {
+
+									// le retour est un id  donc je close
+									if (Number.isInteger(parseInt(data))){
+										$('#fullcalendar').fullCalendar('removeEvents');
+										$('#fullcalendar').fullCalendar( 'refetchEvents' );
+										$('#pop-new-event').dialog( "close" );
+									}else{
+										if ($(".error").length){
+											$(".error").html(data);
+										}else{
+											$("#label_event").after('<span class="error">' + data + '</span>')
+										}
+									}
+
 								});
 
 							}
