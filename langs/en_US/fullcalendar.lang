@@ -30,3 +30,4 @@ FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END=End of afternoon time slot
 
 EditAnAction=Edit event
 NoRightsToEdit=You don't have the user rights to edit
+labelRequired=Label required
