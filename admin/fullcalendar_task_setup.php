@@ -138,7 +138,7 @@ print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$newToken.'">';
 print '<input type="hidden" name="action" value="set_FULLCALENDAR_TASK_SHOW_THIS_HOURS">';
-print '<input type="text" name="FULLCALENDAR_TASK_SHOW_THIS_HOURS" value="'.$conf->global->FULLCALENDAR_TASK_SHOW_THIS_HOURS.'" />';
+print '<input type="text" name="FULLCALENDAR_TASK_SHOW_THIS_HOURS" value="'.getDolGlobalString('FULLCALENDAR_TASK_SHOW_THIS_HOURS').'" />';
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';
@@ -159,7 +159,7 @@ $TOption=array(
 	,'01:00:00'=>'1 '.$langs->trans('hour')
 );
 
-echo $form->selectarray('FULLCALENDAR_TASK_DURATION_SLOT', $TOption, $conf->global->FULLCALENDAR_TASK_DURATION_SLOT);
+echo $form->selectarray('FULLCALENDAR_TASK_DURATION_SLOT', $TOption, getDolGlobalString('FULLCALENDAR_TASK_DURATION_SLOT'));
 
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 

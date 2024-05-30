@@ -5,7 +5,19 @@ All notable changes to this project will be documented in this file.
 
 
 
-## Version 2.5
+## Release 2.6
+- FIX : Fuseau UTC php add event retour ticket- *17/05/2024* - 2.6.7
+- FIX : No fullcalendar on calendar view (because of http_referer) - *29/04/2024* - 2.6.6 
+- FIX : Warnings bloquant l'activation du module - *10/04/2024* - 2.6.5
+- FIX : Fuseau UTC php add event - *22/03/2024* - 2.6.4
+- FIX : Search button on other views (month, week, day) - *18/03/2024* - 2.6.3
+- FIX : Checkbox external calendar - *18/03/2024* - 2.6.2
+- FIX : State configuration wasn't working - *22/01/2024* - 2.6.1
+- NEW : COMPATV19 - *24/11/2023* - 2.6.0  
+  Changed Dolibarr compatibility range to 15 min - 19 max  
+  Change PHP compatibility range to 7.0 min - 8.2 max
+
+## Release 2.5
 -FIX :  DA024868 textlabel on conf activated *22/05/2024* - 2.5.5  
 - FIX : DA024569 - Suppression des boutons standard en double avec full calendar + déplacement du bouton de recherche a coté des filtres *05/03/2024* 2.5.4
 - FIX : DA023055 - Gestion de la recherche sur le statut "Non applicable" *07/03/2023* 2.5.3
@@ -13,7 +25,7 @@ All notable changes to this project will be documented in this file.
 - FIX : Icon for v16 compatibility *03/08/2022* 2.5.1
 - NEW : Ajout de la class TechATM pour l'affichage de la page "A propos" *11/05/2022* 2.5.0
 
-## Version 2.4
+## Release 2.4
 
 - FIX : php8.1 warnings *02/08/2022* - 2.4.8
 - FIX : fullcalendar reacting to standard viewmode *02/08/2022* - 2.4.7
@@ -28,7 +40,7 @@ All notable changes to this project will be documented in this file.
    **Attention** : Ce changement de lib peut avoir un impact important sur les modules qui surchage fullcalendar  
    par conséquent le module passe en V2.4
 
-## Version 2.3
+## Release 2.3
 
 - FIX : Compatibility V13 - $user->societe_id became $user->socid *17/05/2021* - 2.3.1
 - FIX : Compatibility V13 : add token renowal *17/05/2021* - 2.3.1
@@ -36,14 +48,14 @@ All notable changes to this project will be documented in this file.
 
 - NEW : Filter slot duration and min max hour on task view T2700 *08/04/2021* - 2.3.0
 
-## Version 2.2
+## Release 2.2
 
 - FIX : forgotten </strong> + need to fetch task on each iteration *07/04/2021* 2.2.2
 - NEW : add thirdparty in tooltip *31/03/2021*- 2.2.1
 - NEW : Editable field on task view T2700 *24/03/2021* - 2.2.0
 - NEW : "headTask" param to add something in fullcalendar project task view T2699 *24/03/2021* - 2.1.0
 
-## Version 1.5
+## Release 1.5
 
 - FIX : External calendars display *27-04-2021* - 1.5.5
 - V13 compatibility after renaming contactid properties into contact_id *2021-03-04*

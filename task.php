@@ -13,7 +13,7 @@ $form = new Form($db);
 list($langjs, $dummy) = explode('_', $langs->defaultlang);
 
 if($langjs == 'en') $langjs = 'en-gb';
-if(empty($conf->global->FULLCALENDAR_ENABLE_TASKS) || empty($user->rights->fullcalendar->task->read)) accessforbidden();
+if(!getDolGlobalInt('FULLCALENDAR_ENABLE_TASKS') || !$user->hasRight('fullcalendar', 'task', 'read')) accessforbidden();
 
 if(! is_file(dol_buildpath('/fullcalendar/lib/fullcalendar/dist/lang/'.$langjs.'.js'))) $langjs = 'en-gb';
 
@@ -42,7 +42,7 @@ print '<tr >';
 print '<td>'.$langs->trans("FULLCALENDAR_TASK_SHOW_THIS_HOURS").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
-print '<input type="text" name="FULLCALENDAR_TASK_SHOW_THIS_HOURS" value="'.$conf->global->FULLCALENDAR_TASK_SHOW_THIS_HOURS.'" />';
+print '<input type="text" name="FULLCALENDAR_TASK_SHOW_THIS_HOURS" value="'.getDolGlobalString('FULLCALENDAR_TASK_SHOW_THIS_HOURS').'" />';
 
 print '</td></tr>';
 print '<tr>';
@@ -58,7 +58,7 @@ $TOption=array(
 	,'01:00:00'=>'1 '.$langs->trans('hour')
 );
 
-echo $form->selectarray('FULLCALENDAR_TASK_DURATION_SLOT', $TOption, $conf->global->FULLCALENDAR_TASK_DURATION_SLOT);
+echo $form->selectarray('FULLCALENDAR_TASK_DURATION_SLOT', $TOption, getDolGlobalString('FULLCALENDAR_TASK_DURATION_SLOT'));
 print '</td></tr>';
 print '<tr><td colspan="3" align="right"><input id="filterBt" type="submit" class="button" value="'.$langs->trans("Modify").'"></td></tr>';
 print '</table>';
@@ -90,14 +90,14 @@ print '</div>';
                     right: 'prev,next today'
                 }
                 <?php
-                if(!empty($conf->global->FULLCALENDAR_TASK_SHOW_THIS_HOURS)) {
-						list($hourShowStart, $hourShowEnd) = explode('-', $conf->global->FULLCALENDAR_TASK_SHOW_THIS_HOURS);
+                if(getDolGlobalString('FULLCALENDAR_TASK_SHOW_THIS_HOURS')) {
+						list($hourShowStart, $hourShowEnd) = explode('-', getDolGlobalString('FULLCALENDAR_TASK_SHOW_THIS_HOURS'));
 						if(!empty($hourShowStart) && !empty($hourShowEnd)) {
 		        			?>,minTime:'<?php echo $hourShowStart.':00:00'; ?>'
 		        			,maxTime:'<?php echo $hourShowEnd.':00:00'; ?>'<?php
 						}
 				}
-                if(!empty($conf->global->FULLCALENDAR_TASK_DURATION_SLOT)) echo ',slotDuration:"'.$conf->global->FULLCALENDAR_TASK_DURATION_SLOT.'"';
+                if(getDolGlobalString('FULLCALENDAR_TASK_DURATION_SLOT')) echo ',slotDuration:"' . getDolGlobalString('FULLCALENDAR_TASK_DURATION_SLOT').'"';
                 ?>
                 , defaultDate: getDate()
                 , token : token

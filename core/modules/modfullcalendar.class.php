@@ -61,7 +61,7 @@ class modfullcalendar extends DolibarrModules
 		$this->description = "Description of module fullcalendar";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
 
-		$this->version = '2.5.5';
+		$this->version = '2.6.7';
 		// Url to the file with your last numberversion of this module
 		require_once __DIR__ . '/../../class/techatm.class.php';
 		$this->url_last_version = \fullcalendar\TechATM::getLastModuleVersionUrl($this);
@@ -114,8 +114,8 @@ class modfullcalendar extends DolibarrModules
 		$this->depends = array('modAgenda');		// List of modules id that must be enabled if this module is enabled
 		$this->requiredby = array();	// List of modules id to disable if this one is disabled
 		$this->conflictwith = array();	// List of modules id this module is in conflict with
-		$this->phpmin = array(5,0);					// Minimum version of PHP required by module
-		$this->need_dolibarr_version = array(3,0);	// Minimum version of Dolibarr required by module
+		$this->phpmin = array(7,0);					// Minimum version of PHP required by module
+		$this->need_dolibarr_version = array(15,0);	// Minimum version of Dolibarr required by module
 		$this->langfiles = array("fullcalendar@fullcalendar");
 
 		// Constants
@@ -254,7 +254,7 @@ class modfullcalendar extends DolibarrModules
 								'url'=>'',
 								'langs'=>'fullcalendar@fullcalendar',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 								'position'=>90,
-								'perms'=>'$conf->global->FULLCALENDAR_ENABLE_TASKS',			                // Use 'perms'=>'$user->rights->report->level1->level2' if you want your menu with a permission rules
+								'perms'=>'getDolGlobalString("FULLCALENDAR_ENABLE_TASKS")',			                // Use 'perms'=>'$user->rights->report->level1->level2' if you want your menu with a permission rules
 								'target'=>'',
 								'enabled' => '1',
 								'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
@@ -267,7 +267,7 @@ class modfullcalendar extends DolibarrModules
 								'url'=>'/fullcalendar/task.php',
 								'langs'=>'projects',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 								'position'=>100,
-								'perms'=>'$conf->global->FULLCALENDAR_ENABLE_TASKS',			                // Use 'perms'=>'$user->rights->report->level1->level2' if you want your menu with a permission rules
+								'perms'=>'getDolGlobalString("FULLCALENDAR_ENABLE_TASKS")',			                // Use 'perms'=>'$user->rights->report->level1->level2' if you want your menu with a permission rules
 								'target'=>'',
 								'enabled' => '1',
 								'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
