@@ -238,6 +238,10 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 			break;
 
 		case 'event':
+			$type = getDolGlobalInt('AGENDA_USE_EVENT_TYPE');
+			if (GETPOST('label', 'none') != ""  || $type ){
+
+
 			$a=new ActionComm($db);
             // Gestion changements v13
             // Gestion de la rétrocompatibilité
@@ -340,7 +344,10 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 
 
 			print $res;
+			}else{
 
+				print $langs->trans('labelRequired');
+			}
 			break;
 	}
 
