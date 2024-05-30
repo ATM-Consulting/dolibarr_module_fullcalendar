@@ -38,7 +38,7 @@ header('Content-Type: text/javascript');
 	}
 
 	ob_start();
-	$selected = !empty($conf->global->AGENDA_USE_EVENT_TYPE_DEFAULT) ? $conf->global->AGENDA_USE_EVENT_TYPE_DEFAULT : -1;
+	$selected = getDolGlobalString('AGENDA_USE_EVENT_TYPE_DEFAULT') ? getDolGlobalString('AGENDA_USE_EVENT_TYPE_DEFAULT') : -1;
 	$selectedText = "";
 	// on veut afficher le txt de l'action par defaut si la conf est activée
 	if ($selected != -1 && getDolGlobalInt('FULLCALENDAR_AUTO_FILL_TITLE')) {
