@@ -26,7 +26,8 @@
 /**
  * Class Actionsfullcalendar
  */
-class Actionsfullcalendar
+require_once __DIR__.'/../backport/v19/core/class/commonhookactions.class.php';
+class Actionsfullcalendar extends \fullcalendar\RetroCompatCommonHookActions
 {
 	/**
 	 * @var array Hook results. Propagated to $hookmanager->resArray for later reuse
@@ -50,17 +51,20 @@ class Actionsfullcalendar
 	{
 	}
 
-	
+
 	function addCalendarChoice($parameters,&$object,&$action, $hookmanager)
 	{
 		global $conf;
 		if (in_array('agenda', explode(':', $parameters['context'])))
 		{
-			//if(!empty($conf->global->MAIN_NOT_INC_FULLCALENDAR_HEAD))
-			//{
+			if(isset($_SERVER['PHP_SELF'])) $refer = $_SERVER['PHP_SELF'];
+			if(empty($refer) || preg_match('/comm\/action\/index.php/', $refer))
+			{
 				echo '<script type="text/javascript" src="'.dol_buildpath('/fullcalendar/js/fullcalendar.js.php?force_use_js=1', 1).'"></script>';
-			//}
-			return 1;
+				return 1;
+			} else {
+				return 0;
+			}
 		}
 		return 0;
 	}
@@ -72,7 +76,7 @@ class Actionsfullcalendar
 
 		$TContexts = explode(':', $parameters['context']);
 
-		if(in_array('agendalist', $TContexts) && ! empty($conf->global->FULLCALENDAR_ENABLE_EVENT_LIST_MULTIDATE_FILTER))
+		if(in_array('agendalist', $TContexts) && getDolGlobalString('FULLCALENDAR_ENABLE_EVENT_LIST_MULTIDATE_FILTER'))
 		{
 			global $db;
 
@@ -116,7 +120,7 @@ class Actionsfullcalendar
 
 		$TContexts = explode(':', $parameters['context']);
 
-		if(in_array('agendalist', $TContexts) && ! empty($conf->global->FULLCALENDAR_ENABLE_EVENT_LIST_MULTIDATE_FILTER))
+		if(in_array('agendalist', $TContexts) && getDolGlobalString('FULLCALENDAR_ENABLE_EVENT_LIST_MULTIDATE_FILTER'))
 		{
 			global $form;
 
