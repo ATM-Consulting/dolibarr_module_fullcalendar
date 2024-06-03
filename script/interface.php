@@ -618,7 +618,7 @@ function _events($date_start, $date_end) {
 	}
 	// Sort on date
 	$sql.= ' ORDER BY datep';
-
+	$sql .= " LIMIT 100";
 
 	$TEvent=array();
 	if(isset($_REQUEST['DEBUG'])) print $sql;
