@@ -244,9 +244,9 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 
 			$a=new ActionComm($db);
             // Gestion changements v13
-            // Gestion de la rétrocompatibilité
-            $contactId = $a->contact_id;
-            if (empty ($contactId)) $contactId = $a->contactid;
+            // Gestion de la rétrocompatibilité;
+				$a->contactid = 1;
+            $contactId = $a->contact_id ? $a->contact_id : $a->contactid;
 
 			$id = GETPOST('id', 'int');
 			if (!empty($id)) $a->fetch($id);
@@ -869,7 +869,6 @@ function _events($date_start, $date_end) {
 				}
 			}
 		}
-
 		$TEvent[] = $tmpEvent;
 
 	}
@@ -881,7 +880,72 @@ function _events($date_start, $date_end) {
 	if (! empty($hookmanager->resArray['eventarray'])) $TEvent=array_merge($TEvent, $hookmanager->resArray['eventarray']);
 
 	completeWithExtEvent($TEvent, $TSociete, $TContact, $TProject);
+//		var_dump($TEvent);exit;
+	$mode = GETPOST('mode', 'aZ09');
+	$year = GETPOST("year", "int") ?GETPOST("year", "int") : date("Y");
+	$month = GETPOST("month", "int") ?GETPOST("month", "int") : date("m");
+	$day = GETPOST("day", "int") ?GETPOST("day", "int") : date("d");
+	if ($user->hasRight("holiday", "read")) {
+		// LEAVE-HOLIDAY CALENDAR
+		$sql = "SELECT u.rowid as uid, u.lastname, u.firstname, u.statut, x.rowid, x.ref, x.fk_user,x.date_debut as date_start, x.date_fin as date_end, x.halfday, x.statut as status, x.description";
+		$sql .= " FROM ".MAIN_DB_PREFIX."holiday as x, ".MAIN_DB_PREFIX."user as u";
+		$sql .= " WHERE u.rowid = x.fk_user";
+		$sql .= " AND u.statut = '1'"; // Show only active users  (0 = inactive user, 1 = active user)
+		$sql .= " AND (x.statut = '2' OR x.statut = '3')"; // Show only public leaves (2 = leave wait for approval, 3 = leave approved)
 
+		if ($mode == 'show_day') {
+			// Request only leaves for the current selected day
+			$sql .= " AND '".$db->escape($year)."-".$db->escape($month)."-".$db->escape($day)."' BETWEEN x.date_debut AND x.date_fin";	// date_debut and date_fin are date without time
+		} elseif ($mode == 'show_week') {
+			// Restrict on current month (we get more, but we will filter later)
+			$sql .= " AND date_debut < '".$db->idate(dol_get_last_day($year, $month))."'";
+			$sql .= " AND date_fin >= '".$db->idate(dol_get_first_day($year, $month))."'";
+		} elseif ($mode == 'show_month') {
+			// Restrict on current month
+			$sql .= " AND date_debut <= '".$db->idate(dol_get_last_day($year, $month))."'";
+			$sql .= " AND date_fin >= '".$db->idate(dol_get_first_day($year, $month))."'";
+		}
+		$resql = $db->query($sql);
+		if ($resql) {
+			$num = $db->num_rows($resql);
+			$obj = $db->fetch_object($resql);
+
+			$tmpEvent = array(
+				'id' => $obj->rowid
+			, 'title' => $obj->ref
+			, 'allDay' => 1
+			, 'start' => (empty($event->datep) ? '' : dol_print_date($obj->date_start, '%Y-%m-%d %H:%M:%S'))
+			, 'end' => (empty($event->datef) ? '' : dol_print_date($obj->date_end, '%Y-%m-%d %H:%M:%S'))
+			, 'url_title' => dol_buildpath('/comm/action/card.php?id=' . $obj->rowid, 1)
+			, 'editable' => $editable
+			, 'color' => $color
+			, 'isDarkColor' => isDarkColor($color)
+			, 'colors' => $colors
+			, 'note' => $obj->description
+			, 'statut' => $obj->status
+			, 'fk_soc' => null
+			, 'fk_contact' => null
+			, 'fk_user' => $obj->fk_user
+			, 'TFk_user' => null
+			, 'fk_project' => null
+			, 'societe' => null
+			, 'contact' => null
+			, 'user' => $obj->fk_user
+			, 'project' => null
+
+			, 'project_order' => null
+			, 'fk_project_order' => null
+
+			, 'splitedfulldayevent' => null
+			, 'fulldayevent' => null
+			, 'more' => ''
+			, 'object' => $obj
+			);
+
+			$TEvent[] = $tmpEvent;
+		}
+	}
+	var_dump($TEvent);
 	return $TEvent;
 
 }
@@ -1012,8 +1076,13 @@ function completeWithExtEvent(&$TEvent, &$TSociete, &$TContact, &$TProject)
 			if (! empty($user->conf->$source) && ! empty($user->conf->$name))
 			{
 				// Note: $conf->global->buggedfile can be empty or 'uselocalandtznodaylight' or 'uselocalandtzdaylight'
-				$listofextcals[]=array('src'=>$user->conf->$source,'name'=>$user->conf->$name,'offsettz'=>$user->conf->$offsettz,'color'=>$user->conf->$color,'buggedfile'=>(isset($user->conf->buggedfile)?$user->conf->buggedfile:0));
-			}
+				$listofextcals[] = array(
+					'src' => isset($user->conf->$source) ? $user->conf->$source : null,
+					'name' => isset($user->conf->$name) ? $user->conf->$name : null,
+					'offsettz' => isset($user->conf->$offsettz) ? $user->conf->$offsettz : null,
+					'color' => isset($user->conf->$color) ? $user->conf->$color : null,
+					'buggedfile' => isset($user->conf->buggedfile) ? $user->conf->buggedfile : 0
+				);}
 		}
 	}
 
@@ -1227,6 +1296,8 @@ function completeWithExtEvent(&$TEvent, &$TSociete, &$TContact, &$TProject)
 				$event=new ActionComm($db);
 				// Gestion changements v13
                 // Gestion de la rétrocompatibilité
+
+				$event->contactid = 1;
                 $eventContactId = $event->contact_id;
                 if (empty ($eventContactId)) $eventContactId = $event->contactid;
 
