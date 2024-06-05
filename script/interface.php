@@ -888,7 +888,7 @@ function _events($date_start, $date_end) {
 	if ($user->hasRight("holiday", "read")) {
 		// LEAVE-HOLIDAY CALENDAR
 		$sql = "SELECT u.rowid as uid, u.lastname, u.firstname, u.statut, x.rowid, x.ref, x.fk_user,x.date_debut as date_start, x.date_fin as date_end, x.halfday, x.statut as status, x.description";
-		$sql .= " FROM ".MAIN_DB_PREFIX."holiday as x, ".MAIN_DB_PREFIX."user as u";
+		$sql .= " FROM ". $db->prefix() ."holiday as x, ". $db->prefix() ."user as u";
 		$sql .= " WHERE u.rowid = x.fk_user";
 		$sql .= " AND u.statut = '1'"; // Show only active users  (0 = inactive user, 1 = active user)
 		$sql .= " AND (x.statut = '2' OR x.statut = '3')"; // Show only public leaves (2 = leave wait for approval, 3 = leave approved)
