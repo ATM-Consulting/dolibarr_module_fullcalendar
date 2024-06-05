@@ -309,6 +309,14 @@ header('Content-Type: text/javascript');
 							jQuery(".family_ext" + name.replace("check_ext", "")).hide();
 						}
 					});
+					jQuery("div input[name^=\"check_holiday\"]").each(function(index, elem) {
+						var name = jQuery(elem).attr("name");
+						if (jQuery(elem).is(":checked")) {
+							jQuery(".family_holiday" ).show();
+						} else {
+							jQuery(".family_holiday").hide();
+						}
+					});
 				})
 
 				var title = element.find('.fc-title').html();
