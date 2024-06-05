@@ -6,7 +6,8 @@ All notable changes to this project will be documented in this file.
 
 
 ## Release 2.6
-- FIX : Add LIMIT on query to fetch events, to prevent memory limit access - DA024924 - *30/05/2024* - 2.6.8 
+- FIX : Ajout de la gestion des congés sur full calendar - *05/06/2024* - 2.6.9
+- FIX : Add LIMIT on query to fetch events, to prevent memory limit access - DA024924 - *30/05/2024* - 2.6.8
 - FIX : Fuseau UTC php add event retour ticket- *17/05/2024* - 2.6.7
 - FIX : No fullcalendar on calendar view (because of http_referer) - *29/04/2024* - 2.6.6 
 - FIX : Warnings bloquant l'activation du module - *10/04/2024* - 2.6.5
