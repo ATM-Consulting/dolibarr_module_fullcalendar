@@ -914,9 +914,9 @@ function _events($date_start, $date_end) {
 				'id' => $obj->rowid
 			, 'title' => $obj->ref
 			, 'allDay' => 1
-			, 'start' => (empty($event->datep) ? '' : dol_print_date($obj->date_start, '%Y-%m-%d %H:%M:%S'))
-			, 'end' => (empty($event->datef) ? '' : dol_print_date($obj->date_end, '%Y-%m-%d %H:%M:%S'))
-			, 'url_title' => dol_buildpath('/comm/action/card.php?id=' . $obj->rowid, 1)
+			, 'start' => (empty($event->datep) ? '' : dol_print_date($obj->date_start, '%Y-%m-%d'))
+			, 'end' => (empty($event->datef) ? '' : dol_print_date($obj->date_end, '%Y-%m-%d'))
+			, 'url_title' => dol_buildpath('/holiday/card.php?id=' . $obj->rowid, 1)
 			, 'editable' => $editable
 			, 'color' => $color
 			, 'isDarkColor' => isDarkColor($color)
@@ -937,15 +937,14 @@ function _events($date_start, $date_end) {
 			, 'fk_project_order' => null
 
 			, 'splitedfulldayevent' => null
-			, 'fulldayevent' => null
+			, 'fulldayevent' => 1
 			, 'more' => ''
-			, 'object' => $obj
+			,'moreclass' => 'family_holiday'
 			);
 
 			$TEvent[] = $tmpEvent;
 		}
 	}
-	var_dump($TEvent);
 	return $TEvent;
 
 }
