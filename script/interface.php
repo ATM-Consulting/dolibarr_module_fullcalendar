@@ -908,41 +908,44 @@ function _events($date_start, $date_end) {
 		$resql = $db->query($sql);
 		if ($resql) {
 			$num = $db->num_rows($resql);
-			$obj = $db->fetch_object($resql);
 
-			$tmpEvent = array(
-				'id' => $obj->rowid
-			, 'title' => $obj->ref
-			, 'allDay' => 1
-			, 'start' => (empty($event->datep) ? '' : dol_print_date($obj->date_start, '%Y-%m-%d'))
-			, 'end' => (empty($event->datef) ? '' : dol_print_date($obj->date_end, '%Y-%m-%d'))
-			, 'url_title' => dol_buildpath('/holiday/card.php?id=' . $obj->rowid, 1)
-			, 'editable' => $editable
-			, 'color' => $color
-			, 'isDarkColor' => isDarkColor($color)
-			, 'colors' => $colors
-			, 'note' => $obj->description
-			, 'statut' => $obj->status
-			, 'fk_soc' => null
-			, 'fk_contact' => null
-			, 'fk_user' => $obj->fk_user
-			, 'TFk_user' => null
-			, 'fk_project' => null
-			, 'societe' => null
-			, 'contact' => null
-			, 'user' => $obj->fk_user
-			, 'project' => null
+			if ($num) {
+				$obj = $db->fetch_object($resql);
 
-			, 'project_order' => null
-			, 'fk_project_order' => null
+				$tmpEvent = array(
+					'id' => $obj->rowid
+				, 'title' => $obj->ref
+				, 'allDay' => 1
+				, 'start' => (empty($event->datep) ? '' : dol_print_date($obj->date_start, '%Y-%m-%d'))
+				, 'end' => (empty($event->datef) ? '' : dol_print_date($obj->date_end, '%Y-%m-%d'))
+				, 'url_title' => dol_buildpath('/holiday/card.php?id=' . $obj->rowid, 1)
+				, 'editable' => $editable
+				, 'color' => $color
+				, 'isDarkColor' => isDarkColor($color)
+				, 'colors' => $colors
+				, 'note' => $obj->description
+				, 'statut' => $obj->status
+				, 'fk_soc' => null
+				, 'fk_contact' => null
+				, 'fk_user' => $obj->fk_user
+				, 'TFk_user' => null
+				, 'fk_project' => null
+				, 'societe' => null
+				, 'contact' => null
+				, 'user' => $obj->fk_user
+				, 'project' => null
 
-			, 'splitedfulldayevent' => null
-			, 'fulldayevent' => 1
-			, 'more' => ''
-			,'moreclass' => 'family_holiday'
-			);
+				, 'project_order' => null
+				, 'fk_project_order' => null
 
-			$TEvent[] = $tmpEvent;
+				, 'splitedfulldayevent' => null
+				, 'fulldayevent' => 1
+				, 'more' => ''
+				,'moreclass' => 'family_holiday'
+				);
+
+				$TEvent[] = $tmpEvent;
+			}
 		}
 	}
 	return $TEvent;
