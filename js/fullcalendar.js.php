@@ -59,12 +59,12 @@ header('Content-Type: text/javascript');
 
 	$force_entity=0;
 	$sql = "SELECT DISTINCT u.rowid, u.lastname as lastname, u.firstname, u.statut, u.login, u.admin, u.entity";
-	if (! empty($conf->multicompany->enabled) && $conf->entity == 1 && $user->admin && ! $user->entity)
+	if (isModEnabled('multicompany') && $conf->entity == 1 && $user->admin && ! $user->entity)
 	{
 		$sql.= ", e.label";
 	}
 	$sql.= " FROM ".MAIN_DB_PREFIX ."user as u";
-	if (! empty($conf->multicompany->enabled) && $conf->entity == 1 && $user->admin && ! $user->entity)
+	if (isModEnabled('multicompany') && $conf->entity == 1 && $user->admin && ! $user->entity)
 	{
 		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX ."entity as e ON e.rowid=u.entity";
 		if ($force_entity) $sql.= " WHERE u.entity IN (0,".$force_entity.")";
@@ -756,7 +756,7 @@ header('Content-Type: text/javascript');
 
 			<?php }
 
-				$doleditor=new DolEditor('note', '','',200,'dolibarr_notes','In',true,true,$conf->fckeditor->enabled,ROWS_5,90);
+				$doleditor=new DolEditor('note', '','',200,'dolibarr_notes','In',true,true,isModEnabled('fckeditor'),ROWS_5,90);
 				$fullcalendar_note = $doleditor->Create(1);
 			?>
 			$form.append('<br />'+<?php echo json_encode($fullcalendar_note); ?>);
@@ -1029,7 +1029,7 @@ header('Content-Type: text/javascript');
 
 
 								var note = $('#pop-new-event textarea[name=note]').val();
-								<?php if (!empty($conf->fckeditor->enabled)) { ?>note = CKEDITOR.instances['note'].getData(); <?php } ?>
+								<?php if (isModEnabled('fckeditor')) { ?>note = CKEDITOR.instances['note'].getData(); <?php } ?>
 
 								$.ajax({
 									method: 'POST'
@@ -1118,7 +1118,7 @@ header('Content-Type: text/javascript');
 
 
 								var note = $('#pop-new-event textarea[name=note]').val();
-								<?php if (!empty($conf->fckeditor->enabled)) { ?>note = CKEDITOR.instances['note'].getData(); <?php } ?>
+								<?php if (isModEnabled('fckeditor')) { ?>note = CKEDITOR.instances['note'].getData(); <?php } ?>
 
 								$.ajax({
 									method: 'POST'

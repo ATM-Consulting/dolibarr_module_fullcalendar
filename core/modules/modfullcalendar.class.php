@@ -61,7 +61,7 @@ class modfullcalendar extends DolibarrModules
 		$this->description = "Description of module fullcalendar";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
 
-		$this->version = '2.6.9';
+		$this->version = '2.7.0';
 		// Url to the file with your last numberversion of this module
 		require_once __DIR__ . '/../../class/techatm.class.php';
 		$this->url_last_version = \fullcalendar\TechATM::getLastModuleVersionUrl($this);
@@ -115,7 +115,7 @@ class modfullcalendar extends DolibarrModules
 		$this->requiredby = array();	// List of modules id to disable if this one is disabled
 		$this->conflictwith = array();	// List of modules id this module is in conflict with
 		$this->phpmin = array(7,0);					// Minimum version of PHP required by module
-		$this->need_dolibarr_version = array(15,0);	// Minimum version of Dolibarr required by module
+		$this->need_dolibarr_version = array(16,0);	// Minimum version of Dolibarr required by module
 		$this->langfiles = array("fullcalendar@fullcalendar");
 
 		// Constants
@@ -157,14 +157,14 @@ class modfullcalendar extends DolibarrModules
 		);
 
         // Dictionaries
-	    if (! isset($conf->fullcalendar->enabled))
+	    if (!isModEnabled('fullcalendar'))
         {
         	$conf->fullcalendar=new stdClass();
         	$conf->fullcalendar->enabled=0;
         }
 		$this->dictionaries=array();
         /* Example:
-        if (! isset($conf->fullcalendar->enabled)) $conf->fullcalendar->enabled=0;	// This is to avoid warnings
+        if (! isModEnabled('fullcalendar')) isModEnabled('fullcalendar')=0;	// This is to avoid warnings
         $this->dictionaries=array(
             'langs'=>'mylangfile@fullcalendar',
             'tabname'=>array(MAIN_DB_PREFIX."table1",MAIN_DB_PREFIX."table2",MAIN_DB_PREFIX."table3"),		// List of tables we want to see into dictonnary editor
@@ -175,7 +175,7 @@ class modfullcalendar extends DolibarrModules
             'tabfieldvalue'=>array("code,label","code,label","code,label"),																				// List of fields (list of fields to edit a record)
             'tabfieldinsert'=>array("code,label","code,label","code,label"),																			// List of fields (list of fields for insert)
             'tabrowid'=>array("rowid","rowid","rowid"),																									// Name of columns with primary key (try to always name it 'rowid')
-            'tabcond'=>array($conf->fullcalendar->enabled,$conf->fullcalendar->enabled,$conf->fullcalendar->enabled)												// Condition to show each dictionary
+            'tabcond'=>array(isModEnabled('fullcalendar'),isModEnabled('fullcalendar'),isModEnabled('fullcalendar'))												// Condition to show each dictionary
         );
         */
 
@@ -225,7 +225,7 @@ class modfullcalendar extends DolibarrModules
 		//							'url'=>'/fullcalendar/pagetop.php',
 		//							'langs'=>'mylangfile@fullcalendar',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 		//							'position'=>100,
-		//							'enabled'=>'$conf->fullcalendar->enabled',	// Define condition to show or hide menu entry. Use '$conf->fullcalendar->enabled' if entry must be visible if module is enabled.
+		//							'enabled'=>"isModEnabled('fullcalendar')",	// Define condition to show or hide menu entry. Use "isModEnabled('fullcalendar')" if entry must be visible if module is enabled.
 		//							'perms'=>'1',			                // Use 'perms'=>'$user->rights->fullcalendar->level1->level2' if you want your menu with a permission rules
 		//							'target'=>'',
 		//							'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
@@ -240,7 +240,7 @@ class modfullcalendar extends DolibarrModules
 		//							'url'=>'/fullcalendar/pagelevel2.php',
 		//							'langs'=>'mylangfile@fullcalendar',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 		//							'position'=>100,
-		//							'enabled'=>'$conf->fullcalendar->enabled',  // Define condition to show or hide menu entry. Use '$conf->fullcalendar->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+		//							'enabled'=>"isModEnabled('fullcalendar')",  // Define condition to show or hide menu entry. Use "isModEnabled('fullcalendar')" if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
 		//							'perms'=>'1',			                // Use 'perms'=>'$user->rights->fullcalendar->level1->level2' if you want your menu with a permission rules
 		//							'target'=>'',
 		//							'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
