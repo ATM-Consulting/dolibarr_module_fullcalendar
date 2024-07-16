@@ -113,7 +113,7 @@ header('Content-Type: text/javascript');
 	$select_user = $form->multiselectarray('fk_user', $TUserToSelect,array($user->id), 0,0,'minwidth300');
 
 	ob_start();
-	$form->select_contacts(-1, -1, 'contactid', 1, '', '', 0, 'minwidth200'); // contactid car nom non pris en compte par l'ajax en vers.<3.9
+	$form->select_contact(-1, -1, 'contactid', 1, '', '', 0, 'minwidth200'); // contactid car nom non pris en compte par l'ajax en vers.<3.9
 	$select_contact = ob_get_clean();
 
 	ob_start();
