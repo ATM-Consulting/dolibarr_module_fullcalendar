@@ -179,6 +179,7 @@ header('Content-Type: text/javascript');
 
 
 		var clearDiv = parentDiv.find('div[class="clearboth"]');
+		if(!clearDiv.length) clearDiv = parentDiv.find('div[style="clear:both"]'); // for compatibility with old dolibarr version (<= 17)
 		buttonElement.insertBefore(clearDiv);
 
 
