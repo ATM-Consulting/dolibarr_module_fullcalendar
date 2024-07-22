@@ -940,10 +940,10 @@ header('Content-Type: text/javascript');
 				<?php } ?>
 				if (calEvent.object.socid > 0) {
 					$div.find('#fk_soc').val(calEvent.object.socid).trigger('change'); // Si COMPANY_USE_SEARCH_TO_SELECT == 0, alors le trigger "change" fera l'affaire
-					setTimeout(function() { $div.find('#contactid').val(calEvent.object.contactid).trigger('change'); } ,250);
+					setTimeout(function() { $div.find('#contactid').val(calEvent.object.contact_id).trigger('change'); } ,250);
 					<?php if (getDolGlobalString('COMPANY_USE_SEARCH_TO_SELECT')) { ?>$div.find('#search_fk_soc').val(calEvent.object.thirdparty.name); <?php } ?>
 				}
-				$div.find('#contactid').val(calEvent.object.contactid).trigger('change');
+				$div.find('#contactid').val(calEvent.object.contact_id).trigger('change');
 				TUserId = calEvent.TFk_user;
 				$div.find('#fk_project').val(calEvent.object.fk_project).trigger('change');
 

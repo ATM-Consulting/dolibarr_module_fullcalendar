@@ -243,10 +243,6 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 
 
 			$a=new ActionComm($db);
-            // Gestion changements v13
-            // Gestion de la rétrocompatibilité;
-				$a->contactid = 1;
-            $contactId = $a->contact_id ? $a->contact_id : $a->contactid;
 
 			$id = GETPOST('id', 'int');
 			if (!empty($id)) $a->fetch($id);
@@ -289,7 +285,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 			$a->type_id = $a->fk_action; // type_id used instead of fk_action in ActionComm::update() since Dolibarr 7.0, used in ::add()/::create() since the beginning
 
 			$a->socid = GETPOST('fk_soc', 'int');
-			$contactId = GETPOST('fk_contact', 'int');
+			$a->contact_id = GETPOST('fk_contact', 'int');
 
 			$a->fk_project = GETPOST('fk_project','int');
 
@@ -332,7 +328,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 			}
 			else
 			{
-				if (empty($contactId)) $a->contact = null;
+				if (empty($a->contact_id)) $a->contact = null;
 
 				$res = $a->update($user);
 				if ($res > 0)
