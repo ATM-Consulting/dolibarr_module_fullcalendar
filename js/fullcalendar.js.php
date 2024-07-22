@@ -885,12 +885,11 @@ header('Content-Type: text/javascript');
 				var fk_soc = $(this).val();
 
 				$.ajax({
-					url: "<?php echo dol_buildpath('/core/ajax/contacts.php?action=getContacts&htmlname=contactid&showempty=1',1) ?>&id="+fk_soc
+					url: "<?php echo dol_buildpath('/core/ajax/contacts.php?action=getContacts&htmlname=contactid&showempty=1&token='.$newToken,1) ?>&id="+fk_soc
 					,dataType:'json'
 					,token: token
 				}).done(function(data) {
-					<?php if((float)DOL_VERSION > 7) { ?> $('#pop-new-event span[rel=contact]').html('<select class="flat" id="contactid" name="contactid">'+data.value+'</select>');
-					<?php } else { ?> $('#pop-new-event span[rel=contact]').html(data.value); <?php } ?>
+					$('#pop-new-event span[rel=contact]').html('<select class="flat" id="contactid" name="contactid">'+data.value+'</select>');$('#contactid').select2();
 				});
 
 			});
