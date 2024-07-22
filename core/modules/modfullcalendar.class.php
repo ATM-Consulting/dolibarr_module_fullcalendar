@@ -92,7 +92,7 @@ class modfullcalendar extends DolibarrModules
 	 	//							'js' => array('/fullcalendar/js/fullcalendar.js'),          // Set this to relative path of js file if module must load a js on all pages
 		//							'hooks' => array('hookcontext1','hookcontext2')  	// Set here all hooks context managed by module
 		//							'dir' => array('output' => 'othermodulename'),      // To force the default directories names
-		//							'workflow' => array('WORKFLOW_MODULE1_YOURACTIONTYPE_MODULE2'=>array('enabled'=>'! empty($conf->module1->enabled) && ! empty($conf->module2->enabled)', 'picto'=>'yourpicto@fullcalendar')) // Set here all workflow context managed by module
+		//							'workflow' => array('WORKFLOW_MODULE1_YOURACTIONTYPE_MODULE2'=>array('enabled'=>'! isModEnabled(\'module1\') && isModEnabled(\'module2\'), 'picto'=>'yourpicto@fullcalendar')) // Set here all workflow context managed by module
 		//                        );
 
 		$this->module_parts = array(
@@ -213,38 +213,6 @@ class modfullcalendar extends DolibarrModules
 		// Main menu entries
 		$this->menu = array();			// List of menus to add
 		$r=0;
-
-		// Add here entries to declare new menus
-		//
-		// Example to declare a new Top Menu entry and its Left menu entry:
-		// $this->menu[$r]=array(	'fk_menu'=>0,			                // Put 0 if this is a top menu
-		//							'type'=>'top',			                // This is a Top menu entry
-		//							'titre'=>'fullcalendar top menu',
-		//							'mainmenu'=>'fullcalendar',
-		//							'leftmenu'=>'fullcalendar',
-		//							'url'=>'/fullcalendar/pagetop.php',
-		//							'langs'=>'mylangfile@fullcalendar',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-		//							'position'=>100,
-		//							'enabled'=>"isModEnabled('fullcalendar')",	// Define condition to show or hide menu entry. Use "isModEnabled('fullcalendar')" if entry must be visible if module is enabled.
-		//							'perms'=>'1',			                // Use 'perms'=>'$user->rights->fullcalendar->level1->level2' if you want your menu with a permission rules
-		//							'target'=>'',
-		//							'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
-		// $r++;
-		//
-		// Example to declare a Left Menu entry into an existing Top menu entry:
-		// $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=xxx',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
-		//							'type'=>'left',			                // This is a Left menu entry
-		//							'titre'=>'fullcalendar left menu',
-		//							'mainmenu'=>'xxx',
-		//							'leftmenu'=>'fullcalendar',
-		//							'url'=>'/fullcalendar/pagelevel2.php',
-		//							'langs'=>'mylangfile@fullcalendar',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-		//							'position'=>100,
-		//							'enabled'=>"isModEnabled('fullcalendar')",  // Define condition to show or hide menu entry. Use "isModEnabled('fullcalendar')" if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-		//							'perms'=>'1',			                // Use 'perms'=>'$user->rights->fullcalendar->level1->level2' if you want your menu with a permission rules
-		//							'target'=>'',
-		//							'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
-		// $r++;
 
         $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=project',			                // Put 0 if this is a top menu
 								'type'=>'left',			                // This is a Top menu entry
