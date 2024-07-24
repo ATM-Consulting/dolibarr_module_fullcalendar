@@ -61,7 +61,7 @@ class modfullcalendar extends DolibarrModules
 		$this->description = "Description of module fullcalendar";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
 
-		$this->version = '2.6.9';
+		$this->version = '2.7.0';
 		// Url to the file with your last numberversion of this module
 		require_once __DIR__ . '/../../class/techatm.class.php';
 		$this->url_last_version = \fullcalendar\TechATM::getLastModuleVersionUrl($this);
@@ -92,7 +92,7 @@ class modfullcalendar extends DolibarrModules
 	 	//							'js' => array('/fullcalendar/js/fullcalendar.js'),          // Set this to relative path of js file if module must load a js on all pages
 		//							'hooks' => array('hookcontext1','hookcontext2')  	// Set here all hooks context managed by module
 		//							'dir' => array('output' => 'othermodulename'),      // To force the default directories names
-		//							'workflow' => array('WORKFLOW_MODULE1_YOURACTIONTYPE_MODULE2'=>array('enabled'=>'! empty($conf->module1->enabled) && ! empty($conf->module2->enabled)', 'picto'=>'yourpicto@fullcalendar')) // Set here all workflow context managed by module
+		//							'workflow' => array('WORKFLOW_MODULE1_YOURACTIONTYPE_MODULE2'=>array('enabled'=>'! isModEnabled(\'module1\') && isModEnabled(\'module2\'), 'picto'=>'yourpicto@fullcalendar')) // Set here all workflow context managed by module
 		//                        );
 
 		$this->module_parts = array(
@@ -115,7 +115,7 @@ class modfullcalendar extends DolibarrModules
 		$this->requiredby = array();	// List of modules id to disable if this one is disabled
 		$this->conflictwith = array();	// List of modules id this module is in conflict with
 		$this->phpmin = array(7,0);					// Minimum version of PHP required by module
-		$this->need_dolibarr_version = array(15,0);	// Minimum version of Dolibarr required by module
+		$this->need_dolibarr_version = array(16,0);	// Minimum version of Dolibarr required by module
 		$this->langfiles = array("fullcalendar@fullcalendar");
 
 		// Constants
@@ -157,14 +157,14 @@ class modfullcalendar extends DolibarrModules
 		);
 
         // Dictionaries
-	    if (! isset($conf->fullcalendar->enabled))
+	    if (!isModEnabled('fullcalendar'))
         {
         	$conf->fullcalendar=new stdClass();
         	$conf->fullcalendar->enabled=0;
         }
 		$this->dictionaries=array();
         /* Example:
-        if (! isset($conf->fullcalendar->enabled)) $conf->fullcalendar->enabled=0;	// This is to avoid warnings
+        if (! isModEnabled('fullcalendar')) isModEnabled('fullcalendar')=0;	// This is to avoid warnings
         $this->dictionaries=array(
             'langs'=>'mylangfile@fullcalendar',
             'tabname'=>array(MAIN_DB_PREFIX."table1",MAIN_DB_PREFIX."table2",MAIN_DB_PREFIX."table3"),		// List of tables we want to see into dictonnary editor
@@ -175,7 +175,7 @@ class modfullcalendar extends DolibarrModules
             'tabfieldvalue'=>array("code,label","code,label","code,label"),																				// List of fields (list of fields to edit a record)
             'tabfieldinsert'=>array("code,label","code,label","code,label"),																			// List of fields (list of fields for insert)
             'tabrowid'=>array("rowid","rowid","rowid"),																									// Name of columns with primary key (try to always name it 'rowid')
-            'tabcond'=>array($conf->fullcalendar->enabled,$conf->fullcalendar->enabled,$conf->fullcalendar->enabled)												// Condition to show each dictionary
+            'tabcond'=>array(isModEnabled('fullcalendar'),isModEnabled('fullcalendar'),isModEnabled('fullcalendar'))												// Condition to show each dictionary
         );
         */
 
@@ -213,38 +213,6 @@ class modfullcalendar extends DolibarrModules
 		// Main menu entries
 		$this->menu = array();			// List of menus to add
 		$r=0;
-
-		// Add here entries to declare new menus
-		//
-		// Example to declare a new Top Menu entry and its Left menu entry:
-		// $this->menu[$r]=array(	'fk_menu'=>0,			                // Put 0 if this is a top menu
-		//							'type'=>'top',			                // This is a Top menu entry
-		//							'titre'=>'fullcalendar top menu',
-		//							'mainmenu'=>'fullcalendar',
-		//							'leftmenu'=>'fullcalendar',
-		//							'url'=>'/fullcalendar/pagetop.php',
-		//							'langs'=>'mylangfile@fullcalendar',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-		//							'position'=>100,
-		//							'enabled'=>'$conf->fullcalendar->enabled',	// Define condition to show or hide menu entry. Use '$conf->fullcalendar->enabled' if entry must be visible if module is enabled.
-		//							'perms'=>'1',			                // Use 'perms'=>'$user->rights->fullcalendar->level1->level2' if you want your menu with a permission rules
-		//							'target'=>'',
-		//							'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
-		// $r++;
-		//
-		// Example to declare a Left Menu entry into an existing Top menu entry:
-		// $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=xxx',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
-		//							'type'=>'left',			                // This is a Left menu entry
-		//							'titre'=>'fullcalendar left menu',
-		//							'mainmenu'=>'xxx',
-		//							'leftmenu'=>'fullcalendar',
-		//							'url'=>'/fullcalendar/pagelevel2.php',
-		//							'langs'=>'mylangfile@fullcalendar',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-		//							'position'=>100,
-		//							'enabled'=>'$conf->fullcalendar->enabled',  // Define condition to show or hide menu entry. Use '$conf->fullcalendar->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-		//							'perms'=>'1',			                // Use 'perms'=>'$user->rights->fullcalendar->level1->level2' if you want your menu with a permission rules
-		//							'target'=>'',
-		//							'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
-		// $r++;
 
         $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=project',			                // Put 0 if this is a top menu
 								'type'=>'left',			                // This is a Top menu entry

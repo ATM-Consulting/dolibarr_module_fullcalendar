@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 
 
 
+## Release 2.7
+
+- FIX : Compat v20 - *22/07/2024* - 2.7.0
+  Changed Dolibarr compatibility range to 16 min - 20 max
+
 ## Release 2.6
 - FIX : Ajout de la gestion des congés sur full calendar - *05/06/2024* - 2.6.9
 - FIX : Add LIMIT on query to fetch events, to prevent memory limit access - DA024924 - *30/05/2024* - 2.6.8

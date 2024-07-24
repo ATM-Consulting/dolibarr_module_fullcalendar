@@ -6,6 +6,7 @@ header('Content-Type: text/javascript');
 	require '../config.php';
 
 	require_once DOL_DOCUMENT_ROOT.'/core/class/doleditor.class.php';
+	require_once DOL_DOCUMENT_ROOT.'/core/lib/admin.lib.php';
 
 	$langs->load('fullcalendar@fullcalendar');
 
@@ -59,12 +60,12 @@ header('Content-Type: text/javascript');
 
 	$force_entity=0;
 	$sql = "SELECT DISTINCT u.rowid, u.lastname as lastname, u.firstname, u.statut, u.login, u.admin, u.entity";
-	if (! empty($conf->multicompany->enabled) && $conf->entity == 1 && $user->admin && ! $user->entity)
+	if (isModEnabled('multicompany') && $conf->entity == 1 && $user->admin && ! $user->entity)
 	{
 		$sql.= ", e.label";
 	}
 	$sql.= " FROM ".MAIN_DB_PREFIX ."user as u";
-	if (! empty($conf->multicompany->enabled) && $conf->entity == 1 && $user->admin && ! $user->entity)
+	if (isModEnabled('multicompany') && $conf->entity == 1 && $user->admin && ! $user->entity)
 	{
 		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX ."entity as e ON e.rowid=u.entity";
 		if ($force_entity) $sql.= " WHERE u.entity IN (0,".$force_entity.")";
@@ -113,7 +114,11 @@ header('Content-Type: text/javascript');
 	$select_user = $form->multiselectarray('fk_user', $TUserToSelect,array($user->id), 0,0,'minwidth300');
 
 	ob_start();
-	$form->select_contacts(-1, -1, 'contactid', 1, '', '', 0, 'minwidth200'); // contactid car nom non pris en compte par l'ajax en vers.<3.9
+	if(versioncompare(versiondolibarrarray(), array(20)) >= 0) {
+		echo $form->select_contact(-1, -1, 'contactid', 1, '', '', 0, 'minwidth200'); // contactid car nom non pris en compte par l'ajax en vers.<3.9
+	} else {
+		$form->select_contacts(-1, -1, 'contactid', 1, '', '', 0, 'minwidth200'); // contactid car nom non pris en compte par l'ajax en vers.<3.9
+	}
 	$select_contact = ob_get_clean();
 
 	ob_start();
@@ -174,6 +179,7 @@ header('Content-Type: text/javascript');
 
 
 		var clearDiv = parentDiv.find('div[class="clearboth"]');
+		if(!clearDiv.length) clearDiv = parentDiv.find('div[style="clear:both"]'); // for compatibility with old dolibarr version (<= 17)
 		buttonElement.insertBefore(clearDiv);
 
 
@@ -756,7 +762,7 @@ header('Content-Type: text/javascript');
 
 			<?php }
 
-				$doleditor=new DolEditor('note', '','',200,'dolibarr_notes','In',true,true,$conf->fckeditor->enabled,ROWS_5,90);
+				$doleditor=new DolEditor('note', '','',200,'dolibarr_notes','In',true,true,isModEnabled('fckeditor'),ROWS_5,90);
 				$fullcalendar_note = $doleditor->Create(1);
 			?>
 			$form.append('<br />'+<?php echo json_encode($fullcalendar_note); ?>);
@@ -880,12 +886,11 @@ header('Content-Type: text/javascript');
 				var fk_soc = $(this).val();
 
 				$.ajax({
-					url: "<?php echo dol_buildpath('/core/ajax/contacts.php?action=getContacts&htmlname=contactid&showempty=1',1) ?>&id="+fk_soc
+					url: "<?php echo dol_buildpath('/core/ajax/contacts.php?action=getContacts&htmlname=contactid&showempty=1&token='.$newToken,1) ?>&id="+fk_soc
 					,dataType:'json'
 					,token: token
 				}).done(function(data) {
-					<?php if((float)DOL_VERSION > 7) { ?> $('#pop-new-event span[rel=contact]').html('<select class="flat" id="contactid" name="contactid">'+data.value+'</select>');
-					<?php } else { ?> $('#pop-new-event span[rel=contact]').html(data.value); <?php } ?>
+					$('#pop-new-event span[rel=contact]').html('<select class="flat" id="contactid" name="contactid">'+data.value+'</select>');$('#contactid').select2();
 				});
 
 			});
@@ -935,10 +940,10 @@ header('Content-Type: text/javascript');
 				<?php } ?>
 				if (calEvent.object.socid > 0) {
 					$div.find('#fk_soc').val(calEvent.object.socid).trigger('change'); // Si COMPANY_USE_SEARCH_TO_SELECT == 0, alors le trigger "change" fera l'affaire
-					setTimeout(function() { $div.find('#contactid').val(calEvent.object.contactid).trigger('change'); } ,250);
+					setTimeout(function() { $div.find('#contactid').val(calEvent.object.contact_id).trigger('change'); } ,250);
 					<?php if (getDolGlobalString('COMPANY_USE_SEARCH_TO_SELECT')) { ?>$div.find('#search_fk_soc').val(calEvent.object.thirdparty.name); <?php } ?>
 				}
-				$div.find('#contactid').val(calEvent.object.contactid).trigger('change');
+				$div.find('#contactid').val(calEvent.object.contact_id).trigger('change');
 				TUserId = calEvent.TFk_user;
 				$div.find('#fk_project').val(calEvent.object.fk_project).trigger('change');
 
@@ -1029,7 +1034,7 @@ header('Content-Type: text/javascript');
 
 
 								var note = $('#pop-new-event textarea[name=note]').val();
-								<?php if (!empty($conf->fckeditor->enabled)) { ?>note = CKEDITOR.instances['note'].getData(); <?php } ?>
+								<?php if (isModEnabled('fckeditor')) { ?>note = CKEDITOR.instances['note'].getData(); <?php } ?>
 
 								$.ajax({
 									method: 'POST'
@@ -1118,7 +1123,7 @@ header('Content-Type: text/javascript');
 
 
 								var note = $('#pop-new-event textarea[name=note]').val();
-								<?php if (!empty($conf->fckeditor->enabled)) { ?>note = CKEDITOR.instances['note'].getData(); <?php } ?>
+								<?php if (isModEnabled('fckeditor')) { ?>note = CKEDITOR.instances['note'].getData(); <?php } ?>
 
 								$.ajax({
 									method: 'POST'
