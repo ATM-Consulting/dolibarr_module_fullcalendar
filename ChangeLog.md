@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
   Changed Dolibarr compatibility range to 16 min - 20 max
 
 ## Release 2.6
+
 - FIX : Ajout de la gestion des congés sur full calendar - *05/06/2024* - 2.6.9
 - FIX : Add LIMIT on query to fetch events, to prevent memory limit access - DA024924 - *30/05/2024* - 2.6.8
 - FIX : Fuseau UTC php add event retour ticket- *17/05/2024* - 2.6.7
@@ -25,7 +26,8 @@ All notable changes to this project will be documented in this file.
   Change PHP compatibility range to 7.0 min - 8.2 max
 
 ## Release 2.5
--FIX :  DA024868 textlabel on conf activated *22/05/2024* - 2.5.5  
+
+- FIX :  DA024868 textlabel on conf activated *22/05/2024* - 2.5.5  
 - FIX : DA024569 - Suppression des boutons standard en double avec full calendar + déplacement du bouton de recherche a coté des filtres *05/03/2024* 2.5.4
 - FIX : DA023055 - Gestion de la recherche sur le statut "Non applicable" *07/03/2023* 2.5.3
 - FIX : Remove deprecated function call *03/08/2022* 2.5.2
