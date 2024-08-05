@@ -48,7 +48,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 
 			}
 	*/
-			$TEvent = _events($start, $end);
+			$TEvent = _events($start, $end, $month, $year);
 			foreach ($TEvent as &$event) unset($event['object']->db);
 			__out($TEvent, 'json');
 
@@ -485,7 +485,7 @@ function makeTaskDesc($task, $dateEnd) {
     return $desc;
 }
 
-function _events($date_start, $date_end) {
+function _events($date_start, $date_end, $month=-1, $year=-1) {
 	global $db,$conf,$langs,$user,$hookmanager;
 
 	$hookmanager->initHooks(array('agenda'));
@@ -586,8 +586,8 @@ function _events($date_start, $date_end) {
 	// We must filter on assignement table
 	if ($filtert > 0 || $usergroup > 0) $sql.= " AND ar.element_type='user'";
 
-	$month = date('n', $t_start) + 1;
-	$year = date('Y', $t_start);
+	$month = $month > 0 ? $month : date('n', $t_start);
+	$year = $year > 0 ? $year : date('Y', $t_start);
 
 	$sql .= " AND (";
 	$sql .= " (a.datep BETWEEN '" . $db->idate(dol_mktime(0, 0, 0, $month, 1, $year) - (60 * 60 * 24 * 7)) . "'"; // Start 7 days before
