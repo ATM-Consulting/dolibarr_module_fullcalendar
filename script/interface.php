@@ -660,7 +660,7 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 		if (method_exists($event, 'fetchObjectLinked')) $event->fetchObjectLinked();
 		$event->fetch_userassigned();
 
-		$event->color = $obj->color;
+//		$event->color = $obj->color;
 		$event->type_color = $obj->type_color;
 
 		if(getDolGlobalString('FULLCALENDAR_SPLIT_DAYS')
@@ -716,12 +716,12 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 		$TUserassigned = array();
 		$TColor=array();
 
-		if($event->color && getDolGlobalString('FULLCALENDAR_USE_ASSIGNED_COLOR')) {
-			$TColor[] = '#'.$event->color;
-		}
-		if($event->type_color && getDolGlobalString('FULLCALENDAR_SHOW_ALL_ASSIGNED_COLOR')) {
-			$TColor[] = '#'.$event->type_color;
-		}
+//		if($event->color && getDolGlobalString('FULLCALENDAR_USE_ASSIGNED_COLOR')) {
+//			$TColor[] = '#'.$event->color;
+//		}
+//		if($event->type_color && getDolGlobalString('FULLCALENDAR_SHOW_ALL_ASSIGNED_COLOR')) {
+//			$TColor[] = '#'.$event->type_color;
+//		}
 
 		if(getDolGlobalString('FULLCALENDAR_SHOW_AFFECTED_USER') ) {
 
