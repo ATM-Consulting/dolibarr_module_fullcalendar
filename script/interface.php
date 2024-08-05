@@ -485,6 +485,22 @@ function makeTaskDesc($task, $dateEnd) {
     return $desc;
 }
 
+/**
+ * Fetches a list of events between two dates with various filters applied.
+ *
+ * @param string $date_start The start date for fetching events (Y-m-d format).
+ * @param string $date_end The end date for fetching events (Y-m-d format).
+ * @param int $month The month for which to fetch events (default is -1, which uses the month from $date_start).
+ * @param int $year The year for which to fetch events (default is -1, which uses the year from $date_start).
+ *
+ * @global DoliDB $db Database object.
+ * @global Conf $conf Configuration object.
+ * @global Translate $langs Language translation object.
+ * @global User $user User object.
+ * @global HookManager $hookmanager Hook manager object.
+ *
+ * @return array An array of events with details such as id, title, start date, end date, etc.
+ */
 function _events($date_start, $date_end, $month=-1, $year=-1) {
 	global $db,$conf,$langs,$user,$hookmanager;
 
