@@ -48,7 +48,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 
 			}
 	*/
-			$TEvent = _events($start, $end);
+			$TEvent = _events($start, $end, $month, $year);
 			foreach ($TEvent as &$event) unset($event['object']->db);
 			__out($TEvent, 'json');
 
@@ -485,7 +485,23 @@ function makeTaskDesc($task, $dateEnd) {
     return $desc;
 }
 
-function _events($date_start, $date_end) {
+/**
+ * Fetches a list of events between two dates with various filters applied.
+ *
+ * @param string $date_start The start date for fetching events (Y-m-d format).
+ * @param string $date_end The end date for fetching events (Y-m-d format).
+ * @param int $month The month for which to fetch events (default is -1, which uses the month from $date_start).
+ * @param int $year The year for which to fetch events (default is -1, which uses the year from $date_start).
+ *
+ * @global DoliDB $db Database object.
+ * @global Conf $conf Configuration object.
+ * @global Translate $langs Language translation object.
+ * @global User $user User object.
+ * @global HookManager $hookmanager Hook manager object.
+ *
+ * @return array An array of events with details such as id, title, start date, end date, etc.
+ */
+function _events($date_start, $date_end, $month=-1, $year=-1) {
 	global $db,$conf,$langs,$user,$hookmanager;
 
 	$hookmanager->initHooks(array('agenda'));
@@ -546,12 +562,9 @@ function _events($date_start, $date_end) {
 	$sql.= ' a.fk_user_author,a.fk_user_action,';
 	$sql.= ' a.transparency, a.priority, a.fulldayevent, a.location,';
 	$sql.= ' a.fk_soc, a.fk_contact,a.note,';
-	$sql.= ' u.color,';
 	$sql.= ' ca.color as type_color,';
 	$sql.= ' ca.code as type_code, ca.libelle as type_label';
-	$sql.= ' FROM '.MAIN_DB_PREFIX."actioncomm as a";
-	$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'c_actioncomm as ca ON (a.fk_action = ca.id)';
-	$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'user u ON (a.fk_user_action=u.rowid )';
+	$sql.= ' FROM '.MAIN_DB_PREFIX.'actioncomm as a, '.MAIN_DB_PREFIX.'c_actioncomm as ca';
 	if (getDolGlobalString('FULLCALENDAR_FILTER_ON_STATE') && !empty($state_id))
 	{
 		$sql .= ' LEFT JOIN '.MAIN_DB_PREFIX.'societe s ON (s.rowid = a.fk_soc)';
@@ -562,10 +575,8 @@ function _events($date_start, $date_end) {
 	// We must filter on assignement table
 	if ($filtert > 0 || $usergroup > 0) $sql.=" LEFT JOIN ".MAIN_DB_PREFIX."actioncomm_resources as ar ON (ar.fk_actioncomm = a.id)";
 	if ($usergroup > 0) $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."usergroup_user as ugu ON ugu.fk_user = ar.fk_element";
-	$sql.= ' WHERE 1=1';
-	$sql.= ' AND a.entity IN ('.getEntity('agenda', 1).')';
-
-    if ($actioncode){
+	$sql.= ' WHERE a.fk_action = ca.id AND a.entity IN ('.getEntity('agenda', 1).' )';
+    if (!empty($actioncode)){
 
         $sql.=" AND ( ca.code IN ('".implode("','", $actioncode)."')";
 
@@ -591,12 +602,19 @@ function _events($date_start, $date_end) {
 	// We must filter on assignement table
 	if ($filtert > 0 || $usergroup > 0) $sql.= " AND ar.element_type='user'";
 
-	$sql.=" AND
-			(
-				(a.datep2>='".$db->idate($t_start-(60*60*24*7))."' AND datep<='".$db->idate($t_end+(60*60*24*10))."')
-				OR
-			  	(a.datep BETWEEN '".$db->idate($t_start-(60*60*24*7))."' AND '".$db->idate($t_end+(60*60*24*10))."')
-			) ";
+	$month = $month > 0 ? $month : date('n', $t_start);
+	$year = $year > 0 ? $year : date('Y', $t_start);
+
+	$sql .= " AND (";
+	$sql .= " (a.datep BETWEEN '" . $db->idate(dol_mktime(0, 0, 0, $month, 1, $year) - (60 * 60 * 24 * 7)) . "'"; // Start 7 days before
+	$sql .= " AND '" . $db->idate(dol_mktime(23, 59, 59, $month, 28, $year) + (60 * 60 * 24 * 10)) . "')"; // End 7 days after + 3 to go from 28 to 31
+	$sql .= " OR ";
+	$sql .= " (a.datep2 BETWEEN '" . $db->idate(dol_mktime(0, 0, 0, $month, 1, $year) - (60 * 60 * 24 * 7)) . "'";
+	$sql .= " AND '" . $db->idate(dol_mktime(23, 59, 59, $month, 28, $year) + (60 * 60 * 24 * 10)) . "')";
+	$sql .= " OR ";
+	$sql .= " (a.datep < '" . $db->idate(dol_mktime(0, 0, 0, $month, 1, $year) - (60 * 60 * 24 * 7)) . "'";
+	$sql .= " AND a.datep2 > '" . $db->idate(dol_mktime(23, 59, 59, $month, 28, $year) + (60 * 60 * 24 * 10)) . "')";
+	$sql .= ') ';
 
 	if ($type) $sql.= " AND ca.id = ".$type;
 	if ($status == '0') { $sql.= " AND a.percent = 0"; }
@@ -614,7 +632,6 @@ function _events($date_start, $date_end) {
 	}
 	// Sort on date
 	$sql.= ' ORDER BY datep';
-	$sql .= " LIMIT 100";
 
 	$TEvent=array();
 	if(isset($_REQUEST['DEBUG'])) print $sql;
