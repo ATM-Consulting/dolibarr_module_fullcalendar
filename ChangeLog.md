@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 
 ## Release 2.7
+- FIX : Suppression du fetch de chaque évenement apres la requête de sélection - *19/08/2024* - 2.7.2
 - FIX : Refactor d'une partie de la requête de sélection des événements côté fullcalendar - *05/08/2024* - 2.7.1
 - FIX : Compat v20 - *22/07/2024* - 2.7.0
   Changed Dolibarr compatibility range to 16 min - 20 max
