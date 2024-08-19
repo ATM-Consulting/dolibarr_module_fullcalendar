@@ -559,12 +559,15 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 	$sql.= ' a.datep,';
 	$sql.= ' a.datep2,';
 	$sql.= ' a.percent,';
+	$sql.= ' a.fk_project,';
 	$sql.= ' a.fk_user_author,a.fk_user_action,';
 	$sql.= ' a.transparency, a.priority, a.fulldayevent, a.location,';
 	$sql.= ' a.fk_soc, a.fk_contact,a.note,';
 	$sql.= ' ca.color as type_color,';
 	$sql.= ' ca.code as type_code, ca.libelle as type_label';
-	$sql.= ' FROM '.MAIN_DB_PREFIX.'actioncomm as a, '.MAIN_DB_PREFIX.'c_actioncomm as ca';
+	$sql.= ' FROM '.MAIN_DB_PREFIX."actioncomm as a";
+	$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'c_actioncomm as ca ON (a.fk_action = ca.id)';
+	$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'user u ON (a.fk_user_action=u.rowid )';
 	if (getDolGlobalString('FULLCALENDAR_FILTER_ON_STATE') && !empty($state_id))
 	{
 		$sql .= ' LEFT JOIN '.MAIN_DB_PREFIX.'societe s ON (s.rowid = a.fk_soc)';
@@ -575,9 +578,8 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 	// We must filter on assignement table
 	if ($filtert > 0 || $usergroup > 0) $sql.=" LEFT JOIN ".MAIN_DB_PREFIX."actioncomm_resources as ar ON (ar.fk_actioncomm = a.id)";
 	if ($usergroup > 0) $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."usergroup_user as ugu ON ugu.fk_user = ar.fk_element";
-	$sql.= ' WHERE a.fk_action = ca.id AND a.entity IN ('.getEntity('agenda', 1).' )';
-    if (!empty($actioncode)){
-
+	$sql.= ' WHERE 1=1';
+	if (!empty($actioncode)){
         $sql.=" AND ( ca.code IN ('".implode("','", $actioncode)."')";
 
         if (in_array('AC_NON_AUTO', $actioncode)) $sql .= " OR ca.type != 'systemauto'";
@@ -655,12 +657,22 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
         }
         else $eventContactId = $event->contactid;
 
-		$event->fetch($obj->id);
 		if (method_exists($event, 'fetch_thirdparty')) $event->fetch_thirdparty();
 		if (method_exists($event, 'fetchObjectLinked')) $event->fetchObjectLinked();
+
+		$event->id = $obj->id;
 		$event->fetch_userassigned();
 
 		$event->type_color = $obj->type_color;
+		$event->fulldayevent = $obj->fulldayevent;
+		$event->datep = $obj->datep;
+		$event->datef = $obj->datep2;
+		$event->socid = $obj->fk_soc;
+		$event->userownerid = $obj->fk_user_action;
+		$event->userownerid = $obj->fk_user_action;
+		$event->fk_project = $obj->fk_project;
+		$event->label = $obj->label;
+		$event->note = $obj->note;
 
 		if(getDolGlobalString('FULLCALENDAR_SPLIT_DAYS')
 		&& getDolGlobalString('FULLCALENDAR_PREFILL_DATETIMES')
