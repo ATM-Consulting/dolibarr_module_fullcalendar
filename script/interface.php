@@ -278,7 +278,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 			if(empty($TUser))$TUser[] = $user->id;
 			if(!is_array($TUser))$TUser=array($TUser);
 
-			$a->userownerid = $TUser[0];
+			$a->userownerid = $user->id;
 			$a->type_code = GETPOST('type_code', 'none') ? GETPOST('type_code', 'none') : 'AC_OTH';
 			$a->code = $a->type_code; // Up to Dolibarr 3.4, code is used in ActionComm:add() instead of type_code. It's seems unused, but you never know for sure.
 			$a->fk_action = dol_getIdFromCode($db, $a->type_code, 'c_actioncomm'); // type_code is not saved in ActionComm::update(), fk_action is up to Dolibarr 6.0
@@ -559,6 +559,7 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 	$sql.= ' a.datep,';
 	$sql.= ' a.datep2,';
 	$sql.= ' a.percent,';
+	$sql.= ' u.color,';
 	$sql.= ' a.fk_project,';
 	$sql.= ' a.fk_user_author,a.fk_user_action,';
 	$sql.= ' a.transparency, a.priority, a.fulldayevent, a.location,';
@@ -663,16 +664,27 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 		$event->id = $obj->id;
 		$event->fetch_userassigned();
 
+		$event->color = $obj->color;
+		$event->percentage = $obj->percent;
 		$event->type_color = $obj->type_color;
 		$event->fulldayevent = $obj->fulldayevent;
-		$event->datep = $obj->datep;
-		$event->datef = $obj->datep2;
 		$event->socid = $obj->fk_soc;
 		$event->userownerid = $obj->fk_user_action;
 		$event->userownerid = $obj->fk_user_action;
 		$event->fk_project = $obj->fk_project;
 		$event->label = $obj->label;
 		$event->note = $obj->note;
+
+
+		if ($event->fulldayevent) {
+			$tzforfullday = getDolGlobalString('MAIN_STORE_FULL_EVENT_IN_GMT');
+			$event->datep = $db->jdate($obj->datep, $tzforfullday ? 'tzuser' : 'tzserver');	// If saved in $tzforfullday = gmt, we must invert date to be in user tz
+			$event->datef = $db->jdate($obj->datep2, $tzforfullday ? 'tzuser' : 'tzserver');
+		} else {
+			// Example: $obj->datep = '1970-01-01 01:00:00', jdate will return 0 if TZ of PHP server is Europe/Berlin (+1)
+			$event->datep = $db->jdate($obj->datep, 'tzserver');
+			$event->datef = $db->jdate($obj->datep2, 'tzserver');
+		}
 
 		if(getDolGlobalString('FULLCALENDAR_SPLIT_DAYS')
 		&& getDolGlobalString('FULLCALENDAR_PREFILL_DATETIMES')
@@ -726,6 +738,13 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 
 		$TUserassigned = array();
 		$TColor=array();
+
+		if($event->color && getDolGlobalString('FULLCALENDAR_USE_ASSIGNED_COLOR')) {
+			$TColor[] = '#'.$event->color;
+		}
+		if($event->type_color && getDolGlobalString('FULLCALENDAR_SHOW_ALL_ASSIGNED_COLOR')) {
+			$TColor[] = '#'.$event->type_color;
+		}
 
 		if(getDolGlobalString('FULLCALENDAR_SHOW_AFFECTED_USER') ) {
 
@@ -834,8 +853,8 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 			'id'=>$event->id
 		,'title'=>$event->label
 		,'allDay'=>(bool)($event->fulldayevent)
-		,'start'=>(empty($event->datep) ? '' : dol_print_date($event->datep, '%Y-%m-%d %H:%M:%S'))
-		,'end'=>(empty($event->datef) ? '' : dol_print_date($event->datef, '%Y-%m-%d %H:%M:%S'))
+		,'start'=>(empty($event->datep) ? '' : dol_print_date($event->datep, '%Y-%m-%d %H:%M:%S', 'tzuser'))
+		,'end'=>(empty($event->datef) ? '' : dol_print_date($event->datef, '%Y-%m-%d %H:%M:%S', 'tzuser'))
 		,'url_title'=>dol_buildpath('/comm/action/card.php?id='.$event->id,1)
 		,'editable'=>$editable
 		,'color'=>$color
