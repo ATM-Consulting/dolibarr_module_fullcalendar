@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 
 
 ## Release 2.7
+- FIX : *23/08/2024* - 2.7.3
+  - Affichage de l'évènement sur le bon fuseau horaire 
+  - Affichage de la complétion des événements
+  - Affichage des couleurs des évènements en fonction de la couleur utilisateur
+  - Assignation du bon propriétaire lors de la création d'un évenement
 - FIX : Suppression du fetch de chaque évenement apres la requête de sélection - *19/08/2024* - 2.7.2
 - FIX : Refactor d'une partie de la requête de sélection des événements côté fullcalendar - *05/08/2024* - 2.7.1
 - FIX : Compat v20 - *22/07/2024* - 2.7.0
