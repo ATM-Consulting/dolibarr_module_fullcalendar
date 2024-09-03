@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 
 ## Release 2.7
+- FIX : DA025444 - Lors de la modification d'un événement certains des champs étaient vides. - *03/09/2024* - 2.7.4
 - FIX : *23/08/2024* - 2.7.3
   - Affichage de l'évènement sur le bon fuseau horaire 
   - Affichage de la complétion des événements
