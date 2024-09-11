@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 
 ## Release 2.7
-- FIX : filtre sur calendar *11/09/2024* -2.7.4
+- FIX : filtre sur calendar *11/09/2024* - 2.7.4
 - FIX : *23/08/2024* - 2.7.3
   - Affichage de l'évènement sur le bon fuseau horaire 
   - Affichage de la complétion des événements
