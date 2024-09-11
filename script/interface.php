@@ -506,8 +506,10 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 
 	$hookmanager->initHooks(array('agenda'));
 
-	$pid=GETPOST("projectid","int",3);
+	$pid = GETPOSTINT("search_projectid", 3) ? GETPOSTINT("search_projectid", 3) : GETPOSTINT("projectid", 3);
+	$resourceid = GETPOST("search_resourceid", 'int');
 	$status=GETPOST("status", 'none');
+	$search_categ_cus = GETPOST("search_categ_cus", 'intcomma', 3) ? GETPOST("search_categ_cus", 'intcomma', 3) : 0;
 	if(empty($status)) $status = GETPOST("search_status", 'none');
 	$type=GETPOST("type", 'none');
 	$state_id = GETPOST('state_id', 'int');
@@ -536,8 +538,8 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 		$actioncode = array();
 	}
 
-	$filter=GETPOST("filter",'',3);
-	$filtert = GETPOST("usertodo","int",3)?GETPOST("usertodo","int",3):GETPOST("filtert","int",3);
+	$filter = GETPOST("search_filter", 'alpha', 3) ? GETPOST("search_filter", 'alpha', 3) : GETPOST("filter", 'alpha', 3);
+	$filtert = GETPOST("search_filtert", "intcomma", 3) ? GETPOST("search_filtert", "intcomma", 3) : GETPOST("filtert", "intcomma", 3);
 	if(empty($filtert)) $filtert = GETPOST("search_filtert","int",3);
 	$usergroup = GETPOST("usergroup","int",3);
 	$showbirthday = empty($conf->use_javascript_ajax)?GETPOST("showbirthday","int"):1;
@@ -546,7 +548,7 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 	{
 		$filtert=$user->id;
 	}
-	$socid = GETPOST("socid","int");
+	$socid = GETPOSTINT("search_socid") ? GETPOSTINT("search_socid") : GETPOSTINT("socid");
 
 	$t_start = strtotime($date_start);
 	$t_end = strtotime($date_end);
@@ -566,20 +568,34 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 	$sql.= ' a.fk_soc, a.fk_contact,a.note,';
 	$sql.= ' ca.color as type_color,';
 	$sql.= ' ca.code as type_code, ca.libelle as type_label';
-	$sql.= ' FROM '.MAIN_DB_PREFIX."actioncomm as a";
-	$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'c_actioncomm as ca ON (a.fk_action = ca.id)';
-	$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'user u ON (a.fk_user_action=u.rowid )';
+	$sql.= ' FROM '.$db->prefix()."actioncomm as a";
+	$sql.= ' LEFT JOIN '.$db->prefix().'c_actioncomm as ca ON (a.fk_action = ca.id)';
+	$sql.= ' LEFT JOIN '.$db->prefix().'user u ON (a.fk_user_action=u.rowid )';
+	if ($resourceid > 0) {
+		$sql .= "LEFT JOIN ".$db->prefix()."element_resources as r on r.element_id = a.id";
+	}
 	if (getDolGlobalString('FULLCALENDAR_FILTER_ON_STATE') && !empty($state_id))
 	{
-		$sql .= ' LEFT JOIN '.MAIN_DB_PREFIX.'societe s ON (s.rowid = a.fk_soc)';
-		$sql .= ' LEFT JOIN '.MAIN_DB_PREFIX.'socpeople sp ON (sp.rowid = a.fk_contact)';
+		$sql .= ' LEFT JOIN '.$db->prefix().'societe s ON (s.rowid = a.fk_soc)';
+		$sql .= ' LEFT JOIN '.$db->prefix().'socpeople sp ON (sp.rowid = a.fk_contact)';
 	}
 
-	if (! $user->hasRight('societe', 'client', 'voir') && ! $socid) $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."societe_commerciaux as sc ON a.fk_soc = sc.fk_soc";
+	if (! $user->hasRight('societe', 'client', 'voir') && ! $socid) $sql.= " LEFT JOIN ".$db->prefix()."societe_commerciaux as sc ON a.fk_soc = sc.fk_soc";
 	// We must filter on assignement table
-	if ($filtert > 0 || $usergroup > 0) $sql.=" LEFT JOIN ".MAIN_DB_PREFIX."actioncomm_resources as ar ON (ar.fk_actioncomm = a.id)";
-	if ($usergroup > 0) $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."usergroup_user as ugu ON ugu.fk_user = ar.fk_element";
+	if ($filtert > 0 || $usergroup > 0) $sql.=" LEFT JOIN ".$db->prefix()."actioncomm_resources as ar ON (ar.fk_actioncomm = a.id)";
+	if ($usergroup > 0) $sql.= " LEFT JOIN ".$db->prefix()."usergroup_user as ugu ON ugu.fk_user = ar.fk_element";
+
 	$sql.= ' WHERE 1=1';
+	if ($search_categ_cus != -1) {
+		if ($search_categ_cus == -2) {
+			$sql .= " AND NOT EXISTS (SELECT ca.fk_actioncomm FROM ".$db->prefix()."categorie_actioncomm as ca WHERE ca.fk_actioncomm = a.id)";
+		} elseif ($search_categ_cus > 0) {
+			$sql .= " AND EXISTS (SELECT ca.fk_actioncomm FROM ".$db->prefix()."categorie_actioncomm as ca WHERE ca.fk_actioncomm = a.id AND ca.fk_categorie IN (".$db->sanitize($search_categ_cus)."))";
+		}
+	}
+	if ($resourceid > 0) {
+		$sql .= " AND r.element_id = a.id AND r.rowid = ".((int) $resourceid);
+	}
 	if (!empty($actioncode)){
         $sql.=" AND ( ca.code IN ('".implode("','", $actioncode)."')";
 
@@ -640,7 +656,6 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 	if(isset($_REQUEST['DEBUG'])) print $sql;
 //echo $sql;exit;
 	$res= $db->query($sql);
-	//var_dump($db);
 
 	$TSociete = array();
 	$TContact = array();
