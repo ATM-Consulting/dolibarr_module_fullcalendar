@@ -227,8 +227,8 @@ header('Content-Type: text/javascript');
 			}
 			,defaultDate:defaultDate
 			,businessHours: {
-				start:'<?php echo $hourStart.':00'; ?>'
-				,end:'<?php echo $hourEnd.':00'; ?>'
+				start: moment('<?php echo $hourStart.':00'; ?>','Europe/Paris')
+				,end:moment('<?php echo $hourEnd.':00'; ?>','Europe/Paris')
 				,dow:[1,2,3,4,5]
 			}
 			<?php
@@ -949,7 +949,6 @@ header('Content-Type: text/javascript');
 
 				date_start = calEvent.start._d;
 				date_end = calEvent.end ? calEvent.end._d : null;
-
 				editable = calEvent.editable;
 
 
@@ -981,7 +980,6 @@ header('Content-Type: text/javascript');
 				formattedDateStart = formatDateUTC(date_start, "<?php echo $langs->trans("FormatDateShortJavaInput") ?>");
 				formattedHoursStart = formatDateUTC(date_start, 'HH');
 				formattedMinutesStart = formatDateUTC(date_start, 'mm');
-
 				// Décalage de deux heures si dates identiques
 				if(date_end == date_start)
 				{
