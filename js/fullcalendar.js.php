@@ -227,8 +227,8 @@ header('Content-Type: text/javascript');
 			}
 			,defaultDate:defaultDate
 			,businessHours: {
-				start:'<?php echo $hourStart.':00'; ?>','Europe/Paris'
-				,end:'<?php echo $hourEnd.':00'; ?>','Europe/Paris'
+				start:'<?php echo $hourStart.':00'; ?>'
+				,end:'<?php echo $hourEnd.':00'; ?>'
 				,dow:[1,2,3,4,5]
 			}
 			<?php
