@@ -868,8 +868,8 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 			'id'=>$event->id
 		,'title'=>$event->label
 		,'allDay'=>(bool)($event->fulldayevent)
-		,'start'=>(empty($event->datep) ? '' : dol_print_date($event->datep, '%Y-%m-%d %H:%M:%S', 'tzuser'))
-		,'end'=>(empty($event->datef) ? '' : dol_print_date($event->datef, '%Y-%m-%d %H:%M:%S', 'tzuser'))
+		,'start'=>(empty($event->datep) ? '' : dol_print_date($event->datep, '%Y-%m-%d %H:%M:%S', 'auto'))
+		,'end'=>(empty($event->datef) ? '' : dol_print_date($event->datef, '%Y-%m-%d %H:%M:%S', 'auto'))
 		,'url_title'=>dol_buildpath('/comm/action/card.php?id='.$event->id,1)
 		,'editable'=>$editable
 		,'color'=>$color
