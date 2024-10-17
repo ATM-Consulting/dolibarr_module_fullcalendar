@@ -1,4 +1,5 @@
 <?php
+global $user;
 if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token renewal
 
 	require '../config.php';
@@ -275,7 +276,8 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 			$a->datef = dol_mktime(date("H", $timestamp_end), date("i", $timestamp_end), date("s", $timestamp_end), date("n", $timestamp_end),  date("j", $timestamp_end), date("Y", $timestamp_end), 'tzuserrel');
 
 			$TUser = GETPOST('fk_user', 'none');
-			if(empty($TUser))$TUser[] = $user->id;
+			if(empty($TUser)) $TUser = [];
+			$TUser[] = $user->id;
 			if(!is_array($TUser))$TUser=array($TUser);
 
 			$a->userownerid = $user->id;
@@ -562,6 +564,8 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 	$sql.= ' a.datep2,';
 	$sql.= ' a.percent,';
 	$sql.= ' u.color,';
+	$sql.= ' a.code,';
+	$sql.= ' a.fk_contact,';
 	$sql.= ' a.fk_project,';
 	$sql.= ' a.fk_user_author,a.fk_user_action,';
 	$sql.= ' a.transparency, a.priority, a.fulldayevent, a.location,';
@@ -679,6 +683,9 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 		$event->id = $obj->id;
 		$event->fetch_userassigned();
 
+		$event->code = $obj->code;
+		$event->type_code  = $obj->type_code;
+		$event->contact_id  = $obj->fk_contact;
 		$event->color = $obj->color;
 		$event->percentage = $obj->percent;
 		$event->type_color = $obj->type_color;
