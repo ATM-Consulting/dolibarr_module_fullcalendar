@@ -1164,7 +1164,7 @@ function completeWithExtEvent(&$TEvent, &$TSociete, &$TContact, &$TProject)
 		$max_day_in_month = date("t",dol_mktime(0,0,0,$month,1,$year));                 // Nb of days in next month
 		// tmpday is a negative or null cursor to know how many days before the 1st to show on month view (if tmpday=0, 1st is monday)
 		$tmpday = -date("w",dol_mktime(12,0,0,$month,1,$year,true))+2;		// date('w') is 0 fo sunday
-		$tmpday+=((getDolGlobalString('MAIN_START_WEEK',1))-1);
+		$tmpday+=((getDolGlobalInt('MAIN_START_WEEK',1))-1);
 		if ($tmpday >= 1) $tmpday -= 7;	// If tmpday is 0 we start with sunday, if -6, we start with monday of previous week.
 		// Define firstdaytoshow and lastdaytoshow (warning: lastdaytoshow is last second to show + 1)
 		$firstdaytoshow=dol_mktime(0,0,0,$prev_month,$max_day_in_prev_month+$tmpday,$prev_year);
