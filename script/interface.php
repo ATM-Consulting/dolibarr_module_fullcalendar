@@ -49,6 +49,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 
 			}
 	*/
+
 			$TEvent = _events($start, $end, $month, $year);
 			foreach ($TEvent as &$event) unset($event['object']->db);
 			__out($TEvent, 'json');
@@ -254,8 +255,8 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 			if (empty($a->id))
 			{
 				$datep = date('H',strtotime(GETPOST('date', 'none')));
-				if($datep == '00' && !empty($conf->global->FULLCALENDAR_SHOW_THIS_HOURS) ){
-					$a->datep = strtotime('+'.substr($conf->global->FULLCALENDAR_SHOW_THIS_HOURS,0,1).' hour',strtotime(GETPOST('date', 'none')));
+				if($datep == '00' && !empty(getDolGlobalString('FULLCALENDAR_SHOW_THIS_HOURS')) ){
+					$a->datep = strtotime('+'.substr(getDolGlobalString('FULLCALENDAR_SHOW_THIS_HOURS'),0,1).' hour',strtotime(GETPOST('date', 'none')));
 				}
 				else{
 					if($datep=='00') $a->fulldayevent = 1;
@@ -302,7 +303,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 			{
                 $a->{'_'.$param} = GETPOST($param, 'none');
 			}
-			//var_dump($conf->global->FULLCALENDAR_SHOW_THIS_HOURS,GETPOST('date', 'none'),$a);exit;
+			//var_dump(getDolGlobalString('FULLCALENDAR_SHOW_THIS_HOURS'),GETPOST('date', 'none'),$a);exit;
 
 			if($user->hasRight('agenda', 'allactions', 'create') ||
 					(($a->authorid == $user->id || $a->userownerid == $user->id) && $user->hasRight('agenda', 'myactions', 'create'))) {
@@ -520,20 +521,19 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 
 	//First try with GETPOST(array, 'none') (I don't know when it can be an array but why not)
 	$actioncode=GETPOST("actioncode", "array", 3)?GETPOST("actioncode", "array", 3):(GETPOST("actioncode", 'none')=='0'?'0':'');
+
     if(empty($actioncode)){
         $actioncode=GETPOST("search_actioncode", "array", 3)?GETPOST("search_actioncode", "array", 3):(GETPOST("search_actioncode", 'none')=='0'?'0':'');
     }
 
-
 	//If empty then try GETPOST(alpha, 'none') (this one works with comm/action/index.php
 	if(empty($actioncode)) {
 
-		$actioncode=GETPOST("actioncode","alpha",3)?GETPOST("actioncode","alpha",3):(GETPOST("actioncode", 'none')=='0'?'0':'');
-        if(empty($actioncode)){
-            $actioncode=GETPOST("search_actioncode", "alpha", 3)?GETPOST("search_actioncode", "alpha", 3):(GETPOST("search_actioncode", 'none')=='0'?'0':'');
+		$actioncodetmp =GETPOST("actioncode","alpha",3)?GETPOST("actioncode","alpha",3):(GETPOST("actioncode", 'none')=='0'?'0':'');
+        if(empty($actioncodetmp)){
+			$actioncodetmp=GETPOST("search_actioncode", "alpha", 3)?GETPOST("search_actioncode", "alpha", 3):(GETPOST("search_actioncode", 'none')=='0'?'0':'');
         }
-
-		if(!empty($actioncode)) $actioncode=array($actioncode);
+		if($actioncodetmp > 0) $actioncode=array($actioncodetmp);
 
 	}
 	if(empty($actioncode)) {
@@ -600,6 +600,7 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 	if ($resourceid > 0) {
 		$sql .= " AND r.element_id = a.id AND r.rowid = ".((int) $resourceid);
 	}
+
 	if (!empty($actioncode)){
         $sql.=" AND ( ca.code IN ('".implode("','", $actioncode)."')";
 
@@ -641,7 +642,7 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 
 	if ($type) $sql.= " AND ca.id = ".$type;
 	if ($status == '0') { $sql.= " AND a.percent = 0"; }
-	if (DOL_VERSION > 12 && $status == 'na' || DOL_VERSION < 13 && $status == '-1') { $sql.= " AND a.percent = -1"; }	// Not applicable
+	if ($status == 'na') { $sql.= " AND a.percent = -1"; }	// Not applicable
 	if ($status == '50') { $sql.= " AND (a.percent > 0 AND a.percent < 100)"; }	// Running already started
 	if ($status == 'done' || $status == '100') { $sql.= " AND (a.percent = 100 OR (a.percent = -1 AND a.datep2 <= '".$db->idate($now)."'))"; }
 	if ($status == 'todo') { $sql.= " AND ((a.percent >= 0 AND a.percent < 100) OR (a.percent = -1 AND a.datep2 > '".$db->idate($now)."'))"; }
@@ -669,13 +670,9 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 	$TEventObject=array();
 	while($obj=$db->fetch_object($res)) {
 		$event = new ActionComm($db);
-        // Gestion changements v13
-        // Gestion de la rétrocompatibilité
-        if (version_compare(DOL_VERSION, '14.0.0') > 0)
-        {
-            $eventContactId = $event->contact_id;
-        }
-        else $eventContactId = $event->contactid;
+
+		$eventContactId = $event->contact_id;
+
 
 		if (method_exists($event, 'fetch_thirdparty')) $event->fetch_thirdparty();
 		if (method_exists($event, 'fetchObjectLinked')) $event->fetchObjectLinked();
@@ -1111,8 +1108,8 @@ function completeWithExtEvent(&$TEvent, &$TSociete, &$TContact, &$TProject)
 			$buggedfile='AGENDA_EXT_BUGGEDFILE'.$i;
 			if ( getDolGlobalString($source) && getDolGlobalString($name))
 			{
-				// Note: $conf->global->buggedfile can be empty or 'uselocalandtznodaylight' or 'uselocalandtzdaylight'
-				$listofextcals[]=array('src'=>getDolGlobalString($source),'name'=>getDolGlobalString($name),'offsettz'=>getDolGlobalString($offsettz),'color'=>getDolGlobalString($color),'buggedfile'=>(isset($conf->global->buggedfile)?getDolGlobalString('buggedfile'):0));
+				// Note: getDolGlobalString('buggedfile') can be empty or 'uselocalandtznodaylight' or 'uselocalandtzdaylight'
+				$listofextcals[]=array('src'=>getDolGlobalString($source),'name'=>getDolGlobalString($name),'offsettz'=>getDolGlobalString($offsettz),'color'=>getDolGlobalString($color),'buggedfile'=>(getDolGlobalString('buggedfile',0)));
 			}
 		}
 	}
@@ -1132,7 +1129,7 @@ function completeWithExtEvent(&$TEvent, &$TSociete, &$TContact, &$TProject)
 			$buggedfile='AGENDA_EXT_BUGGEDFILE_'.$user->id.'_'.$i;
 			if (! empty($user->conf->$source) && ! empty($user->conf->$name))
 			{
-				// Note: $conf->global->buggedfile can be empty or 'uselocalandtznodaylight' or 'uselocalandtzdaylight'
+				// Note: getDolGlobalString('buggedfile') can be empty or 'uselocalandtznodaylight' or 'uselocalandtzdaylight'
 				$listofextcals[] = array(
 					'src' => isset($user->conf->$source) ? $user->conf->$source : null,
 					'name' => isset($user->conf->$name) ? $user->conf->$name : null,
@@ -1167,7 +1164,7 @@ function completeWithExtEvent(&$TEvent, &$TSociete, &$TContact, &$TProject)
 		$max_day_in_month = date("t",dol_mktime(0,0,0,$month,1,$year));                 // Nb of days in next month
 		// tmpday is a negative or null cursor to know how many days before the 1st to show on month view (if tmpday=0, 1st is monday)
 		$tmpday = -date("w",dol_mktime(12,0,0,$month,1,$year,true))+2;		// date('w') is 0 fo sunday
-		$tmpday+=((isset($conf->global->MAIN_START_WEEK)?getDolGlobalString('MAIN_START_WEEK'):1)-1);
+		$tmpday+=((getDolGlobalString('MAIN_START_WEEK',1))-1);
 		if ($tmpday >= 1) $tmpday -= 7;	// If tmpday is 0 we start with sunday, if -6, we start with monday of previous week.
 		// Define firstdaytoshow and lastdaytoshow (warning: lastdaytoshow is last second to show + 1)
 		$firstdaytoshow=dol_mktime(0,0,0,$prev_month,$max_day_in_prev_month+$tmpday,$prev_year);
