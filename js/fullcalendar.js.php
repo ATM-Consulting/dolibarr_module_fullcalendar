@@ -87,8 +87,6 @@ header('Content-Type: text/javascript');
 
 	if (!empty($user->socid)) {
 		$sql.= " AND u.fk_soc = ".$user->socid;
-	} elseif (!empty($user->societe_id)) { // DOL_VERSION <= 3.8
-		$sql.= " AND u.fk_soc = ".$user->societe_id;
 	}
 	if (getDolGlobalString('USER_HIDE_INACTIVE_IN_COMBOBOX')) $sql.= " AND u.statut <> 0";
 
@@ -193,11 +191,7 @@ header('Content-Type: text/javascript');
             <?php } ?>
 		<?php } ?>
 
-		<?php if ((float) DOL_VERSION < 7.0) { ?>
-			var $form_selector = $('form[name=listactionsfilter]');
-		<?php } else { ?>
 			var $form_selector = $('form#searchFormList');
-		<?php } ?>
 
 		var year = $form_selector.find('input[name=year]').val();
 		var month = $form_selector.find('input[name=month]').val();
