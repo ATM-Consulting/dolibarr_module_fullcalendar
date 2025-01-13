@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 
 ## Release 2.7
+- FIX : DA025956 - Suppression d'une partie de la requête qui renvoyait un objet vide - **13/01/2025** - 2.7.8 
 - FIX : Compat 21 - *12/12/2024* - 2.7.7
 - FIX : DA025444 - Lors de la modification d'un événement, certains des champs étaient vides & certains événements n'étaient même pas éditables - *17/10/2024* - 2.7.6
 - FIX : change the timezone output to display right hours *27/09/2024* - 2.7.5
