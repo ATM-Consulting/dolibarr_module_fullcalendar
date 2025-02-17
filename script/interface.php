@@ -563,6 +563,7 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 	$sql.= ' a.datep,';
 	$sql.= ' a.datep2,';
 	$sql.= ' a.percent,';
+	$sql.= ' s.nom as socname,';
 	$sql.= ' u.color,';
 	$sql.= ' a.code,';
 	$sql.= ' a.fk_contact,';
@@ -575,12 +576,12 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 	$sql.= ' FROM '.$db->prefix()."actioncomm as a";
 	$sql.= ' LEFT JOIN '.$db->prefix().'c_actioncomm as ca ON (a.fk_action = ca.id)';
 	$sql.= ' LEFT JOIN '.$db->prefix().'user u ON (a.fk_user_action=u.rowid )';
+	$sql.= ' LEFT JOIN '.$db->prefix().'societe s ON (s.rowid = a.fk_soc)';
 	if ($resourceid > 0) {
 		$sql .= "LEFT JOIN ".$db->prefix()."element_resources as r on r.element_id = a.id";
 	}
 	if (getDolGlobalString('FULLCALENDAR_FILTER_ON_STATE') && !empty($state_id))
 	{
-		$sql .= ' LEFT JOIN '.$db->prefix().'societe s ON (s.rowid = a.fk_soc)';
 		$sql .= ' LEFT JOIN '.$db->prefix().'socpeople sp ON (sp.rowid = a.fk_contact)';
 	}
 
@@ -688,6 +689,7 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 		$event->type_color = $obj->type_color;
 		$event->fulldayevent = $obj->fulldayevent;
 		$event->socid = $obj->fk_soc;
+		$event->socname = $obj->socname;
 		$event->userownerid = $obj->fk_user_action;
 		$event->userownerid = $obj->fk_user_action;
 		$event->fk_project = $obj->fk_project;
@@ -957,8 +959,8 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 				'id' => $obj->rowid
 			, 'title' => $obj->ref
 			, 'allDay' => 1
-			, 'start' => (empty($event->datep) ? '' : dol_print_date($obj->date_start, '%Y-%m-%d'))
-			, 'end' => (empty($event->datef) ? '' : dol_print_date($obj->date_end, '%Y-%m-%d'))
+			, 'start' => (empty($event->datep) ? '' : dol_print_date($obj->date_start, '%Y-%m-%d', 'auto'))
+			, 'end' => (empty($event->datef) ? '' : dol_print_date($obj->date_end, '%Y-%m-%d', 'auto'))
 			, 'url_title' => dol_buildpath('/holiday/card.php?id=' . $obj->rowid, 1)
 			, 'editable' => $editable
 			, 'color' => $color
