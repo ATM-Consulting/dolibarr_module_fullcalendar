@@ -935,7 +935,7 @@ header('Content-Type: text/javascript');
 				if (calEvent.object.socid > 0) {
 					$div.find('#fk_soc').val(calEvent.object.socid).trigger('change'); // Si COMPANY_USE_SEARCH_TO_SELECT == 0, alors le trigger "change" fera l'affaire
 					setTimeout(function() { $div.find('#contactid').val(calEvent.object.contact_id).trigger('change'); } ,250);
-					<?php if (getDolGlobalString('COMPANY_USE_SEARCH_TO_SELECT')) { ?>$div.find('#search_fk_soc')?.val(calEvent.object?.thirdparty?.name); <?php } ?>
+					<?php if (getDolGlobalString('COMPANY_USE_SEARCH_TO_SELECT')) { ?>$div.find('#search_fk_soc')?.val(calEvent.object?.socname); <?php } ?>
 				}
 				$div.find('#contactid').val(calEvent.object.contact_id).trigger('change');
 				TUserId = calEvent.TFk_user;
@@ -1126,7 +1126,7 @@ header('Content-Type: text/javascript');
 										,label:$('#pop-new-event input[name=label]').val()
 										,note:note
 										,date:date.format()
-										,fk_soc:$('#pop-new-event [name=fk_soc]').val()
+										,fk_soc:$('#pop-new-event [name=fk_soc]').val(calEvent.object.socname)
 										,fk_contact:$('#pop-new-event select[name=contactid]').val()
 										,fk_user:TUserId
 										,fk_project:<?php if (getDolGlobalString('FULLCALENDAR_SHOW_PROJECT')) { ?>$('#pop-new-event #fk_project').val()<?php } else { ?>fk_project<?php } ?>
