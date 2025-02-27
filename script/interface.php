@@ -1558,18 +1558,22 @@ function addReminders($a, $mode = 'create')
 		{
 			$actionCommReminder = new ActionCommReminder($db);
 
-			if ($reminderUnit == 'minute'){
-				$dateremind = dol_time_plus_duree($a->datep, -$reminderValue, 'i');
-			} elseif ($reminderUnit == 'hour'){
-				$dateremind = dol_time_plus_duree($a->datep, -$reminderValue, 'h');
-			} elseif ($reminderUnit == 'day') {
-				$dateremind = dol_time_plus_duree($a->datep, -$reminderValue, 'd');
-			} elseif ($reminderUnit == 'week') {
-				$dateremind = dol_time_plus_duree($a->datep, -$reminderValue, 'w');
-			} elseif ($reminderUnit == 'month') {
-				$dateremind = dol_time_plus_duree($a->datep, -$reminderValue, 'm');
-			} elseif ($reminderUnit == 'year') {
-				$dateremind = dol_time_plus_duree($a->datep, -$reminderValue, 'y');
+			$unitsMap = [
+				'minute' => 'i',
+				'hour'   => 'h',
+				'day'    => 'd',
+				'week'   => 'w',
+				'month'  => 'm',
+				'year'   => 'y'
+			];
+
+			// Normalisation de l'unité : on convertit les noms longs en abréviations,
+			// mais si $reminderUnit est déjà une abréviation ('i', 'h', etc.), on la garde.
+			$unit = $unitsMap[$reminderUnit] ?? $reminderUnit;
+
+			// Vérification : on s'assure que l'unité est bien valide avant d'appliquer le calcul.
+			if (in_array($unit, ['i', 'h', 'd', 'w', 'm', 'y'], true)) {
+				$dateremind = dol_time_plus_duree($a->datep, -$reminderValue, $unit);
 			}
 
 			$actionCommReminder->dateremind = $dateremind;
