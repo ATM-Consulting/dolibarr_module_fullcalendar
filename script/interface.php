@@ -950,6 +950,19 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 		$sql .= " AND u.statut = '1'"; // Show only active users  (0 = inactive user, 1 = active user)
 		$sql .= " AND (x.statut = '2' OR x.statut = '3')"; // Show only public leaves (2 = leave wait for approval, 3 = leave approved)
 
+		if ($mode == 'show_day') {
+			// Request only leaves for the current selected day
+			$sql .= " AND '".$db->escape($year)."-".$db->escape($month)."-".$db->escape($day)."' BETWEEN x.date_debut AND x.date_fin";	// date_debut and date_fin are date without time
+		} elseif ($mode == 'show_week') {
+			// Restrict on current month (we get more, but we will filter later)
+			$sql .= " AND date_debut < '".$db->idate(dol_get_last_day($year, $month))."'";
+			$sql .= " AND date_fin >= '".$db->idate(dol_get_first_day($year, $month))."'";
+		} elseif ($mode == 'show_month') {
+			// Restrict on current month
+			$sql .= " AND date_debut <= '".$db->idate(dol_get_last_day($year, $month))."'";
+			$sql .= " AND date_fin >= '".$db->idate(dol_get_first_day($year, $month))."'";
+		}
+
 		$resql = $db->query($sql);
 		if ($resql) {
 			$num = $db->num_rows($resql);
