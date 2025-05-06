@@ -944,65 +944,49 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 	$day = GETPOST("day", "int") ?GETPOST("day", "int") : date("d");
 	if ($user->hasRight("holiday", "read")) {
 		// LEAVE-HOLIDAY CALENDAR
-		$sql = "SELECT u.rowid as uid, u.lastname, u.firstname, u.statut, x.rowid, x.ref, x.fk_user,x.date_debut as date_start, x.date_fin as date_end, x.halfday, x.statut as status, x.description";
-		$sql .= " FROM ". $db->prefix() ."holiday as x, ". $db->prefix() ."user as u";
+		$sql = "SELECT u.rowid as uid, u.lastname, u.firstname, u.statut, x.rowid, x.ref, x.fk_user, x.date_debut as date_start, x.date_fin as date_end, x.halfday, x.statut as status, x.description";
+		$sql .= " FROM " . $db->prefix() . "holiday as x, " . $db->prefix() . "user as u";
 		$sql .= " WHERE u.rowid = x.fk_user";
-		$sql .= " AND u.statut = '1'"; // Show only active users  (0 = inactive user, 1 = active user)
-		$sql .= " AND (x.statut = '2' OR x.statut = '3')"; // Show only public leaves (2 = leave wait for approval, 3 = leave approved)
-
-		if ($mode == 'show_day') {
-			// Request only leaves for the current selected day
-			$sql .= " AND '".$db->escape($year)."-".$db->escape($month)."-".$db->escape($day)."' BETWEEN x.date_debut AND x.date_fin";	// date_debut and date_fin are date without time
-		} elseif ($mode == 'show_week') {
-			// Restrict on current month (we get more, but we will filter later)
-			$sql .= " AND date_debut < '".$db->idate(dol_get_last_day($year, $month))."'";
-			$sql .= " AND date_fin >= '".$db->idate(dol_get_first_day($year, $month))."'";
-		} elseif ($mode == 'show_month') {
-			// Restrict on current month
-			$sql .= " AND date_debut <= '".$db->idate(dol_get_last_day($year, $month))."'";
-			$sql .= " AND date_fin >= '".$db->idate(dol_get_first_day($year, $month))."'";
-		}
+		$sql .= " AND u.statut = '1'"; // Show only active users
+		$sql .= " AND (x.statut = '2' OR x.statut = '3')"; // Show only public leaves
 
 		$resql = $db->query($sql);
 		if ($resql) {
-			$num = $db->num_rows($resql);
-			$obj = $db->fetch_object($resql);
-
-			$tmpEvent = array(
-				'id' => $obj->rowid
-			, 'title' => $obj->ref
-			, 'allDay' => 1
-			, 'start' => (empty($event->datep) ? '' : dol_print_date($obj->date_start, '%Y-%m-%d', 'auto'))
-			, 'end' => (empty($event->datef) ? '' : dol_print_date($obj->date_end, '%Y-%m-%d', 'auto'))
-			, 'url_title' => dol_buildpath('/holiday/card.php?id=' . $obj->rowid, 1)
-			, 'editable' => $editable
-			, 'color' => $color
-			, 'isDarkColor' => isDarkColor($color)
-			, 'colors' => $colors
-			, 'note' => $obj->description
-			, 'statut' => $obj->status
-			, 'fk_soc' => null
-			, 'fk_contact' => null
-			, 'fk_user' => $obj->fk_user
-			, 'TFk_user' => null
-			, 'fk_project' => null
-			, 'societe' => null
-			, 'contact' => null
-			, 'user' => $obj->fk_user
-			, 'project' => null
-
-			, 'project_order' => null
-			, 'fk_project_order' => null
-
-			, 'splitedfulldayevent' => null
-			, 'fulldayevent' => 1
-			, 'more' => ''
-			,'moreclass' => 'family_holiday'
-			);
-
-			$TEvent[] = $tmpEvent;
+			while ($obj = $db->fetch_object($resql)) { // <--- BOUCLE SUR TOUTES LES LIGNES
+				$tmpEvent = array(
+					'id' => $obj->rowid,
+					'title' => $obj->ref,
+					'allDay' => 1,
+					'start' => (empty($obj->date_start) ? '' : dol_print_date($obj->date_start, '%Y-%m-%d', 'auto')),
+					'end' => (empty($obj->date_end) ? '' : dol_print_date($obj->date_end, '%Y-%m-%d', 'auto')),
+					'url_title' => dol_buildpath('/holiday/card.php?id=' . $obj->rowid, 1),
+					'editable' => $editable,
+					'color' => $color,
+					'isDarkColor' => isDarkColor($color),
+					'colors' => $colors,
+					'note' => $obj->description,
+					'statut' => $obj->status,
+					'fk_soc' => null,
+					'fk_contact' => null,
+					'fk_user' => $obj->fk_user,
+					'TFk_user' => null,
+					'fk_project' => null,
+					'societe' => null,
+					'contact' => null,
+					'user' => $obj->fk_user,
+					'project' => null,
+					'project_order' => null,
+					'fk_project_order' => null,
+					'splitedfulldayevent' => null,
+					'fulldayevent' => 1,
+					'more' => '',
+					'moreclass' => 'family_holiday'
+				);
+				$TEvent[] = $tmpEvent;
+			}
 		}
 	}
+
 	return $TEvent;
 
 }
