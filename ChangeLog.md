@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 
 ## Release 2.7
-- FIX : annulation du fix DA025956 qui rend impossible  le rendu des events congés dans le calendrier   - *05/05/2025* - 2.7.11  
+- FIX : DA026440 annulation du fix DA025956 qui rend impossible  le rendu des events congés dans le calendrier  - *05/05/2025* - 2.7.11  
 - FIX : DA026124 - Bug sur la sélection de la notification - **27/02/2025** - 2.7.10
 - FIX : DA025956 - Remplissage de l'input société qui était vidé alors que l'enregistrement fonctionnait. - **17/02/2025** - 2.7.9
 - FIX : DA025956 - Suppression d'une partie de la requête qui renvoyait un objet vide - **13/01/2025** - 2.7.8 
