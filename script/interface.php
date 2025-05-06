@@ -11,6 +11,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 	require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
 	require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
 	require_once DOL_DOCUMENT_ROOT.'/core/class/html.formother.class.php';
+	require_once DOL_DOCUMENT_ROOT.'/holiday/class/holiday.class.php';
 
 	$langs->load("agenda");
 	$langs->load("other");
@@ -943,6 +944,7 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 	$month = GETPOST("month", "int") ?GETPOST("month", "int") : date("m");
 	$day = GETPOST("day", "int") ?GETPOST("day", "int") : date("d");
 	if ($user->hasRight("holiday", "read")) {
+		$langs->load('holiday');
 		// LEAVE-HOLIDAY CALENDAR
 		$sql = "SELECT u.rowid as uid, u.lastname, u.firstname, u.statut, u.color as color, x.rowid, x.ref, x.fk_user, x.date_debut as date_start, x.date_fin as date_end, x.halfday, x.statut as status, x.description";
 		$sql .= " FROM " . $db->prefix() . "holiday as x, " . $db->prefix() . "user as u";
@@ -952,16 +954,21 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 
 		$resql = $db->query($sql);
 		if ($resql) {
+			$holiStatus = new Holiday($db);
 			while ($obj = $db->fetch_object($resql)) {
 
-				$color = $obj->color;
-				if ($color && strpos($color, '#') !== 0) {
-					$color = '#' . $color;
+				$res = $holiStatus->fetch($obj->rowid);
+				if ($res){
+					$color = $obj->color;
+					if ($color && strpos($color, '#') !== 0) {
+						$color = '#' . $color;
+					}
 				}
+
 
 				$tmpEvent = array(
 					'id' => $obj->rowid,
-					'title' => $obj->ref,
+					'title' => $obj->ref . ' ' .  $obj->firstname . ' ' .  $obj->lastname,
 					'allDay' => 1,
 					'start' => (empty($obj->date_start) ? '' : dol_print_date($obj->date_start, '%Y-%m-%d', 'auto')),
 					'end' => (empty($obj->date_end) ? '' : dol_print_date($obj->date_end, '%Y-%m-%d', 'auto')),
@@ -971,7 +978,8 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 					'isDarkColor' => isDarkColor($color),
 					'colors' => $colors,
 					'note' => $obj->description,
-					'statut' => $obj->status,
+
+					'statut' => $langs->trans($holiStatus->getLibStatut(3)),
 					'fk_soc' => null,
 					'fk_contact' => null,
 					'fk_user' => $obj->fk_user,
