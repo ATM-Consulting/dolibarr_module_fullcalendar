@@ -944,7 +944,7 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 	$day = GETPOST("day", "int") ?GETPOST("day", "int") : date("d");
 	if ($user->hasRight("holiday", "read")) {
 		// LEAVE-HOLIDAY CALENDAR
-		$sql = "SELECT u.rowid as uid, u.lastname, u.firstname, u.statut, x.rowid, x.ref, x.fk_user, x.date_debut as date_start, x.date_fin as date_end, x.halfday, x.statut as status, x.description";
+		$sql = "SELECT u.rowid as uid, u.lastname, u.firstname, u.statut, u.color as color, x.rowid, x.ref, x.fk_user, x.date_debut as date_start, x.date_fin as date_end, x.halfday, x.statut as status, x.description";
 		$sql .= " FROM " . $db->prefix() . "holiday as x, " . $db->prefix() . "user as u";
 		$sql .= " WHERE u.rowid = x.fk_user";
 		$sql .= " AND u.statut = '1'"; // Show only active users
@@ -952,7 +952,13 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 
 		$resql = $db->query($sql);
 		if ($resql) {
-			while ($obj = $db->fetch_object($resql)) { // <--- BOUCLE SUR TOUTES LES LIGNES
+			while ($obj = $db->fetch_object($resql)) {
+
+				$color = $obj->color;
+				if ($color && strpos($color, '#') !== 0) {
+					$color = '#' . $color;
+				}
+
 				$tmpEvent = array(
 					'id' => $obj->rowid,
 					'title' => $obj->ref,
