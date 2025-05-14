@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 
 ## Release 2.7
+- FIX : du ticket DA024563 suppression des couleurs mixte pour les congés   - *05/05/2025* - 2.7.12
 - FIX : du ticket DA024563 qui provoquait le bug + plus ajout des couleurs utilisateurs et statut de la demande de congés  - *05/05/2025* - 2.7.11  
 - FIX : DA026124 - Bug sur la sélection de la notification - **27/02/2025** - 2.7.10
 - FIX : DA025956 - Remplissage de l'input société qui était vidé alors que l'enregistrement fonctionnait. - **17/02/2025** - 2.7.9
