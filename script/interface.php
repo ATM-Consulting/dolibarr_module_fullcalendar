@@ -833,24 +833,16 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
            			   $TUser[$userid]  = $u;
 
 				}
-
 				if(!isset($TUserassigned[$userid])) $TUserassigned[] = $TUser[$userid]->getNomUrl(1);
-
 				if($TUser[$userid]->color && !in_array('#'.$TUser[$userid]->color,$TColor)) $TColor[] = '#'.$TUser[$userid]->color;
 
 			}
 
 		}
-
-
-
 		$editable = false;
 		if(($user->id == $event->userownerid) || $user->hasRight('agenda', 'allactions', 'create')) {
 			$editable = true;
 		}
-
-		//background: linear-gradient(to bottom, #1e5799 0%,#2989d8 25%,#207cca 67%,#7db9e8 100%);
-		//$colors = implode(',',$TColor);
 		$colors='';
 
 		$color='';
@@ -938,11 +930,14 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 	if (! empty($hookmanager->resArray['eventarray'])) $TEvent=array_merge($TEvent, $hookmanager->resArray['eventarray']);
 
 	completeWithExtEvent($TEvent, $TSociete, $TContact, $TProject);
-//		var_dump($TEvent);exit;
 	$mode = GETPOST('mode', 'aZ09');
 	$year = GETPOST("year", "int") ?GETPOST("year", "int") : date("Y");
 	$month = GETPOST("month", "int") ?GETPOST("month", "int") : date("m");
 	$day = GETPOST("day", "int") ?GETPOST("day", "int") : date("d");
+
+	//------------------------------------------------------------------------------------------------------
+	//--------------- HOLIDAY ------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------------------------------
 	if ($user->hasRight("holiday", "read")) {
 		$langs->load('holiday');
 		// LEAVE-HOLIDAY CALENDAR
@@ -976,7 +971,7 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 					'editable' => $editable,
 					'color' => $color,
 					'isDarkColor' => isDarkColor($color),
-					'colors' => $colors,
+					'colors' => '', // on n'affiche pas de degradé pour les types de congés
 					'note' => $obj->description,
 
 					'statut' => $langs->trans($holiStatus->getLibStatut(3)),
