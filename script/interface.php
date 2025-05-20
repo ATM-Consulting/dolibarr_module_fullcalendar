@@ -959,14 +959,36 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 						$color = '#' . $color;
 					}
 				}
+				$start = '';
+				$end = '';
+				if (!empty($obj->date_start)) {
+					$start = getHolidayDateTime(
+						$obj->date_start,
+						$obj->halfday,
+						getDolGlobalInt("FULLCALENDAR_PREFILL_DATETIME_MORNING_START",32400),
+						getDolGlobalInt("FULLCALENDAR_PREFILL_DATETIME_MORNING_END",43200),
+						getDolGlobalInt("FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START",50400),
+						getDolGlobalInt("FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END",64800));
+				}
+
+				if (!empty($obj->date_end)) {
+					$end = getHolidayDateTime(
+						$obj->date_end,
+						$obj->halfday,
+						getDolGlobalInt("FULLCALENDAR_PREFILL_DATETIME_MORNING_START",32400),
+						getDolGlobalInt("FULLCALENDAR_PREFILL_DATETIME_MORNING_END",43200),
+						getDolGlobalInt("FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_START",50400),
+						getDolGlobalInt("FULLCALENDAR_PREFILL_DATETIME_AFTERNOON_END",64800),
+						false);
+				}
 
 
 				$tmpEvent = array(
 					'id' => $obj->rowid,
 					'title' => $obj->ref . ' ' .  $obj->firstname . ' ' .  $obj->lastname,
-					'allDay' => 1,
-					'start' => (empty($obj->date_start) ? '' : dol_print_date($obj->date_start, '%Y-%m-%d', 'auto')),
-					'end' => (empty($obj->date_end) ? '' : dol_print_date($obj->date_end, '%Y-%m-%d', 'auto')),
+					'allDay' => $obj->halfday == 0, // 0 all day -1 afternoon , 1 morning
+					'start' => $start,
+					'end' => $end,
 					'url_title' => dol_buildpath('/holiday/card.php?id=' . $obj->rowid, 1),
 					'editable' => $editable,
 					'color' => $color,
@@ -1598,3 +1620,49 @@ function addReminders($a, $mode = 'create')
 		}
 	}
 }
+
+/**
+ * Returns the start or end date/time of a leave according to the half-day code.
+ *
+ * @param string $date Base date (format compatible with DateTime)
+ * @param int $halfday 0 = full day, 1 = morning, -1 = afternoon, 2 = afternoon to morning (over several days)
+ * @param int $morningStartSec Morning start time (in seconds)
+ * @param int $morningEndSec Morning end time (in seconds)
+ * @param int $afternoonStartSec Afternoon start time (in seconds)
+ * @param int $afternoonEndSec Afternoon end time (in seconds)
+ * @param bool $isStart true = start, false = end
+ * @return string Date/time in ISO format (Y-m-d\TH:i:s)
+ */
+function getHolidayDateTime($date, $halfday, $morningStartSec, $morningEndSec, $afternoonStartSec, $afternoonEndSec, $isStart = true) {
+	$dt = new DateTime($date);
+
+	// Table of start and end times for each half-day code
+	$hours = [
+		0  => [ // Full day
+			'start' => $morningStartSec,
+			'end'   => $afternoonEndSec
+		],
+		1  => [ // Morning only
+			'start' => $morningStartSec,
+			'end'   => $morningEndSec
+		],
+		-1 => [ // Afternoon only
+			'start' => $afternoonStartSec,
+			'end'   => $afternoonEndSec
+		],
+		2  => [ // Special case: starts in the afternoon and ends in the morning (possibly several days later)
+			'start' => $afternoonStartSec, // start: afternoon of the first day
+			'end'   => $morningEndSec      // end: morning of the last day (NO day increment!)
+		]
+	];
+	// Fallback if halfday is not recognized
+	if (!isset($hours[$halfday])) $halfday = 0;
+	$sec = $isStart ? $hours[$halfday]['start'] : $hours[$halfday]['end'];
+	$h = floor($sec / 3600);
+	$m = ($sec % 3600) / 60;
+
+	$dt->setTime($h, $m, 0);
+
+	return $dt->format('Y-m-d\TH:i:s');
+}
+
