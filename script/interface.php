@@ -1657,11 +1657,17 @@ function getHolidayDateTime(string $date, int $halfday, int $morningStartSec, in
 	];
 	// Fallback if halfday is not recognized
 	if (!isset($hours[$halfday])) $halfday = 0;
-	$sec = $isStart ? $hours[$halfday]['start'] : $hours[$halfday]['end'];
-	$h = floor($sec / 3600);
-	$m = ($sec % 3600) / 60;
 
-	$dt->setTime($h, $m, 0);
+	// Special case: for full day, set end time to 23:59:59 for calendar compatibility
+	if ($halfday == 0 && !$isStart) {
+		$dt->modify('+1 day');
+		$dt->setTime(0, 0, 0);
+	} else {
+		$sec = $isStart ? $hours[$halfday]['start'] : $hours[$halfday]['end'];
+		$h = floor($sec / 3600);
+		$m = ($sec % 3600) / 60;
+		$dt->setTime($h, $m, 0);
+	}
 
 	return $dt->format('Y-m-d\TH:i:s');
 }
