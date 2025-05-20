@@ -1633,7 +1633,7 @@ function addReminders($a, $mode = 'create')
  * @param bool $isStart true = start, false = end
  * @return string Date/time in ISO format (Y-m-d\TH:i:s)
  */
-function getHolidayDateTime($date, $halfday, $morningStartSec, $morningEndSec, $afternoonStartSec, $afternoonEndSec, $isStart = true) {
+function getHolidayDateTime(string $date, int $halfday, int $morningStartSec, int $morningEndSec, int $afternoonStartSec, int $afternoonEndSec, bool $isStart = true) : string  {
 	$dt = new DateTime($date);
 
 	// Table of start and end times for each half-day code
