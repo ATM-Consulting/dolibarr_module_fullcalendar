@@ -863,12 +863,24 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 			}
 
 		}
+		$isAllDay = (bool)($event->fulldayevent);
+
+		$startDateString = $endDateString = '';
+		if($event->datep) $startDateString = dol_print_date($event->datep, $isAllDay ? '%Y-%m-%d' : '%Y-%m-%d %H:%M:%S', 'tzuser');
+		if($event->datef) $endDateString = dol_print_date($event->datef, $isAllDay ? '%Y-%m-%d' : '%Y-%m-%d %H:%M:%S', 'tzuser');
+
+		if ($isAllDay && !empty($endDateString)) {
+			$dtEndDate = new DateTime($endDateString);
+			$dtEndDate->add(new DateInterval('P1D'));
+			$endDateString = $dtEndDate->format('Y-m-d');
+		}
+
 		$tmpEvent=array(
 			'id'=>$event->id
 		,'title'=>$event->label
-		,'allDay'=>(bool)($event->fulldayevent)
-		,'start'=>(empty($event->datep) ? '' : dol_print_date($event->datep, '%Y-%m-%d %H:%M:%S', 'auto'))
-		,'end'=>(empty($event->datef) ? '' : dol_print_date($event->datef, '%Y-%m-%d %H:%M:%S', 'auto'))
+		,'allDay'=>$isAllDay
+		,'start'=>$startDateString
+		,'end'=>$endDateString
 		,'url_title'=>dol_buildpath('/comm/action/card.php?id='.$event->id,1)
 		,'editable'=>$editable
 		,'color'=>$color
