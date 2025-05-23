@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 
 ## Release 2.7
+- FIX : DA026440 wrong end date for all day event - *22/05/2025* - 2.7.14  
 - FIX : Update leave handling with half-day precision - *20/05/2025* - 2.7.13  
 - FIX : du ticket DA024563 suppression des couleurs mixte pour les congés   - *05/05/2025* - 2.7.12
 - FIX : du ticket DA024563 qui provoquait le bug + plus ajout des couleurs utilisateurs et statut de la demande de congés  - *05/05/2025* - 2.7.11  
