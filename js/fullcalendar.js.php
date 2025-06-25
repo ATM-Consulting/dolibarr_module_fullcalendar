@@ -1156,7 +1156,6 @@ header('Content-Type: text/javascript');
 									?>
 								}
 							}).done(function(response) {
-								console.log('Event saved successfully:', response); // Debug log
 								$.ajax({
 									url: "<?php echo dol_buildpath('/comm/action/card.php', 1) ?>",
 									data: {
@@ -1169,7 +1168,6 @@ header('Content-Type: text/javascript');
 										socid: $('#pop-new-event [name=fk_soc]').val()
 									}
 								}).done(function(response) {
-									console.log('Action cloned successfully:', response); // Debug log
 									$('#fullcalendar').fullCalendar('removeEvents');
 									$('#fullcalendar').fullCalendar('refetchEvents');
 									$('#pop-new-event').dialog("close");
