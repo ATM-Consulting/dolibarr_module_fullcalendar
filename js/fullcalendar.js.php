@@ -1114,10 +1114,10 @@ header('Content-Type: text/javascript');
 
 						//copier-coller moche pour sauvegarder avant de cloner
 						if ($('#pop-new-event input[name=label]').val() != '') {
-							var tUserId = []; // Use camelCase
+							var TUserId = []; // Use camelCase
 							var dataSelectUser = $('#pop-new-event #fk_user').select2('data');
 							for (var i in dataSelectUser) { // Use var to avoid global i
-								tUserId.push(dataSelectUser[i].id);
+								TUserId.push(dataSelectUser[i].id);
 							}
 
 							var note = $('#pop-new-event textarea[name=note]').val();
@@ -1137,7 +1137,7 @@ header('Content-Type: text/javascript');
 									date: date.format(),
 									fk_soc: $('#pop-new-event [name=fk_soc]').val(), // Fixed: Removed invalid .val() argument
 									fk_contact: $('#pop-new-event select[name=contactid]').val(),
-									fk_user: tUserId,
+									fk_user: TUserId,
 									fk_project: <?php if (getDolGlobalString('FULLCALENDAR_SHOW_PROJECT')) { ?>$('#pop-new-event #fk_project').val()<?php } else { ?>fk_project<?php } ?>,
 									type_code: $('#pop-new-event select[name=type_code]').val(),
 									date_start: $('#pop-new-event #apyear').val() + '-' + $('#pop-new-event #apmonth').val() + '-' + $('#pop-new-event #apday').val() + ' ' + $('#pop-new-event #aphour').val() + ':' + $('#pop-new-event #apmin').val() + ':00',
@@ -1165,7 +1165,7 @@ header('Content-Type: text/javascript');
 										confirm: 'yes',
 										object: 'action',
 										id: $('#pop-new-event input[name=id]').val(),
-										fk_userowner: tUserId[0],
+										fk_userowner: TUserId[0],
 										socid: $('#pop-new-event [name=fk_soc]').val()
 									}
 								}).done(function(response) {
