@@ -1101,79 +1101,90 @@ header('Content-Type: text/javascript');
 
 			if (typeof calEvent === 'object' && editable)
 			{
+				var isCloningEvent = false;
+
 				TButton.push({
-					text: "<?php echo $langs->transnoentities('ToClone') ?>"
-					,click:function() {
+					text: "<?php echo $langs->transnoentities('ToClone') ?>",
+					click: function() {
+						if (isCloningEvent) {
+							console.warn('Clone action already in progress, skipping...');
+							return;
+						}
+						isCloningEvent = true;
+
 						//copier-coller moche pour sauvegarder avant de cloner
-						if($('#pop-new-event input[name=label]').val() != '') {
-
-								var TUserId=[];
-								var dataSelectUser = $('#pop-new-event #fk_user').select2('data');
-								for(i in dataSelectUser) {
-									TUserId.push(dataSelectUser[i].id);
-								}
-
-
-								var note = $('#pop-new-event textarea[name=note]').val();
-								<?php if (isModEnabled('fckeditor')) { ?>note = CKEDITOR.instances['note'].getData(); <?php } ?>
-
-								$.ajax({
-									method: 'POST'
-									,url:'<?php echo dol_buildpath('/fullcalendar/script/interface.php',1) ?>'
-									,data:{
-										put:'event'
-										,id:$('#pop-new-event input[name=id]').val()
-										,label:$('#pop-new-event input[name=label]').val()
-										,note:note
-										,date:date.format()
-										,fk_soc:$('#pop-new-event [name=fk_soc]').val(calEvent.object.socname)
-										,fk_contact:$('#pop-new-event select[name=contactid]').val()
-										,fk_user:TUserId
-										,fk_project:<?php if (getDolGlobalString('FULLCALENDAR_SHOW_PROJECT')) { ?>$('#pop-new-event #fk_project').val()<?php } else { ?>fk_project<?php } ?>
-										,type_code:$('#pop-new-event select[name=type_code]').val()
-										,date_start:$('#pop-new-event #apyear').val()+'-'+$('#pop-new-event #apmonth').val()+'-'+$('#pop-new-event #apday').val()+' '+$('#pop-new-event #aphour').val()+':'+$('#pop-new-event #apmin').val()+':00'
-										,date_end:$('#pop-new-event #p2year').val()+'-'+$('#pop-new-event #p2month').val()+'-'+$('#pop-new-event #p2day').val()+' '+$('#pop-new-event #p2hour').val()+':'+$('#pop-new-event #p2min').val()+':00'
-										,token: token
-										<?php if (getDolGlobalString('FULLCALENDAR_CAN_UPDATE_PERCENT')) { ?>
-										,complete:$('#pop-new-event select[name=complete]').val()
-										,percentage:$('#pop-new-event input[name=percentage]').val()
-										<?php } ?>
-										<?php
-										if(!empty($moreOptions)) {
-
-											foreach ($moreOptions as $param => $option)
-											{
-												echo ','.$param.':$("#pop-new-event select[name='.$param.']").val()';
-											}
-										}
-
-										?>
-									}
-								}).done(function() {
-									$.ajax({
-										url:"<?php echo dol_buildpath('/comm/action/card.php', 1) ?>"
-										,data:{
-											action:'confirm_clone'
-											,token: token
-											,confirm:'yes'
-											,object:'action'
-											,id:$('#pop-new-event input[name=id]').val()
-											,fk_userowner:TUserId[0]
-											,socid:$('#pop-new-event [name=fk_soc]').val()
-
-										}
-									}).done(function() {
-
-											$('#fullcalendar').fullCalendar('removeEvents');
-											$('#fullcalendar').fullCalendar( 'refetchEvents' );
-											$('#pop-new-event').dialog( "close" );
-
-									});
-								});
-
+						if ($('#pop-new-event input[name=label]').val() != '') {
+							var TUserId = []; // Use camelCase
+							var dataSelectUser = $('#pop-new-event #fk_user').select2('data');
+							for (var i in dataSelectUser) { // Use var to avoid global i
+								TUserId.push(dataSelectUser[i].id);
 							}
 
+							var note = $('#pop-new-event textarea[name=note]').val();
+							<?php if (isModEnabled('fckeditor')) { ?>
+							note = CKEDITOR.instances['note'].getData();
+							<?php } ?>
 
+							console.log('Preparing to save event before cloning'); // Debug log
+							$.ajax({
+								method: 'POST',
+								url: '<?php echo dol_buildpath('/fullcalendar/script/interface.php', 1) ?>',
+								data: {
+									put: 'event',
+									id: $('#pop-new-event input[name=id]').val(),
+									label: $('#pop-new-event input[name=label]').val(),
+									note: note,
+									date: date.format(),
+									fk_soc: $('#pop-new-event [name=fk_soc]').val(), // Fixed: Removed invalid .val() argument
+									fk_contact: $('#pop-new-event select[name=contactid]').val(),
+									fk_user: TUserId,
+									fk_project: <?php if (getDolGlobalString('FULLCALENDAR_SHOW_PROJECT')) { ?>$('#pop-new-event #fk_project').val()<?php } else { ?>fk_project<?php } ?>,
+									type_code: $('#pop-new-event select[name=type_code]').val(),
+									date_start: $('#pop-new-event #apyear').val() + '-' + $('#pop-new-event #apmonth').val() + '-' + $('#pop-new-event #apday').val() + ' ' + $('#pop-new-event #aphour').val() + ':' + $('#pop-new-event #apmin').val() + ':00',
+									date_end: $('#pop-new-event #p2year').val() + '-' + $('#pop-new-event #p2month').val() + '-' + $('#pop-new-event #p2day').val() + ' ' + $('#pop-new-event #p2hour').val() + ':' + $('#pop-new-event #p2min').val() + ':00',
+									token: token,
+									<?php if (getDolGlobalString('FULLCALENDAR_CAN_UPDATE_PERCENT')) { ?>
+									complete: $('#pop-new-event select[name=complete]').val(),
+									percentage: $('#pop-new-event input[name=percentage]').val(),
+									<?php } ?>
+									<?php
+									if (!empty($moreOptions)) {
+										foreach ($moreOptions as $param => $option) {
+											echo ',' . $param . ':$("#pop-new-event select[name=' . $param . ']").val()';
+										}
+									}
+									?>
+								}
+							}).done(function(response) {
+								$.ajax({
+									url: "<?php echo dol_buildpath('/comm/action/card.php', 1) ?>",
+									data: {
+										action: 'confirm_clone',
+										token: token,
+										confirm: 'yes',
+										object: 'action',
+										id: $('#pop-new-event input[name=id]').val(),
+										fk_userowner: TUserId[0],
+										socid: $('#pop-new-event [name=fk_soc]').val()
+									}
+								}).done(function(response) {
+									$('#fullcalendar').fullCalendar('removeEvents');
+									$('#fullcalendar').fullCalendar('refetchEvents');
+									$('#pop-new-event').dialog("close");
+									isCloningEvent = false; // Reset flag
+								}).fail(function(jqXHR, textStatus, errorThrown) {
+									console.error('Clone action failed:', textStatus, errorThrown); // Debug log
+									setEventMessages('Error cloning event: ' + (jqXHR.responseText || 'Unknown error'), null, 'errors');
+									isCloningEvent = false; // Reset flag
+								});
+							}).fail(function(jqXHR, textStatus, errorThrown) {
+								console.error('Save event failed:', textStatus, errorThrown); // Debug log
+								setEventMessages('Error saving event: ' + (jqXHR.responseText || 'Unknown error'), null, 'errors');
+								isCloningEvent = false; // Reset flag
+							});
+						} else {
+							isCloningEvent = false; // Reset flag if label is empty
+						}
 					}
 				});
 			}

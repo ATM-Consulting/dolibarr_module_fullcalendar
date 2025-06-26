@@ -241,6 +241,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 			break;
 
 		case 'event':
+
 			$type = getDolGlobalInt('AGENDA_USE_EVENT_TYPE');
 			if (GETPOST('label', 'none') != ""  || $type ){
 
