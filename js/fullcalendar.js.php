@@ -795,7 +795,6 @@ header('Content-Type: text/javascript');
 				$TRemindTypes = array();
 				if (getDolGlobalString('AGENDA_REMINDER_EMAIL')) $TRemindTypes['email'] = $langs->trans('EMail');
 				if (getDolGlobalString('AGENDA_REMINDER_BROWSER')) $TRemindTypes['browser'] = $langs->trans('BrowserPush');
-				$select_remindertype =  str_replace("\n", '', $form->selectarray('selectremindertype', $TRemindTypes));
 				$select_remindertype =  $form->selectarray('selectremindertype', $TRemindTypes);
 
 				if (is_callable(array($form, 'selectModelMail'), true)) {
