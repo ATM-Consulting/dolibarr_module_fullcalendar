@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 
 ## Release 2.7
 - FIX: COMPAT V22 - *31/07/2025* - 2.7.16 
+- FIX: DA026711 - removed a str_replace that was causing an error in the console because line breaks were being removed for no reason and a comment in the std lib was causing a problem - *30/07/2025* - 2.7.16
 - FIX: DA026711 infinite loop call stack in cloning event - *25/06/2025* - 2.7.15
 - FIX: DA026440 incorrect end date for all-day event - *22/05/2025* - 2.7.14
 - FIX: Update leave handling with half-day precision - *20/05/2025* - 2.7.13
