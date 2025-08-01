@@ -401,7 +401,11 @@ header('Content-Type: text/javascript');
 					note = note+'<div style="z-index:3;position:relative;"><span class="badge badge-info"><?php print addslashes($langs->transnoentities('FullDayEventSplited')); ?></span></div>';
 				}
 
-				element.prepend('<div style="float:right;">'+event.statut+'</div>');
+				<?php
+				if(getDolGlobalString('FULLCALENDAR_SHOW_EVENT_STATUS')) {
+				?>	
+					element.prepend('<div style="float:right;">'+event.statut+'</div>');
+				<?php } ?>
 
 				if ($().tipTip) // ou $.fn.tipTip, mais $.tipTip ne fonctionne pas
 				{
