@@ -521,13 +521,6 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 
 	$maxprint=(GETPOST("maxprint", 'none')?GETPOST("maxprint", 'none'):(getDolGlobalString('AGENDA_MAX_EVENTS_DAY_VIEW') ? getDolGlobalString('AGENDA_MAX_EVENTS_DAY_VIEW') : ''));
 
-	//First try with GETPOST(array, 'none') (I don't know when it can be an array but why not)
-	$actioncode=GETPOST("actioncode", "array", 3)?GETPOST("actioncode", "array", 3):(GETPOST("actioncode", 'none')=='0'?'0':'');
-
-    if(empty($actioncode)){
-        $actioncode=GETPOST("search_actioncode", "array", 3)?GETPOST("search_actioncode", "array", 3):(GETPOST("search_actioncode", 'none')=='0'?'0':'');
-    }
-
 	//If empty then try GETPOST(alpha, 'none') (this one works with comm/action/index.php
 	if(empty($actioncode)) {
 
