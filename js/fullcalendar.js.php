@@ -674,7 +674,7 @@ header('Content-Type: text/javascript');
 
 			$form = $('<form name="action"></form>');
 			/*TODO better display */
-			$form.append('<?php echo dol_escape_js($select_type_action); ?>');
+			$form.append('<?php echo dol_escape_js($select_type_action, 3); ?>');
 			var selectedText ='<?php echo dol_escape_js($selectedText ); ?>';
 			$form.append('<br /><input type="text" id="label_event" name="label" value="' + selectedText + '" placeholder="<?php echo $langs->trans('Title') ?>" style="width:300px"><br />');
 
