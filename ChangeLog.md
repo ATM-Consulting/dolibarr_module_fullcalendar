@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 ## Not Released
 
 ## Release 2.7
-- FIX: DA026711 - Adding a mode to a dol_escape_js to avoid console errors - *01/08/2025* - 2.7.17
+- FIX: DA026711 - Adding mode = 3 to a dol_escape_js call to avoid js syntax error due to wrong string delimiters - *01/08/2025* - 2.7.17
 - FIX: COMPAT V22 - *31/07/2025* - 2.7.16 
 - FIX: DA026711 - removed a str_replace that was causing an error in the console because line breaks were being removed for no reason and a comment in the std lib was causing a problem - *30/07/2025* - 2.7.16
 - FIX: DA026711 infinite loop call stack in cloning event - *25/06/2025* - 2.7.15
