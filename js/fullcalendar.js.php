@@ -502,11 +502,10 @@ header('Content-Type: text/javascript');
 					$('#fullcalendar').fullCalendar('refetchEvents');
 				});
 			}
-			,dayClick:function( date, jsEvent, view ) {
+			,dayClick:function( date, jsEvent, view, calEvent) {
 				console.log(date.format());
 				//document.location.href = "<?php echo dol_buildpath('/comm/action/card.php?action=create',1); ?>"
-
-				showPopIn(date);
+				showPopIn(date, calEvent);
 
 			}
 			,eventClick:function(calEvent, jsEvent, view) {
@@ -1135,7 +1134,7 @@ header('Content-Type: text/javascript');
 
 			var title_dialog = "<?php echo $langs->transnoentities('AddAnAction') ?>";
 			var bt_add_lang = "<?php echo $langs->transnoentities('Add'); ?>";
-			if (typeof calEvent === 'object')
+			if (typeof calEvent === 'object' && typeof calEvent.object.id != 'undefined')
 			{
 				title_dialog = "<?php echo $langs->transnoentities('EditAnAction') ?>";
 				bt_add_lang = "<?php echo $langs->transnoentities('Update'); ?>";
@@ -1400,4 +1399,6 @@ header('Content-Type: text/javascript');
 <?php
 	}
 ?>
+
+		$('#fullcalendar').attr('data-loaded', 'true');
 	});
