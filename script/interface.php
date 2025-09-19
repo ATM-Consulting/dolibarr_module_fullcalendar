@@ -291,6 +291,7 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 
 			$a->socid = GETPOST('fk_soc', 'int');
 			$a->contact_id = GETPOST('fk_contact', 'int');
+			$a->socpeopleassigned[$a->contact_id] = $a->contact_id;
 
 			$a->fk_project = GETPOST('fk_project','int');
 
