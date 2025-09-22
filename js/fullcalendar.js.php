@@ -502,6 +502,7 @@ header('Content-Type: text/javascript');
 			}
 			,eventAfterAllRender:function (view) {
 				$('#fullcalendar').fullCalendar( 'option' , 'aspectRatio', 1.35);
+				$(document).trigger('eventAfterAllRender');
 			}
 		});
 
