@@ -521,6 +521,7 @@ header('Content-Type: text/javascript');
 			}
 			,eventAfterAllRender:function (view) {
 				$('#fullcalendar').fullCalendar( 'option' , 'aspectRatio', 1.35);
+				$(document).trigger('eventAfterAllRender');
 			}
 		});
 
@@ -693,7 +694,7 @@ header('Content-Type: text/javascript');
 
 			$form = $('<form name="action"></form>');
 			/*TODO better display */
-			$form.append('<?php echo dol_escape_js($select_type_action); ?>');
+			$form.append('<?php echo dol_escape_js($select_type_action, 3); ?>');
 			var selectedText ='<?php echo dol_escape_js($selectedText ); ?>';
 			$form.append('<br /><input type="text" id="label_event" name="label" value="' + selectedText + '" placeholder="<?php echo $langs->trans('Title') ?>" style="width:300px"><br />');
 
@@ -822,7 +823,7 @@ header('Content-Type: text/javascript');
 				$TRemindTypes = array();
 				if (getDolGlobalString('AGENDA_REMINDER_EMAIL')) $TRemindTypes['email'] = $langs->trans('EMail');
 				if (getDolGlobalString('AGENDA_REMINDER_BROWSER')) $TRemindTypes['browser'] = $langs->trans('BrowserPush');
-				$select_remindertype =  str_replace("\n", '', $form->selectarray('selectremindertype', $TRemindTypes));
+				$select_remindertype =  $form->selectarray('selectremindertype', $TRemindTypes);
 
 				if (is_callable(array($form, 'selectModelMail'), true)) {
 					$select_mailtemplate = str_replace("\n", '', $form->selectModelMail('actioncommsend', 'actioncomm_send', 1));
