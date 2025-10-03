@@ -1371,6 +1371,8 @@ header('Content-Type: text/javascript');
 				,title: title_dialog
 				,buttons:TButton
 			});
+
+			$(document).trigger('aftershowpopin');
 		}
 
 		$form_selector.submit(function(event) {
