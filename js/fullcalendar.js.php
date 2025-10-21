@@ -124,8 +124,6 @@ header('Content-Type: text/javascript');
 	$formProject->select_projects(-1, 0, 'fk_project', 0, 0, 1, 1);
 	$select_project = ob_get_clean();
 
-	$defaultDay = date('d');
-
 	if(getDolGlobalString('MAIN_DEFAULT_WORKING_HOURS')) {
 		list($hourStart, $hourEnd) = explode('-', getDolGlobalString('MAIN_DEFAULT_WORKING_HOURS'));
 	}
@@ -196,7 +194,8 @@ header('Content-Type: text/javascript');
 		var year = $form_selector.find('input[name=year]').val();
 		var month = $form_selector.find('input[name=month]').val();
 		if(month.length < 2) month = '0'+month; // S'il n'y a qu'un caractère on ajoute un 0 devant (bug firefox)
-		var defaultDate = year+'-'+month+'-<?php echo $defaultDay/*.' '.$hourStart.':00'*/ ?>';
+		var day = $form_selector.find('input[name=day]').val();
+		var defaultDate = year + '-' + month + '-' + day;
 
 		var defaultView='month';
 		if($('form.listactionsfilter input[name=action]').val() == 'show_week') defaultView = 'agendaWeek';
