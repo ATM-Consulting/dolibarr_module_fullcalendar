@@ -861,8 +861,8 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 		$isAllDay = (bool)($event->fulldayevent);
 
 		$startDateString = $endDateString = '';
-		if($event->datep) $startDateString = dol_print_date($event->datep, $isAllDay ? '%Y-%m-%d' : '%Y-%m-%d %H:%M:%S', 'tzuser');
-		if($event->datef) $endDateString = dol_print_date($event->datef, $isAllDay ? '%Y-%m-%d' : '%Y-%m-%d %H:%M:%S', 'tzuser');
+		if($event->datep) $startDateString = dol_print_date($event->datep, $isAllDay ? '%Y-%m-%d' : '%Y-%m-%d %H:%M:%S', 'auto');
+		if($event->datef) $endDateString = dol_print_date($event->datef, $isAllDay ? '%Y-%m-%d' : '%Y-%m-%d %H:%M:%S', 'auto');
 
 		if ($isAllDay && !empty($endDateString)) {
 			$dtEndDate = new DateTime($endDateString);
