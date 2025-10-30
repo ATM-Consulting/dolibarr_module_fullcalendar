@@ -870,6 +870,8 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 			$endDateString = $dtEndDate->format('Y-m-d');
 		}
 
+		unset($event->db);
+
 		$tmpEvent=array(
 			'id'=>$event->id
 		,'title'=>$event->label
