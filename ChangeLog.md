@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## Not Released
 
 ## Release 2.7
+- FIX: DA027282 - Data not desired in the object - *30/10/2025 - 2.7.19
 - FIX: DA027064 - Contact id wasn't kept - *19/09/2025* - 2.7.18
 - FIX: DA026711 - Adding mode = 3 to a dol_escape_js call to avoid js syntax error due to wrong string delimiters - *01/08/2025* - 2.7.17
 - FIX: COMPAT V22 - *31/07/2025* - 2.7.16 
