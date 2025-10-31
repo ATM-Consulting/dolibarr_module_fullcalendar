@@ -870,8 +870,7 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 			$endDateString = $dtEndDate->format('Y-m-d');
 		}
 
-		unset($event->db);
-
+		// To avoid security breaches, please do not add the entire object 'event', but select only what you need and add it to tmpEvent
 		$tmpEvent=array(
 			'id'=>$event->id
 		,'title'=>$event->label
@@ -894,6 +893,9 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 		,'contact'=>(!empty($TContact[$eventContactId]) ? $TContact[$eventContactId] : '')
 		,'user'=>(!empty($TUserassigned) ? implode(', ',$TUserassigned) : '')
 		,'project'=>(!empty($TProject[$event->fk_project]) ? $TProject[$event->fk_project] : '')
+
+		,'type_code'          => $event->type_code ?? ''
+ 		,'percentage'         => isset($event->percentage) ? (int) $event->percentage : null
 
 		,'project_order'=>(!empty( $event->project_order ) ? $event->project_order : '')
 		,'fk_project_order'=>(!empty( $event->fk_project_order ) ? $event->fk_project_order : '0')
@@ -928,6 +930,12 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 				}
 			}
 		}
+
+		if (getDolGlobalString('COMPANY_USE_SEARCH_TO_SELECT'))
+		{
+			$tmpEvent['socname'] = $event->socname ?? '';
+		}
+
 		$TEvent[] = $tmpEvent;
 
 	}

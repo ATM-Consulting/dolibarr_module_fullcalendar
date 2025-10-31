@@ -899,12 +899,12 @@ header('Content-Type: text/javascript');
 			var editable = true;
 
 			if (typeof calEvent === 'object') {
-				fk_project = calEvent.object.fk_project;
+				fk_project = calEvent.fk_project;
 
 				$div.find('input[name=id]').val(calEvent.id);
-				$div.find('#type_code').val(calEvent.object.type_code);
-				$div.find('input[name=label]').val(calEvent.object.label);
-				$div.find('textarea[name=note]').val(calEvent.object.note);
+				$div.find('#type_code').val(calEvent.type_code);
+				$div.find('input[name=label]').val(calEvent.title);
+				$div.find('textarea[name=note]').val(calEvent.note);
 
 				/**
 				 * si l'event porte ce champs, c'est qu'il a des notif attachées...
@@ -924,22 +924,22 @@ header('Content-Type: text/javascript');
 
 				<?php if (getDolGlobalString('FULLCALENDAR_CAN_UPDATE_PERCENT')) { ?>
 				setTimeout(function() { // async needed
-					if (calEvent.object.percentage == -1) $div.find('select[name=complete]').val(-1).trigger('change');
-					else if (calEvent.object.percentage == 0) $div.find('select[name=complete]').val(0).trigger('change');
-					else if (calEvent.object.percentage < 100) $div.find('select[name=complete]').val(50).trigger('change');
-					else if (calEvent.object.percentage >= 100) $div.find('select[name=complete]').val(100).trigger('change');
+					if (calEvent.percentage == -1) $div.find('select[name=complete]').val(-1).trigger('change');
+					else if (calEvent.percentage == 0) $div.find('select[name=complete]').val(0).trigger('change');
+					else if (calEvent.percentage < 100) $div.find('select[name=complete]').val(50).trigger('change');
+					else if (calEvent.percentage >= 100) $div.find('select[name=complete]').val(100).trigger('change');
 
-					$div.find('input[name=percentage]').val(calEvent.object.percentage);
+					$div.find('input[name=percentage]').val(calEvent.percentage);
 				}, 1);
 				<?php } ?>
-				if (calEvent.object.socid > 0) {
-					$div.find('#fk_soc').val(calEvent.object.socid).trigger('change'); // Si COMPANY_USE_SEARCH_TO_SELECT == 0, alors le trigger "change" fera l'affaire
-					setTimeout(function() { $div.find('#contactid').val(calEvent.object.contact_id).trigger('change'); } ,250);
-					<?php if (getDolGlobalString('COMPANY_USE_SEARCH_TO_SELECT')) { ?>$div.find('#search_fk_soc')?.val(calEvent.object?.socname); <?php } ?>
+				if (calEvent.fk_soc > 0) {
+					$div.find('#fk_soc').val(calEvent.fk_soc).trigger('change'); // Si COMPANY_USE_SEARCH_TO_SELECT == 0, alors le trigger "change" fera l'affaire
+					setTimeout(function() { $div.find('#contactid').val(calEvent.fk_contact).trigger('change'); } ,250);
+					<?php if (getDolGlobalString('COMPANY_USE_SEARCH_TO_SELECT')) { ?>$div.find('#search_fk_soc')?.val(calEvent.socname); <?php } ?>
 				}
-				$div.find('#contactid').val(calEvent.object.contact_id).trigger('change');
+				$div.find('#contactid').val(calEvent.fk_contact).trigger('change');
 				TUserId = calEvent.TFk_user;
-				$div.find('#fk_project').val(calEvent.object.fk_project).trigger('change');
+				$div.find('#fk_project').val(calEvent.fk_project).trigger('change');
 
 				date_start = calEvent.start._d;
 				date_end = calEvent.end ? calEvent.end._d : null;
