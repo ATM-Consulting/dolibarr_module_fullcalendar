@@ -1507,8 +1507,8 @@ function completeWithExtEvent(&$TEvent, &$TSociete, &$TContact, &$TProject)
 								'id'=>$event->id
 								,'title'=>(!empty($event->label) ? $event->label : $event->libelle) . "\n(".$event->icalname.')'
 								,'allDay'=>(bool)($event->fulldayevent)
-								,'start'=>(empty($event->datep) ? '' : date('Y-m-d H:i:s',(int)$event->datep))
-								,'end'=>(empty($event->datef) ? '' : date('Y-m-d H:i:s',(int)$event->datef))
+								,'start'=>(empty($event->datep) ? '' : date('Y-m-d H:i:s','auto'))
+								,'end'=>(empty($event->datef) ? '' : date('Y-m-d H:i:s','auto'))
 								,'url'=>dol_buildpath('/comm/action/card.php?id='.$event->id,1)
 								,'editable'=>$editable
 								,'color'=>'#'.$colorcal
