@@ -185,7 +185,7 @@ header('Content-Type: text/javascript');
 			value: "x"
 		}).html("<span class='fa fa-search'></span>"));
 
-		
+
 		var clearDiv = parentDiv.find('div[class="clearboth"]');
 		if(!clearDiv.length) clearDiv = parentDiv.find('div[style="clear:both"]'); // for compatibility with old dolibarr version (<= 17)
 		buttonElement.insertBefore(clearDiv);
@@ -928,6 +928,13 @@ header('Content-Type: text/javascript');
 						}
 					<?php endif; ?>
 					projectRefreshUrl += projectFilters;
+					let fk_project;
+					if (calEvent?.fk_project > 0) {
+						fk_project = calEvent.fk_project;
+						// delete to only set fk_project value on first time
+						delete calEvent.fk_project;
+					}
+
 					$.ajax({
 						url: projectRefreshUrl
 						,dataType: 'json'
@@ -935,14 +942,17 @@ header('Content-Type: text/javascript');
 					}).done(function(data) {
 						let options = '<option value="0">&nbsp;</option>';
 						for (const item of data) {
-							let selectedAttribute = '';
-							if (typeof calEvent !== 'undefined' && item.key == calEvent.object.fk_project) {
-								selectedAttribute = ' selected';
-							}
-							options += `<option value="${item.key}"${selectedAttribute}>${item.value}</option>`;
+							options += `<option value="${item.key}">${item.value}</option>`;
 						}
-						$form.find('#fk_project').html('<select class="flat" id="fk_project" name="fk_project">' + options + '</select>');$('#fk_project').select2();
-						$form.find('#fk_project').trigger('change');
+						$form.find('#fk_project').html('<select class="flat" id="fk_project" name="fk_project">' + options + '</select>');
+						let project_title = '';
+
+						if (fk_project > 0) {
+							$div.find('#fk_project').val(fk_project);
+							project_title = calEvent.project_title;
+						}
+						<?php if (getDolGlobalString('PROJECT_USE_SEARCH_TO_SELECT')) { ?>$div.find('#search_fk_project')?.val(project_title); <?php } ?>
+						$div.find('#fk_project').trigger('change');
 					});
 				<?php endif; ?>
 			});
@@ -955,8 +965,10 @@ header('Content-Type: text/javascript');
 				$form.find('#fk_soc').change(function() {
 				<?php endif; ?>
 					let fk_fichinter;
-					if (typeof calEvent != 'undefined' && 'fichinter' in calEvent.object.linkedObjects) {
-						fk_fichinter = calEvent.object.linkedObjects.fichinter[Object.keys(calEvent.object.linkedObjects.fichinter)[0]].id;
+					if (calEvent?.fk_fichinter > 0) {
+						fk_fichinter = calEvent.fk_fichinter;
+						// delete to only set fk_fichinter value on first time
+						delete calEvent.fk_fichinter;
 					}
 
 					let fichinterFilters = '';
@@ -997,14 +1009,11 @@ header('Content-Type: text/javascript');
 					}).done(function(data) {
 						let options = '<option value="0">&nbsp;</option>';
 						for (const item of data) {
-							let selectedAttribute = '';
-							if (setSelectedFichinterValueOnlyOneTime === true && item.key == fk_fichinter) {
-								setSelectedFichinterValueOnlyOneTime = false;
-								selectedAttribute = ' selected';
-							}
-							options += `<option value="${item.key}"${selectedAttribute}>${item.value}</option>`;
+							options += `<option value="${item.key}">${item.value}</option>`;
 						}
-						$form.find('#interventionid').html('<select class="flat" id="fk_fichinter" name="fk_fichinter">' + options + '</select>').trigger('change');$('#interventionid').select2();
+						$form.find('#interventionid').html('<select class="flat" id="fk_fichinter" name="fk_fichinter">' + options + '</select>');
+						$('#interventionid').select2();
+						$('#interventionid').val(fk_fichinter).trigger('change');
 					});
 				});
 			<?php endif; ?>
@@ -1064,7 +1073,6 @@ header('Content-Type: text/javascript');
 				<?php endif; ?>
 				$div.find('#contactid').val(calEvent.fk_contact).trigger('change');
 				TUserId = calEvent.TFk_user;
-				$div.find('#fk_project').val(calEvent.fk_project).trigger('change');
 
 				date_start = calEvent.start._d;
 				date_end = calEvent.end ? calEvent.end._d : null;

@@ -591,11 +591,14 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 	$sql.= ' a.transparency, a.priority, a.fulldayevent, a.location,';
 	$sql.= ' a.fk_soc, a.fk_contact,a.note,';
 	$sql.= ' ca.color as type_color,';
-	$sql.= ' ca.code as type_code, ca.libelle as type_label';
+	$sql.= ' ca.code as type_code, ca.libelle as type_label,';
+	$sql.= ' IF (s.name_alias != "", CONCAT(s.nom, " (", s.name_alias, ")"), s.nom) as socname,';
+	$sql.= ' CONCAT(p.ref, " - ", p.title) as project_title';
 	$sql.= ' FROM '.$db->prefix()."actioncomm as a";
 	$sql.= ' LEFT JOIN '.$db->prefix().'c_actioncomm as ca ON (a.fk_action = ca.id)';
 	$sql.= ' LEFT JOIN '.$db->prefix().'user u ON (a.fk_user_action=u.rowid )';
 	$sql.= ' LEFT JOIN '.$db->prefix().'societe s ON (s.rowid = a.fk_soc)';
+	$sql.= ' LEFT JOIN '.$db->prefix().'projet p ON (p.rowid = a.fk_project)';
 	if ($resourceid > 0) {
 		$sql .= "LEFT JOIN ".$db->prefix()."element_resources as r on r.element_id = a.id";
 	}
@@ -696,6 +699,7 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 		$event = new ActionComm($db);
 
 		$eventContactId = $event->contact_id;
+		$eventProject_title = $obj->project_title;
 
 		$event->id = $obj->id;
 		$event->fetch_userassigned();
@@ -816,6 +820,7 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 					$TFichinter[$linkedFichinter->id] = $linkedFichinter->getNomUrl(1);
 					$TFichinterObject[$linkedFichinter->id] = $linkedFichinter;
 				}
+				unset($event->linkedObjects['fichinter']);
 			}
         }
 
@@ -906,6 +911,9 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 			$endDateString = $dtEndDate->format('Y-m-d');
 		}
 
+		unset($event->thirdparty->db);
+		unset($event->thirdparty->fields);
+
 		// To avoid security breaches, please do not add the entire object 'event', but select only what you need and add it to tmpEvent
 		$tmpEvent=array(
 			'id'=>$event->id
@@ -925,6 +933,7 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 		,'fk_user'=>$event->userownerid
 		,'TFk_user'=>array_keys($event->userassigned)
 		,'fk_project'=>$event->fk_project
+		,'project_title'=>$eventProject_title
 		,'societe'=>(!empty($TSociete[$event->socid]) ? $TSociete[$event->socid] : '')
 		,'contact'=>(!empty($TContact[$eventContactId]) ? $TContact[$eventContactId] : '')
 		,'user'=>(!empty($TUserassigned) ? implode(', ',$TUserassigned) : '')
