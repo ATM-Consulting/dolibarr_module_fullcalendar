@@ -228,7 +228,7 @@ print '</td></tr>';
 
 $var=!$var;
 print '<tr '.$bc[$var].'>';
-print '<td>'.$langs->trans("FULLCALENDAR_SHOW_INTERVENTION_HAVING_STATUS").'</td>';
+print '<td>'.$form->textwithpicto($langs->trans("FULLCALENDAR_SHOW_INTERVENTION_HAVING_STATUS"), $langs->trans('FullcalendarShowInterventionHavingStatusTooltip'), 1, 0) .'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';

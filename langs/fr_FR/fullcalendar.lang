@@ -10,7 +10,8 @@ ViewCal=Calendrier
 FULLCALENDAR_SHOW_PROJECT=Voir le projet dans les évènements
 FULLCALENDAR_FILTER_PROJECT_BY_THIRD_PARTY=Lister uniquement les projets du tiers sélectionné
 FULLCALENDAR_SHOW_INTERVENTION=Voir l'intervention dans les évènements
-FULLCALENDAR_SHOW_INTERVENTION_HAVING_STATUS=Afficher uniquement les interventions ayant les statuts suivants (ex : '1,3,4')
+FULLCALENDAR_SHOW_INTERVENTION_HAVING_STATUS=Afficher uniquement les interventions ayant les statuts suivants (ex : '0,1,3')
+FullcalendarShowInterventionHavingStatusTooltip=Liste des statuts possibles pour les interventions : 0=brouillon, 1=validé, 2=facturé, 3=terminé
 FULLCALENDAR_FILTER_INTERVENTION_BY_THIRD_PARTY=Lister uniquement les interventions du tiers sélectionné
 FULLCALENDAR_FILTER_INTERVENTION_BY_PROJECT=Lister uniquement les interventions du projet sélectionné
 FULLCALENDAR_SHOW_AFFECTED_USER=Voir l'utilisateur affecté dans les évènements
