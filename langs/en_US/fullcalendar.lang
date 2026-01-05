@@ -8,6 +8,12 @@ fullcalendarAbout = About fullcalendar
 
 ViewCal=Calendar
 FULLCALENDAR_SHOW_PROJECT=Show project in the events
+FULLCALENDAR_FILTER_PROJECT_BY_THIRD_PARTY=Filter projects by third party
+FULLCALENDAR_SHOW_INTERVENTION=Show intervention in the events
+FULLCALENDAR_SHOW_INTERVENTION_HAVING_STATUS=Filter interventions by status (ex: '0,1,3')
+FullcalendarShowInterventionHavingStatusTooltip=Avaible status for interventions : 0=draft, 1=validated, 2=invoiced, 3=completed
+FULLCALENDAR_FILTER_INTERVENTION_BY_THIRD_PARTY=Filter interventions by third party
+FULLCALENDAR_FILTER_INTERVENTION_BY_PROJECT=Filter interventions by project
 FULLCALENDAR_SHOW_AFFECTED_USER=Show user associated in the events
 FULLCALENDAR_HIDE_DAYS=Hide any days not worked ("6,0" for saturday and sunday)
 FULLCALENDAR_SHOW_THIS_HOURS=Show only this hours on "week/day" view ("9-18" from 9:00 to 18:00)

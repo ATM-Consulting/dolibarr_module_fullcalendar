@@ -16,6 +16,9 @@ header('Content-Type: text/javascript');
 
 	dol_include_once('/core/class/html.formactions.class.php');
 	dol_include_once('/core/class/html.formprojet.class.php');
+	if (getDolGlobalString('FULLCALENDAR_SHOW_INTERVENTION')) {
+		dol_include_once('/core/class/html.formintervention.class.php');
+	}
 	if (getDolGlobalString('FULLCALENDAR_CAN_UPDATE_PERCENT'))
 	{
 		require_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';
@@ -118,6 +121,13 @@ header('Content-Type: text/javascript');
 		$form->select_contacts(-1, -1, 'contactid', 1, '', '', 0, 'minwidth200'); // contactid car nom non pris en compte par l'ajax en vers.<3.9
 	}
 	$select_contact = ob_get_clean();
+
+	if (getDolGlobalString('FULLCALENDAR_SHOW_INTERVENTION')) {
+		ob_start();
+		$formIntervention = new FormIntervention($db);
+		echo $formIntervention->select_interventions(-1, -1, 'fk_fichinter');
+		$select_intervention = ob_get_clean();
+	}
 
 	ob_start();
 	$formProject = new FormProjets($db);
@@ -379,6 +389,16 @@ header('Content-Type: text/javascript');
 					<?php
 				}
 
+				if (getDolGlobalString('FULLCALENDAR_SHOW_INTERVENTION')) {
+
+					?>
+					if(event.fk_fichinter>0){
+						element.append('<div style="z-index:3;position:relative;">'+event.fichinter+'</div>');
+						note = '<div style="z-index:3;position:relative;">'+event.fichinter+'</div>'+note;
+					}
+					<?php
+				}
+
 				if(getDolGlobalString('FULLCALENDAR_SHOW_ORDER')) {
 
 					?>
@@ -482,11 +502,10 @@ header('Content-Type: text/javascript');
 					$('#fullcalendar').fullCalendar('refetchEvents');
 				});
 			}
-			,dayClick:function( date, jsEvent, view ) {
+			,dayClick:function( date, jsEvent, view, calEvent) {
 				console.log(date.format());
 				//document.location.href = "<?php echo dol_buildpath('/comm/action/card.php?action=create',1); ?>"
-
-				showPopIn(date);
+				showPopIn(date, calEvent);
 
 			}
 			,eventClick:function(calEvent, jsEvent, view) {
@@ -502,6 +521,7 @@ header('Content-Type: text/javascript');
 			}
 			,eventAfterAllRender:function (view) {
 				$('#fullcalendar').fullCalendar( 'option' , 'aspectRatio', 1.35);
+				$(document).trigger('eventAfterAllRender');
 			}
 		});
 
@@ -782,6 +802,14 @@ header('Content-Type: text/javascript');
 				<?php
 			}
 
+			if (getDolGlobalString('FULLCALENDAR_SHOW_INTERVENTION')) {
+
+			 	?>
+			 	$form.append('<br /><?php echo $langs->trans('Intervention'); ?> : ');
+				$form.append(<?php echo json_encode('<span rel="fichinter">'.$select_intervention.'</span>'); ?>);
+			 	<?php
+			}
+
 			/**
 			 * conf utilisées en 13.0 pour activer les notifications
 			 * si l'une d'elle est activée, on rajoute ce qu'il faut au formulaire
@@ -873,7 +901,6 @@ header('Content-Type: text/javascript');
 				}
 
 			}
-
 			?>
 
 			$form.find('#fk_soc').change(function() {
@@ -887,7 +914,109 @@ header('Content-Type: text/javascript');
 					$('#pop-new-event span[rel=contact]').html('<select class="flat" id="contactid" name="contactid">'+data.value+'</select>');$('#contactid').select2();
 				});
 
+				<?php if(getDolGlobalString('FULLCALENDAR_SHOW_PROJECT')): ?>
+					let projectFilters = '';
+					let projectRefreshUrl = '<?php echo dol_buildpath('/core/ajax/selectobject.php?', 1) ?>';
+					projectRefreshUrl += 'htmlname=fk_project';
+					projectRefreshUrl += '&outjson=1';
+					projectRefreshUrl += '&token=<?php echo $newToken ?>';
+					projectRefreshUrl += '&objectdesc=Project:projet/class/project.class.php:0:';
+					<?php if (getDolGlobalString('FULLCALENDAR_FILTER_PROJECT_BY_THIRD_PARTY')): ?>
+						const selectSocEl = $form.find('#fk_soc');
+						if (selectSocEl.length > 0 && selectSocEl.val() > 0) {
+							projectFilters += '(t.fk_soc:=:' + selectSocEl.val() + ')';
+						}
+					<?php endif; ?>
+					projectRefreshUrl += projectFilters;
+					let fk_project;
+					if (calEvent?.fk_project > 0) {
+						fk_project = calEvent.fk_project;
+						// delete to only set fk_project value on first time
+						delete calEvent.fk_project;
+					}
+
+					$.ajax({
+						url: projectRefreshUrl
+						,dataType: 'json'
+						,token: token
+					}).done(function(data) {
+						let options = '<option value="0">&nbsp;</option>';
+						for (const item of data) {
+							options += `<option value="${item.key}">${item.value}</option>`;
+						}
+						$form.find('#fk_project').html('<select class="flat" id="fk_project" name="fk_project">' + options + '</select>');
+						let project_title = '';
+
+						if (fk_project > 0) {
+							$div.find('#fk_project').val(fk_project);
+							project_title = calEvent.project_title;
+						}
+						<?php if (getDolGlobalString('PROJECT_USE_SEARCH_TO_SELECT')) { ?>$div.find('#search_fk_project')?.val(project_title); <?php } ?>
+						$div.find('#fk_project').trigger('change');
+					});
+				<?php endif; ?>
 			});
+
+			<?php if (getDolGlobalString('FULLCALENDAR_SHOW_INTERVENTION')): ?>
+				let setSelectedFichinterValueOnlyOneTime = true;
+				<?php if (getDolGlobalString('FULLCALENDAR_SHOW_PROJECT')): ?>
+				$form.find('#fk_project').change(function() {
+				<?php else: ?>
+				$form.find('#fk_soc').change(function() {
+				<?php endif; ?>
+					let fk_fichinter;
+					if (calEvent?.fk_fichinter > 0) {
+						fk_fichinter = calEvent.fk_fichinter;
+						// delete to only set fk_fichinter value on first time
+						delete calEvent.fk_fichinter;
+					}
+
+					let fichinterFilters = '';
+					let fichinterRefreshUrl = '<?php echo dol_buildpath('/core/ajax/selectobject.php?', 1) ?>';
+					fichinterRefreshUrl += 'htmlname=fk_fichinter';
+					fichinterRefreshUrl += '&outjson=1';
+					fichinterRefreshUrl += '&token=<?php echo $newToken ?>';
+					fichinterRefreshUrl += '&objectdesc=Fichinter:fichinter/class/fichinter.class.php:0:';
+					<?php if (getDolGlobalString('FULLCALENDAR_FILTER_INTERVENTION_BY_PROJECT')): ?>
+						const selectProjectEl = $form.find('#fk_project');
+						if (selectProjectEl.length > 0 && selectProjectEl.val() > 0) {
+							fichinterFilters += '(t.fk_projet:=:' + selectProjectEl.val() + ')';
+						}
+					<?php endif; ?>
+					<?php if (getDolGlobalString('FULLCALENDAR_FILTER_INTERVENTION_BY_THIRD_PARTY')): ?>
+						const selectSocEl = $form.find('#fk_soc');
+						if (selectSocEl.length > 0 && selectSocEl.val() > 0) {
+							if (fichinterFilters != '') {
+								fichinterFilters += ' AND ';
+							}
+							fichinterFilters += '(t.fk_soc:=:' + selectSocEl.val() + ')';
+						}
+					<?php endif; ?>
+					<?php if (getDolGlobalString('FULLCALENDAR_SHOW_INTERVENTION_HAVING_STATUS') != ''): ?>
+						const status = '<?php echo getDolGlobalString('FULLCALENDAR_SHOW_INTERVENTION_HAVING_STATUS'); ?>';
+						if (status.length > 0) {
+							if (fichinterFilters != '') {
+								fichinterFilters += ' AND ';
+							}
+							fichinterFilters += '(t.fk_statut:in:' + status + ')';
+						}
+					<?php endif; ?>
+					fichinterRefreshUrl += fichinterFilters;
+					$.ajax({
+						url: fichinterRefreshUrl
+						,dataType: 'json'
+						,token: token
+					}).done(function(data) {
+						let options = '<option value="0">&nbsp;</option>';
+						for (const item of data) {
+							options += `<option value="${item.key}">${item.value}</option>`;
+						}
+						$form.find('#interventionid').html('<select class="flat" id="fk_fichinter" name="fk_fichinter">' + options + '</select>');
+						$('#interventionid').select2();
+						$('#interventionid').val(fk_fichinter).trigger('change');
+					});
+				});
+			<?php endif; ?>
 
 			$form.append('<input type="hidden" name="id" value="" />');
 
@@ -937,9 +1066,13 @@ header('Content-Type: text/javascript');
 					setTimeout(function() { $div.find('#contactid').val(calEvent.fk_contact).trigger('change'); } ,250);
 					<?php if (getDolGlobalString('COMPANY_USE_SEARCH_TO_SELECT')) { ?>$div.find('#search_fk_soc')?.val(calEvent.socname); <?php } ?>
 				}
+				<?php if (getDolGlobalString('FULLCALENDAR_SHOW_INTERVENTION')): ?>
+				else {
+					$div.find('#fk_soc').trigger('change');
+				}
+				<?php endif; ?>
 				$div.find('#contactid').val(calEvent.fk_contact).trigger('change');
 				TUserId = calEvent.TFk_user;
-				$div.find('#fk_project').val(calEvent.fk_project).trigger('change');
 
 				date_start = calEvent.start._d;
 				date_end = calEvent.end ? calEvent.end._d : null;
@@ -955,6 +1088,15 @@ header('Content-Type: text/javascript');
 	}
 ?>
 			}
+			<?php if (getDolGlobalString('FULLCALENDAR_SHOW_INTERVENTION')): ?>
+			else {
+				<?php if (getDolGlobalString('FULLCALENDAR_SHOW_PROJECT')): ?>
+				$div.find('#fk_project').trigger('change');
+				<?php else: ?>
+				$div.find('#fk_soc').trigger('change');
+				<?php endif; ?>
+			}
+			<?php endif; ?>
 
 			$('body').append($div);
 
@@ -1002,7 +1144,8 @@ header('Content-Type: text/javascript');
 
 			var title_dialog = "<?php echo $langs->transnoentities('AddAnAction') ?>";
 			var bt_add_lang = "<?php echo $langs->transnoentities('Add'); ?>";
-			if (typeof calEvent === 'object')
+
+			if (calEvent?.object?.id != null)
 			{
 				title_dialog = "<?php echo $langs->transnoentities('EditAnAction') ?>";
 				bt_add_lang = "<?php echo $langs->transnoentities('Update'); ?>";
@@ -1041,6 +1184,9 @@ header('Content-Type: text/javascript');
 										,fk_contact:$('#pop-new-event select[name=contactid]').val()
 										,fk_user:TUserId
 										,fk_project:<?php if (getDolGlobalString('FULLCALENDAR_SHOW_PROJECT')) { ?>$('#pop-new-event #fk_project').val()<?php } else { ?>fk_project<?php } ?>
+										<?php if (getDolGlobalString('FULLCALENDAR_SHOW_INTERVENTION')) { ?>
+											,fk_fichinter:$('#pop-new-event #interventionid').val()
+										<?php } ?>
 										,type_code:$('#pop-new-event select[name=type_code]').val()
 										,date_start:$('#pop-new-event #apyear').val()+'-'+$('#pop-new-event #apmonth').val()+'-'+$('#pop-new-event #apday').val()+' '+$('#pop-new-event #aphour').val()+':'+$('#pop-new-event #apmin').val()+':00'
 										,date_end:$('#pop-new-event #p2year').val()+'-'+$('#pop-new-event #p2month').val()+'-'+$('#pop-new-event #p2day').val()+' '+$('#pop-new-event #p2hour').val()+':'+$('#pop-new-event #p2min').val()+':00'
@@ -1235,6 +1381,8 @@ header('Content-Type: text/javascript');
 				,title: title_dialog
 				,buttons:TButton
 			});
+
+			$(document).trigger('aftershowpopin');
 		}
 
 		$form_selector.submit(function(event) {
@@ -1264,4 +1412,6 @@ header('Content-Type: text/javascript');
 <?php
 	}
 ?>
+
+		$('#fullcalendar').attr('data-loaded', 'true');
 	});

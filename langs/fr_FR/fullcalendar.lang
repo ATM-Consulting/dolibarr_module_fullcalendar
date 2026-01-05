@@ -8,6 +8,12 @@ fullcalendarAbout = A propos du module fullcalendar
 
 ViewCal=Calendrier
 FULLCALENDAR_SHOW_PROJECT=Voir le projet dans les évènements
+FULLCALENDAR_FILTER_PROJECT_BY_THIRD_PARTY=Lister uniquement les projets du tiers sélectionné
+FULLCALENDAR_SHOW_INTERVENTION=Voir l'intervention dans les évènements
+FULLCALENDAR_SHOW_INTERVENTION_HAVING_STATUS=Afficher uniquement les interventions ayant les statuts suivants (ex : '0,1,3')
+FullcalendarShowInterventionHavingStatusTooltip=Liste des statuts possibles pour les interventions : 0=brouillon, 1=validé, 2=facturé, 3=terminé
+FULLCALENDAR_FILTER_INTERVENTION_BY_THIRD_PARTY=Lister uniquement les interventions du tiers sélectionné
+FULLCALENDAR_FILTER_INTERVENTION_BY_PROJECT=Lister uniquement les interventions du projet sélectionné
 FULLCALENDAR_SHOW_AFFECTED_USER=Voir l'utilisateur affecté dans les évènements
 FULLCALENDAR_HIDE_DAYS=Cacher des jours non travaillés ("6,0" pour samedi, dimanche)
 FULLCALENDAR_SHOW_THIS_HOURS=N'afficher que ces heures sur la vue semaine/jour ("9-18" pour de 9:00 à 18:00)

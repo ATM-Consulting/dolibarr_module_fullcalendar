@@ -12,6 +12,9 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 	require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
 	require_once DOL_DOCUMENT_ROOT.'/core/class/html.formother.class.php';
 	require_once DOL_DOCUMENT_ROOT.'/holiday/class/holiday.class.php';
+	if (getDolGlobalString('FULLCALENDAR_SHOW_INTERVENTION')) {
+		require_once DOL_DOCUMENT_ROOT.'/fichinter/class/fichinter.class.php';
+	}
 
 	$langs->load("agenda");
 	$langs->load("other");
@@ -344,6 +347,26 @@ if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token r
 				}
 			}
 
+			if (getDolGlobalString('FULLCALENDAR_SHOW_INTERVENTION')) {
+				$fk_fichinter = GETPOST('fk_fichinter','int');
+				$sameFichinter = false;
+				$a->fetchObjectLinked();
+				if (isset($a->linkedObjects['fichinter'])) {
+					// Remove old fichinter object linked if different from current selected fichinter
+					foreach ($a->linkedObjects['fichinter'] as $elementElementRowId => $fichinterObject) {
+						if ($fk_fichinter != $fichinterObject->id) {
+							$a->deleteObjectLinked(null, '', null, '', $elementElementRowId);
+						} else {
+							$sameFichinter = true;
+						}
+						break;
+					}
+				}
+				// Add fichinter object linked
+				if (!$sameFichinter && !empty($fk_fichinter)) {
+					$a->add_object_linked('fichinter', $fk_fichinter);
+				}
+			}
 
 			print $res;
 			}else{
@@ -568,11 +591,14 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 	$sql.= ' a.transparency, a.priority, a.fulldayevent, a.location,';
 	$sql.= ' a.fk_soc, a.fk_contact,a.note,';
 	$sql.= ' ca.color as type_color,';
-	$sql.= ' ca.code as type_code, ca.libelle as type_label';
+	$sql.= ' ca.code as type_code, ca.libelle as type_label,';
+	$sql.= ' IF (s.name_alias != "", CONCAT(s.nom, " (", s.name_alias, ")"), s.nom) as socname,';
+	$sql.= ' CONCAT(p.ref, " - ", p.title) as project_title';
 	$sql.= ' FROM '.$db->prefix()."actioncomm as a";
 	$sql.= ' LEFT JOIN '.$db->prefix().'c_actioncomm as ca ON (a.fk_action = ca.id)';
 	$sql.= ' LEFT JOIN '.$db->prefix().'user u ON (a.fk_user_action=u.rowid )';
 	$sql.= ' LEFT JOIN '.$db->prefix().'societe s ON (s.rowid = a.fk_soc)';
+	$sql.= ' LEFT JOIN '.$db->prefix().'projet p ON (p.rowid = a.fk_project)';
 	if ($resourceid > 0) {
 		$sql .= "LEFT JOIN ".$db->prefix()."element_resources as r on r.element_id = a.id";
 	}
@@ -663,16 +689,16 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 	$TContact = array();
 	$TUser = array();
 	$TProject = $TProjectObject = array();
+	if (getDolGlobalString('FULLCALENDAR_SHOW_INTERVENTION')) {
+		$TFichinter = array();
+		$TFichinterObject = array();
+	}
 
 	$TEventObject=array();
 	while($obj=$db->fetch_object($res)) {
 		$event = new ActionComm($db);
 
-		$eventContactId = $event->contact_id;
-
-
-		if (method_exists($event, 'fetch_thirdparty')) $event->fetch_thirdparty();
-		if (method_exists($event, 'fetchObjectLinked')) $event->fetchObjectLinked();
+		$eventProject_title = $obj->project_title;
 
 		$event->id = $obj->id;
 		$event->fetch_userassigned();
@@ -692,6 +718,8 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 		$event->label = $obj->label;
 		$event->note = $obj->note;
 
+		$event->fetch_thirdparty();
+		$event->fetchObjectLinked();
 
 		if ($event->fulldayevent) {
 			$tzforfullday = getDolGlobalString('MAIN_STORE_FULL_EVENT_IN_GMT');
@@ -746,6 +774,7 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 			$TSociete[$event->socid]  = $societe->getNomUrl(1);
 
 		}
+		$eventContactId = $event->contact_id;
 		if($eventContactId>0 && !isset($TContact[$eventContactId])) {
             $contact = new Contact($db);
             $contact->fetch($eventContactId);
@@ -781,6 +810,18 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
             $TProject[$event->fk_project]  = $p->getNomUrl(1);
             $TProjectObject[$event->fk_project]  = $p;
 
+        }
+
+		if (getDolGlobalString('FULLCALENDAR_SHOW_INTERVENTION')) {
+			$linkedFichinter = null;
+			if (isset($event->linkedObjects['fichinter'])) {
+				$linkedFichinter = current($event->linkedObjects['fichinter']);
+				if ($linkedFichinter) {
+					$TFichinter[$linkedFichinter->id] = $linkedFichinter->getNomUrl(1);
+					$TFichinterObject[$linkedFichinter->id] = $linkedFichinter;
+				}
+				unset($event->linkedObjects['fichinter']);
+			}
         }
 
         if(getDolGlobalString('FULLCALENDAR_SHOW_ORDER') && $event->fk_project>0) {
@@ -870,6 +911,9 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 			$endDateString = $dtEndDate->format('Y-m-d');
 		}
 
+		unset($event->thirdparty->db);
+		unset($event->thirdparty->fields);
+
 		// To avoid security breaches, please do not add the entire object 'event', but select only what you need and add it to tmpEvent
 		$tmpEvent=array(
 			'id'=>$event->id
@@ -889,6 +933,7 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 		,'fk_user'=>$event->userownerid
 		,'TFk_user'=>array_keys($event->userassigned)
 		,'fk_project'=>$event->fk_project
+		,'project_title'=>$eventProject_title
 		,'societe'=>(!empty($TSociete[$event->socid]) ? $TSociete[$event->socid] : '')
 		,'contact'=>(!empty($TContact[$eventContactId]) ? $TContact[$eventContactId] : '')
 		,'user'=>(!empty($TUserassigned) ? implode(', ',$TUserassigned) : '')
@@ -905,6 +950,13 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 		,'more'=>''
 		,'object'=>$event
 		);
+
+		if (getDolGlobalString('FULLCALENDAR_SHOW_INTERVENTION')) {
+			if (isset($linkedFichinter, $TFichinterObject[$linkedFichinter->id])) {
+				$tmpEvent['fk_fichinter'] = $linkedFichinter->id;
+				$tmpEvent['fichinter'] = !empty($TFichinter[$linkedFichinter->id]) ? $TFichinter[$linkedFichinter->id] : '';
+			}
+		}
 
 		/**
 		 * $conf dispo en 13.0 permettant de gérer les notification push et mail
