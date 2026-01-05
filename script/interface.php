@@ -698,7 +698,6 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 	while($obj=$db->fetch_object($res)) {
 		$event = new ActionComm($db);
 
-		$eventContactId = $event->contact_id;
 		$eventProject_title = $obj->project_title;
 
 		$event->id = $obj->id;
@@ -775,6 +774,7 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 			$TSociete[$event->socid]  = $societe->getNomUrl(1);
 
 		}
+		$eventContactId = $event->contact_id;
 		if($eventContactId>0 && !isset($TContact[$eventContactId])) {
             $contact = new Contact($db);
             $contact->fetch($eventContactId);
