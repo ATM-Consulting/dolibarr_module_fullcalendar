@@ -1144,7 +1144,7 @@ header('Content-Type: text/javascript');
 
 			var title_dialog = "<?php echo $langs->transnoentities('AddAnAction') ?>";
 			var bt_add_lang = "<?php echo $langs->transnoentities('Add'); ?>";
-			if (typeof calEvent === 'object' && typeof calEvent.object.id != 'undefined')
+			if (calEvent?.object?.id != null)
 			{
 				title_dialog = "<?php echo $langs->transnoentities('EditAnAction') ?>";
 				bt_add_lang = "<?php echo $langs->transnoentities('Update'); ?>";
