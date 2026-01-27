@@ -845,8 +845,8 @@ function _events($date_start, $date_end, $month = -1, $year = -1)
 		$isAllDay = (bool) ($event->fulldayevent);
 
 		$startDateString = $endDateString = '';
-		if ($event->datep) $startDateString = dol_print_date($event->datep, $isAllDay ? '%Y-%m-%d' : '%Y-%m-%d %H:%M:%S', 'tzuser');
-		if ($event->datef) $endDateString = dol_print_date($event->datef, $isAllDay ? '%Y-%m-%d' : '%Y-%m-%d %H:%M:%S', 'tzuser');
+		if ($event->datep) $startDateString = dol_print_date($event->datep, $isAllDay ? '%Y-%m-%d' : '%Y-%m-%d %H:%M:%S', 'auto');
+		if ($event->datef) $endDateString = dol_print_date($event->datef, $isAllDay ? '%Y-%m-%d' : '%Y-%m-%d %H:%M:%S', 'auto');
 
 		if ($isAllDay && !empty($endDateString)) {
 			$dtEndDate = new DateTime($endDateString);
@@ -1458,8 +1458,8 @@ function completeWithExtEvent(&$TEvent, &$TSociete, &$TContact, &$TProject)
 								'id'=>$event->id
 								,'title'=>(!empty($event->label) ? $event->label : $event->libelle) . "\n(".$event->icalname.')'
 								,'allDay'=>(bool) ($event->fulldayevent)
-								,'start'=>(empty($event->datep) ? '' : date('Y-m-d H:i:s', 'auto'))
-								,'end'=>(empty($event->datef) ? '' : date('Y-m-d H:i:s', 'auto'))
+								,'start'=>(empty($event->datep) ? '' : date('Y-m-d H:i:s', (int)$event->datep))
+								,'end'=>(empty($event->datef) ? '' : date('Y-m-d H:i:s', (int)$event->datef))
 								,'url'=>dol_buildpath('/comm/action/card.php?id='.$event->id, 1)
 								,'editable'=>$editable
 								,'color'=>'#'.$colorcal
