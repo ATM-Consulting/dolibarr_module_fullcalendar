@@ -687,7 +687,7 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 		$event->userownerid = $obj->fk_user_action;
 		$event->fk_project = $obj->fk_project;
 		$event->label = $obj->label;
-		$event->note_private = $obj->note;
+		$event->note = $obj->note;
 
 		if ($event->fulldayevent) {
 			$tzforfullday = getDolGlobalString('MAIN_STORE_FULL_EVENT_IN_GMT');
@@ -782,10 +782,10 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
             }
 
             if(!isset($TProjectObject[$event->fk_project]->fk_project_order)) {
-                $res = $db->query("SELECT rowid, ref FROM ".$db->prefix()."commande WHERE fk_projet=".$event->fk_project." AND entity IN (".getEntity('commande').") ORDER BY date_commande DESC LIMIT 1");
+                $res = $db->query("SELECT rowid, ref FROM ".$db->prefix()."commande WHERE fk_projet=".intval($event->fk_project)." AND entity IN (".getEntity('commande').") ORDER BY date_commande DESC LIMIT 1");
                 if($res === false) {
 					dol_syslog($db->lasterror(), LOG_ERR);
-                    return;
+					continue;
                 }
                 else{
                     dol_include_once('/commande/class/commande.class.php');
