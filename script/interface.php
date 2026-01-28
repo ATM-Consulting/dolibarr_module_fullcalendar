@@ -585,7 +585,6 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 	// We must filter on assignement table
 	if ($filtert > 0 || $usergroup > 0) $sql.=" LEFT JOIN ".$db->prefix()."actioncomm_resources as ar ON (ar.fk_actioncomm = a.id)";
 	if ($usergroup > 0) $sql.= " LEFT JOIN ".$db->prefix()."usergroup_user as ugu ON ugu.fk_user = ar.fk_element";
-
 	        $sql.= ' WHERE 1=1';
 	        $sql.= " AND a.entity IN (".getEntity('agenda').")";	if ($search_categ_cus != -1) {
 		if ($search_categ_cus == -2) {
