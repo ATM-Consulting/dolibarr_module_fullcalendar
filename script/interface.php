@@ -413,9 +413,12 @@ function _tasks($date_start, $date_end) {
     $reshook = $hookmanager->executeHooks('printFieldListJoin', $parameters); // Note that $action and $object may have been modified by hook
     $sql .= $hookmanager->resPrint;
 
-    $sql .= " WHERE ((t.datee>='".$db->idate($t_start - (60 * 60 * 24 * 7))."' AND t.dateo<='".$db->idate($t_end + (60 * 60 * 24 * 10))."')
+	$start_range_timestamp = $t_start - (60 * 60 * 24 * 7); // Start 7 days before
+	$end_range_timestamp = $t_end + (60 * 60 * 24 * 14); // End 14 days after 28, because its the max number of days of next month that can be displaid (case of february 2021 by example)
+
+    $sql .= " WHERE ((t.datee>='".$db->idate($start_range_timestamp)."' AND t.dateo<='".$db->idate($end_range_timestamp)."')
 				OR
-			  	(t.dateo BETWEEN '".$db->idate($t_start - (60 * 60 * 24 * 7))."' AND '".$db->idate($t_end + (60 * 60 * 24 * 10))."'))
+			  	(t.dateo BETWEEN '".$db->idate($start_range_timestamp)."' AND '".$db->idate($end_range_timestamp)."'))
 			  	AND t.entity IN (".getEntity('project').")";
     $parameters = array();
     $reshook = $hookmanager->executeHooks('printFieldListWhere', $parameters); // Note that $action and $object may have been modified by hook
@@ -625,15 +628,18 @@ function _events($date_start, $date_end, $month=-1, $year=-1) {
 	$month = $month > 0 ? $month : date('n', $t_start);
 	$year = $year > 0 ? $year : date('Y', $t_start);
 
+	$start_range_timestamp = dol_mktime(0, 0, 0, $month, 1, $year) - (60 * 60 * 24 * 7); // Start 7 days before
+	$end_range_timestamp = dol_mktime(23, 59, 59, $month, 28, $year) + (60 * 60 * 24 * 14); // End 14 days after 28, because its the max number of days of next month that can be displaid (case of february 2021 by example)
+
 	$sql .= " AND (";
-	$sql .= " (a.datep BETWEEN '" . $db->idate(dol_mktime(0, 0, 0, $month, 1, $year) - (60 * 60 * 24 * 7)) . "'"; // Start 7 days before
-	$sql .= " AND '" . $db->idate(dol_mktime(23, 59, 59, $month, 28, $year) + (60 * 60 * 24 * 10)) . "')"; // End 7 days after + 3 to go from 28 to 31
+	$sql .= " (a.datep BETWEEN '" . $db->idate($start_range_timestamp) . "'"; 
+	$sql .= " AND '" . $db->idate($end_range_timestamp) . "')";
 	$sql .= " OR ";
-	$sql .= " (a.datep2 BETWEEN '" . $db->idate(dol_mktime(0, 0, 0, $month, 1, $year) - (60 * 60 * 24 * 7)) . "'";
-	$sql .= " AND '" . $db->idate(dol_mktime(23, 59, 59, $month, 28, $year) + (60 * 60 * 24 * 10)) . "')";
+	$sql .= " (a.datep2 BETWEEN '" . $db->idate($start_range_timestamp) . "'";
+	$sql .= " AND '" . $db->idate($end_range_timestamp) . "')";
 	$sql .= " OR ";
-	$sql .= " (a.datep < '" . $db->idate(dol_mktime(0, 0, 0, $month, 1, $year) - (60 * 60 * 24 * 7)) . "'";
-	$sql .= " AND a.datep2 > '" . $db->idate(dol_mktime(23, 59, 59, $month, 28, $year) + (60 * 60 * 24 * 10)) . "')";
+	$sql .= " (a.datep < '" . $db->idate($start_range_timestamp) . "'";
+	$sql .= " AND a.datep2 > '" . $db->idate($end_range_timestamp) . "')";
 	$sql .= ') ';
 
 	if ($type) $sql.= " AND ca.id = ".$type;
@@ -1173,8 +1179,11 @@ function completeWithExtEvent(&$TEvent, &$TSociete, &$TContact, &$TProject)
 		if ($tmpday >= 1) $tmpday -= 7;	// If tmpday is 0 we start with sunday, if -6, we start with monday of previous week.
 		// Define firstdaytoshow and lastdaytoshow (warning: lastdaytoshow is last second to show + 1)
 		$firstdaytoshow=dol_mktime(0,0,0,$prev_month,$max_day_in_prev_month+$tmpday,$prev_year);
-		$next_day=7 - ($max_day_in_month+1-$tmpday) % 7;
-		if ($next_day < 6) $next_day+=7;
+		// In case where month is february and the 28th is a sunday, calendar can display 2 complete weeks from march (depending browser window size/ratio)
+		// ex : february 2021
+		// So to get the correct max day of the next month, it requires to take a max of 42 days (up to 6 weeks can be displaid in the calendar)
+		// and to subtract the number of days in the current month
+		$next_day = 42 - $max_day_in_month;
 		$lastdaytoshow=dol_mktime(0,0,0,$next_month,$next_day,$next_year);
 	}
 	if ($action=='show_week')
