@@ -40,3 +40,4 @@ FULLCALENDAR_ENABLE_TASKS=Activer l'affichage des tâches
 EditTask=Mettre à jour une tâche
 CantFetchTask=Impossible de charger la tâche
 labelRequired=Titre requis
+FULLCALENDAR_SHOW_EVENT_STATUS=Afficher le statut de l'événement
