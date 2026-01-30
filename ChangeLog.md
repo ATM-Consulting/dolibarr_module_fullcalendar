@@ -4,7 +4,8 @@ All notable changes to this project will be documented in this file.
 ## Not Released
 
 ## Release 2.7
-- FIX: COMPATV23 - *02/12/2025* -2.7.22
+- FIX: COMPATV23 - *30/12/2025* -2.7.23
+- FIX: Compatibility Multi Company - *27/01/2026* - 2.7.22
 - FIX: DA027274 + issue#167 - Change the timezone output to display correct hours - *31/10/2025* - 2.7.21 
 - FIX: DA027282 - Change in how to fix the problem of not desired data in the object event - *31/10/2025* - 2.7.20
 - FIX: DA027282 - Data not desired in the object - *30/10/2025* - 2.7.19

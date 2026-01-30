@@ -593,9 +593,8 @@ function _events($date_start, $date_end, $month = -1, $year = -1)
 	// We must filter on assignement table
 	if ($filtert > 0 || $usergroup > 0) $sql.=" LEFT JOIN ".$db->prefix()."actioncomm_resources as ar ON (ar.fk_actioncomm = a.id)";
 	if ($usergroup > 0) $sql.= " LEFT JOIN ".$db->prefix()."usergroup_user as ugu ON ugu.fk_user = ar.fk_element";
-
-	$sql.= ' WHERE 1=1';
-	if ($search_categ_cus != -1) {
+	        $sql.= ' WHERE 1=1';
+	        $sql.= " AND a.entity IN (".getEntity('agenda').")";	if ($search_categ_cus != -1) {
 		if ($search_categ_cus == -2) {
 			$sql .= " AND NOT EXISTS (SELECT ca.fk_actioncomm FROM ".$db->prefix()."categorie_actioncomm as ca WHERE ca.fk_actioncomm = a.id)";
 		} elseif ($search_categ_cus > 0) {
@@ -661,7 +660,7 @@ function _events($date_start, $date_end, $month = -1, $year = -1)
 
 	$TEvent=array();
 	if (isset($_REQUEST['DEBUG'])) print $sql;
-	//echo $sql;exit;
+
 	$res= $db->query($sql);
 
 	$TSociete = array();
@@ -674,7 +673,6 @@ function _events($date_start, $date_end, $month = -1, $year = -1)
 		$event = new ActionComm($db);
 
 		$eventContactId = $event->contact_id;
-
 
 		if (method_exists($event, 'fetch_thirdparty')) $event->fetch_thirdparty();
 		if (method_exists($event, 'fetchObjectLinked')) $event->fetchObjectLinked();
@@ -692,11 +690,9 @@ function _events($date_start, $date_end, $month = -1, $year = -1)
 		$event->socid = $obj->fk_soc;
 		$event->socname = $obj->socname;
 		$event->userownerid = $obj->fk_user_action;
-		$event->userownerid = $obj->fk_user_action;
 		$event->fk_project = $obj->fk_project;
 		$event->label = $obj->label;
 		$event->note = $obj->note;
-
 
 		if ($event->fulldayevent) {
 			$tzforfullday = getDolGlobalString('MAIN_STORE_FULL_EVENT_IN_GMT');
@@ -727,7 +723,6 @@ function _events($date_start, $date_end, $month = -1, $year = -1)
 			$eventMorning->datep = $datep + _convertTimestampLocalToNoLocalSecond(getDolGlobalString('FULLCALENDAR_PREFILL_DATETIME_MORNING_START')); // Date action start (datep)
 			$eventMorning->datef = $datep + _convertTimestampLocalToNoLocalSecond(getDolGlobalString('FULLCALENDAR_PREFILL_DATETIME_MORNING_END')); // Date action end (datep2)
 			$TEventObject[] = $eventMorning;
-
 
 			// Afternoon
 			$eventAfternoon = clone $event;
@@ -791,14 +786,15 @@ function _events($date_start, $date_end, $month = -1, $year = -1)
 			}
 
 			if (!isset($TProjectObject[$event->fk_project]->fk_project_order)) {
-				// c'est de la merde cette fonction, je custom :: $orders = $TProjectObject[$event->fk_project]->get_element_list('commande','commande');
 
 
-				$res = $db->query("SELECT rowid, ref FROM ".MAIN_DB_PREFIX."commande WHERE fk_projet=".$event->fk_project." ORDER BY date_commande DESC LIMIT 1");
+
+				$res = $db->query("SELECT rowid, ref FROM ".$db->prefix()."commande WHERE fk_projet=".intval($event->fk_project)." AND entity IN (".getEntity('commande').") ORDER BY date_commande DESC LIMIT 1");
 				if ($res===false) {
-					var_dump($db);exit;
-				} else {
-					dol_include_once('/commande/class/commande.class.php');
+					dol_syslog($db->lasterror(), LOG_ERR);
+				continue;
+                }
+					else{dol_include_once('/commande/class/commande.class.php');
 
 					$obj = $db->fetch_object($res);
 					$o=new Commande($db);
@@ -827,9 +823,10 @@ function _events($date_start, $date_end, $month = -1, $year = -1)
 		if (($user->id == $event->userownerid) || $user->hasRight('agenda', 'allactions', 'create')) {
 			$editable = true;
 		}
-		$colors='';
 
+		$colors='';
 		$color='';
+
 		if (!empty($TColor)) {
 			$color = $TColor[0];
 
@@ -838,7 +835,6 @@ function _events($date_start, $date_end, $month = -1, $year = -1)
 				foreach ($TColor as $c) {
 					$colors.= ','.$c;
 				}
-
 				$colors.=')';
 			}
 		}
@@ -940,9 +936,9 @@ function _events($date_start, $date_end, $month = -1, $year = -1)
 		$sql = "SELECT u.rowid as uid, u.lastname, u.firstname, u.statut, u.color as color, x.rowid, x.ref, x.fk_user, x.date_debut as date_start, x.date_fin as date_end, x.halfday, x.statut as status, x.description";
 		$sql .= " FROM " . $db->prefix() . "holiday as x, " . $db->prefix() . "user as u";
 		$sql .= " WHERE u.rowid = x.fk_user";
-		$sql .= " AND u.statut = '1'"; // Show only active users
-		$sql .= " AND (x.statut = '2' OR x.statut = '3')"; // Show only public leaves
-
+		$sql .= " AND u.statut = '".$db->escape(User::STATUS_ENABLED)."'"; // Show only active users
+		$sql .= " AND (x.statut = '".$db->escape(Holiday::STATUS_VALIDATED)."' OR x.statut = '".$db->escape(Holiday::STATUS_APPROVED)."')"; // Show only public leaves
+		$sql .= " AND x.entity IN (".getEntity('holiday').")";
 		$resql = $db->query($sql);
 		if ($resql) {
 			$holiStatus = new Holiday($db);
