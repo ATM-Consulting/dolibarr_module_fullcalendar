@@ -1,4 +1,19 @@
 <?php
+/* Copyright (C) 2025 ATM Consulting
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 
 //--------------------------------------------------------------------------------------------------
 // This script reads event data from a JSON file and outputs those events which are within the range
@@ -14,7 +29,7 @@ require dirname(__FILE__) . '/utils.php';
 
 // Short-circuit if the client did not give us a date range.
 if (!isset($_GET['start']) || !isset($_GET['end'])) {
-  die("Please provide a date range.");
+	die("Please provide a date range.");
 }
 
 // Parse the start/end parameters.
@@ -26,7 +41,7 @@ $range_end = parseDateTime($_GET['end']);
 // Parse the timezone parameter if it is present.
 $timezone = null;
 if (isset($_GET['timezone'])) {
-  $timezone = new DateTimeZone($_GET['timezone']);
+	$timezone = new DateTimeZone($_GET['timezone']);
 }
 
 // Read and parse our events JSON file into an array of event data arrays.
@@ -36,14 +51,13 @@ $input_arrays = json_decode($json, true);
 // Accumulate an output array of event data arrays.
 $output_arrays = array();
 foreach ($input_arrays as $array) {
+	// Convert the input array into a useful Event object
+	$event = new Event($array, $timezone);
 
-  // Convert the input array into a useful Event object
-  $event = new Event($array, $timezone);
-
-  // If the event is in-bounds, add it to the output
-  if ($event->isWithinDayRange($range_start, $range_end)) {
-    $output_arrays[] = $event->toArray();
-  }
+	// If the event is in-bounds, add it to the output
+	if ($event->isWithinDayRange($range_start, $range_end)) {
+		$output_arrays[] = $event->toArray();
+	}
 }
 
 // Send JSON to the client.
