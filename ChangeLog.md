@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## Not Released
 
 ## Release 2.7
+- FIX : PR#164 - navigate to next/previous month false month in interface.php - *12/02/2026* - 2.7.24
 - FIX: COMPATV23 - *30/12/2025* -2.7.23
 - FIX: Compatibility Multi Company - *27/01/2026* - 2.7.22
 - FIX: DA027274 + issue#167 - Change the timezone output to display correct hours - *31/10/2025* - 2.7.21 
