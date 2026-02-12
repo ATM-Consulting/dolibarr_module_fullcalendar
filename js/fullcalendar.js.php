@@ -548,7 +548,7 @@ if (getDolGlobalString('FULLCALENDAR_FILTER_ON_STATE')) {
 				var newDate = new Date(
 					$date.getMonth() == 0 ? $date.getFullYear()-1 : $date.getFullYear()
 					, $date.getMonth() == 0 ? 11 : $date.getMonth()-1
-					, $date.getDate()
+					, 1
 				);
 				console.log('prevMonth', newDate.toDateString())
 			}
@@ -592,7 +592,7 @@ if (getDolGlobalString('FULLCALENDAR_FILTER_ON_STATE')) {
 				var newDate = new Date(
 					$date.getMonth() == 11 ? $date.getFullYear()+1 : $date.getFullYear()
 					, $date.getMonth() == 11 ? 0 : $date.getMonth()+1
-					, $date.getDate()
+					, 1
 				);
 				console.log('nextMonth', newDate.toDateString())
 			}
