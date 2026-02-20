@@ -317,6 +317,14 @@ print '<td align="right" width="300">';
 echo ajax_constantonoff('FULLCALENDAR_SHOW_EVENT_DESCRIPTION');
 print '</td></tr>';
 
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("FULLCALENDAR_SHOW_EVENT_STATUS").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+echo ajax_constantonoff('FULLCALENDAR_SHOW_EVENT_STATUS');
+print '</td></tr>';
+
 $TElementsToDisable = array(
 	  '#FULLCALENDAR_PREFILL_DATETIME_MORNING_STARThour'
 	, '#FULLCALENDAR_PREFILL_DATETIME_MORNING_STARTmin'
