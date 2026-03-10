@@ -445,7 +445,7 @@ function _tasks($date_start, $date_end)
 					'allDay' => $allDay,
 					'start' => (empty($task->date_start) ? '' : dol_print_date($task->date_start, '%Y-%m-%d %H:%M:%S')),
 					'end' => (empty($dateEnd) ? '' : dol_print_date($dateEnd, '%Y-%m-%d %H:%M:%S')),
-					'url_title' => dol_buildpath('/projet/tasks/task.php?id='.$task->id, 1),
+					'url_title' => dol_buildpath('/projet/tasks/task.php?id='.$task->id.'&withproject=1', 1),
 					'editable' =>  $user->hasRight('fullcalendar', 'task', 'write') ? 1 : 0,
 					'color' => $color,
 					'borderColor' => 'black',
