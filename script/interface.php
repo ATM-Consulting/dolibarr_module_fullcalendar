@@ -425,12 +425,6 @@ function _tasks($date_start, $date_end)
 	$reshook = $hookmanager->executeHooks('printFieldListWhere', $parameters); // Note that $action and $object may have been modified by hook
 	$sql .= $hookmanager->resPrint;
 
-	if (GETPOST('debugsql', 'int')) {
-		header('Content-Type: text/plain; charset=UTF-8');
-		echo $sql;
-		exit;
-	}
-
 	$resql = $db->query($sql);
 
 	if (! empty($resql) && $db->num_rows($resql) > 0) {
