@@ -432,6 +432,7 @@ function _tasks($date_start, $date_end)
 			$task = new Task($db);
 			$res = $task->fetch($obj->rowid);
 			if ($res > 0) {
+				$task->fetch_optionals();
 				$dateEnd = $task->date_end;
 				if (empty($task->date_end) && ! empty($task->planned_workload)) $dateEnd = $task->date_start + ceil($task->planned_workload);
 				$desc = makeTaskDesc($task, $dateEnd);
